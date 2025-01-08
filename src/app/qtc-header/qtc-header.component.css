@@ -1,0 +1,33 @@
+p {
+    font-family: Lato;
+  }
+
+  header {
+
+    float: left;
+    width: 100%;
+    margin-bottom: 1px;
+    background: #201747;
+    background: -moz-linear-gradient(left, #201747 0%, #f16f5c 0%, #201747 0%, #850f89 100%);
+    background: -webkit-gradient(left top, right top, color-stop(0%, #201747), color-stop(0%, #f16f5c), color-stop(0%, #201747), color-stop(100%, #850f89));
+    background: -webkit-linear-gradient(left, #201747 0%, #f16f5c 0%, #201747 0%, #850f89 100%);
+    background: -o-linear-gradient(left, #201747 0%, #f16f5c 0%, #201747 0%, #850f89 100%);
+    background: -ms-linear-gradient(left, #201747 0%, #f16f5c 0%, #201747 0%, #850f89 100%);
+    background: linear-gradient(to right, #201747 0%, #f16f5c 0%, #201747 0%, #850f89 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#201747', endColorstr='#850f89', GradientType=1 );
+
+}
+/*Logo text*/
+.logotext {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 7px 0 0 10px;
+    float: left;
+    margin: 14px 0;
+    text-transform: uppercase;
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.trademark {
+    font-family: arial;
+}

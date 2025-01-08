@@ -1,0 +1,40 @@
+<div class="search-title">
+    <cds-icon shape="folder-open" solid="true" style="display: block;"></cds-icon>
+    <p cds-text="subsection">Weather Notificaiton Search</p>
+</div>
+<form clrForm clrLayout="horizontal" #notificationSearchform="ngForm" (ngSubmit)="onSubmit(notificationSearchform)" >
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-md-3 ">
+            <clr-date-container>
+                <label for="startDatepickrnm" class="clr-col-12 clr-col-md-3">Start&nbsp;Date</label>
+                <input class="clr-col-12 clr-col-md-9" type="date" required clrDate id="startDatepickrnm" name="startDatepickrnm" #frmSrchStDt="ngModel" [(ngModel)]="notificationSearch.startDate"
+                (ngModelChange)="validateDates(notificationSearchform)">
+            </clr-date-container>
+            <div *ngIf="frmSrchStDt.errors?.['invalidDate']" class="clr-col-12 text-danger">
+                Start date must be lesser than Start date.
+            </div>
+        </div>
+        <div class="clr-col-12 clr-col-md-3">
+            <clr-date-container>
+                <label for="endDatepickrnm" class="clr-col-12 clr-col-md-3">End&nbsp;Date</label>
+                <input class="clr-col-12 clr-col-md-9" type="date" required clrDate id="endDatepickrnm" name="endDatepickrnm" #frmSrchEndDt="ngModel" [(ngModel)]="notificationSearch.endDate"
+                (ngModelChange)="validateDates(notificationSearchform)">
+            </clr-date-container>
+            <div *ngIf="frmSrchEndDt.errors?.['invalidDate']" class="clr-col-12 text-danger">
+                End date must be greater than Start date.
+            </div>
+        </div>
+        <div class="clr-col-12 clr-col-md-3">
+            <clr-input-container>
+                <label for="location" class="clr-col-12 clr-col-md-2"><div>Location</div></label>
+                <input class="clr-col-12 clr-col-md-8" clrInput type="text" id="location" required name="location" #frmSrchLocation="ngModel" [(ngModel)]="notificationSearch.location" />
+              </clr-input-container>
+        </div>
+    </div>
+   <div class="action-button">
+        <button type="submit" class="btn btn-primary" [disabled]="!notificationSearchform.valid || !enableSave">Save</button>
+        <button type="button" class="btn btn-primary" [disabled]="!notificationSearchform.valid" (click)="onSearch(notificationSearchform)"><cds-icon shape="search"></cds-icon>Search</button>
+        <button type="button" class="btn btn-primary" [disabled]="!notificationSearchform.valid" (click)="notificationSearchform.reset()"><cds-icon shape="refresh"></cds-icon>Reset</button>
+        <button type="button" class="btn btn-primary" (click)="closeForm()">Close</button>
+   </div>
+</form>

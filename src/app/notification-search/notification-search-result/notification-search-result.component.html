@@ -1,0 +1,33 @@
+<div class="result-wrapper">
+    <clr-datagrid [(clrDgSelected)]="selected" (clrDgSelectedChange)="handleRowChange()">
+        <clr-dg-column *ngFor="let header of tableHeader">
+            <ng-container *clrDgHideableColumn="{hidden:false}">
+               {{header}}
+            </ng-container>
+        </clr-dg-column>
+        <clr-dg-placeholder>We couldn't find any result!</clr-dg-placeholder>
+        <ng-container *ngIf="weatherEventsList">
+          <clr-dg-row *clrDgItems="let weather of weatherEventsList" [clrDgItem]="weather">
+              <clr-dg-cell>{{ weather.weatherEvent }}</clr-dg-cell>
+              <clr-dg-cell>{{ weather.weatherType }}</clr-dg-cell>
+              <clr-dg-cell>{{ weather.description}}</clr-dg-cell>
+              <clr-dg-cell>{{ weather.location}}</clr-dg-cell>
+              <clr-dg-cell>{{ weather.country}}</clr-dg-cell>
+              <clr-dg-cell>{{ weather.state}}</clr-dg-cell>
+              <clr-dg-cell>{{ weather.eventStartDate | date}}</clr-dg-cell>
+              <clr-dg-cell>{{ weather.eventEndDate | date}}</clr-dg-cell>
+              <clr-dg-cell>{{ weather.status | titlecase }}</clr-dg-cell>
+          </clr-dg-row>
+        </ng-container>
+        
+          <clr-dg-footer *ngIf="weatherEventsList">
+            <clr-dg-pagination #pagination *ngIf="weatherEventsList.length > 10">
+              <clr-dg-page-size [clrPageSizeOptions]="[10, 20, 50, 100]">
+                Elements per page
+              </clr-dg-page-size>
+              {{ pagination.firstItem + 1 }} - {{ pagination.lastItem + 1 }} of
+              {{ pagination.totalItems }} elements
+            </clr-dg-pagination>
+          </clr-dg-footer>
+      </clr-datagrid>
+</div>

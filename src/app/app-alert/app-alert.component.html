@@ -1,0 +1,19 @@
+<div class="alert-container">
+    <div
+      *ngFor="let alert of alerts"
+      class="alert"
+      [@alertAnimation]
+      [ngClass]="'alert-' + alert.clrAlertType"
+    >
+        <clr-alert class="app-notification-wrapper" [clrAlertType]="alert.clrAlertType || 'success'"
+            (clrAlertClosedChange)="closeAlert(alert)" [clrAlertAppLevel]="alert.clrAlertAppLevel || true"
+            [clrAlertClosable]="alert.clrAlertClosable || true">
+            <clr-alert-item>
+                <span class="alert-text">
+                    {{alert.message}}
+                </span>
+            </clr-alert-item>
+        </clr-alert>
+    </div>
+</div>
+  

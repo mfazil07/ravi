@@ -1,0 +1,27 @@
+.req label:before {
+    color: var(--cds-alias-status-danger);
+    content: '* ';
+    display:inline;
+}
+::ng-deep clr-modal .modal-header--accessible{
+    padding: 0!important;
+}
+::ng-deep clr-modal form{
+    padding: 0!important;
+}
+::ng-deep clr-modal form .action-btn{
+    display: flex;
+    justify-content: flex-end;
+}
+::ng-deep clr-modal form .clr-form-control{
+    margin-top: 20px!important;
+}
+::ng-deep .combo-box clr-combobox .clr-combobox-wrapper{
+    border-style: none;
+    background-color: transparent;
+    border-radius: 0;
+    border-bottom: var(--cds-alias-object-border-width-100) solid var(--clr-forms-border-color);;
+}
+::ng-deep .combo-box clr-combobox .clr-combobox-wrapper:hover{
+    background-color: transparent;
+}
