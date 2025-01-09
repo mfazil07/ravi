@@ -104,8 +104,12 @@
         <clr-dg-cell>{{ weather.weatherType }}</clr-dg-cell>
         <clr-dg-cell>
           <div class="box trim">
-            <p class='ellipsis' attr.data-text='{{ weather.description }}'>
-              {{ weather.description }}</p>
+            <clr-tooltip>
+              <div class="trim" clrTooltipTrigger>{{ weather.description }}</div>
+              <clr-tooltip-content [clrPosition]="'left'" [clrSize]="'md'">
+                {{ weather.description }}
+              </clr-tooltip-content>
+            </clr-tooltip>
           </div>
         </clr-dg-cell>
         <clr-dg-cell>{{ weather.location }}</clr-dg-cell>

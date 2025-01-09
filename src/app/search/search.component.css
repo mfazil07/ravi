@@ -12,42 +12,10 @@ div.trim {
   max-width: 350px;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.ellipsis {
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   transition: all .2s linear;
-  white-space: nowrap;
+  text-overflow: ellipsis;
+  
   padding: 0;
   margin: 0;
-}
 
-.ellipsis:focus,
-.ellipsis:hover {
-  color: transparent;
-
-  &:after {
-    content: attr(data-text);
-    overflow: visible;
-    text-overflow: inherit;
-    background: #fff;
-    position: absolute;
-    left: auto;
-    top: auto;
-    width: auto;
-    max-width: 15rem;
-    border: 1px solid #eaebec;
-    padding: 0 .5rem;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .28);
-    white-space: normal;
-    word-wrap: break-word;
-    display: block;
-    color: black;
-    margin-top: -1.25rem;
-    border-radius: 5px;
-  }
 }
