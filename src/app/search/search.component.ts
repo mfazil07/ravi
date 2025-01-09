@@ -22,7 +22,7 @@ export class SearchComponent {
     WeatherAlertID:'007',
     'endDate': 1733952000000,
      'weatherEvent': 'Winter Storm Nancy', 
-      'weatherType': 'Severe winter', 'description': 'Snow', 'location': 'West to East', 'country': 'USA'}]
+      'weatherType': 'Severe winter', 'description': 'SnowSnowSnowSnowSnow SnowSnowSnowSnowSnowSnowSnowS nowSnowSnowSnowSno wSnowSnowSnowSnow', 'location': 'West to East', 'country': 'USA'}]
   //weatherEvents: WeatherEvent[]=[];
   countries : Country[]=[];
   weatherTypes : WeatherType[]=[];
