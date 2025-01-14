@@ -33,7 +33,7 @@ export class AddeventComponent implements OnInit {
     // Custom logic when Escape key is pressed
     this.open = false;
   }
-  states:Array<any>=[{name:'Alaska', value:'al'}]
+  states: Array<any> = [{ name: 'Alaska', value: 'al' }, { name: 'Alaska1', value: 'al1' }, { name: 'Alaska2', value: 'al2' }]
   weatherTypes: any;
   eventType: string = 'New ';
   countries: any;
@@ -43,8 +43,8 @@ export class AddeventComponent implements OnInit {
   weatherAdd: any;
   request = {} as WeatherEventRequest;
   isOtherDescriptionRequired: boolean = false;
-
-  constructor(private commonService: CommonService, private alertService:AlertService) {
+  prevSelectedStates = [{ name: 'Alaska', value: 'al' }];
+  constructor(private commonService: CommonService, private alertService: AlertService) {
 
   }
   validateDate(value: any) {
@@ -57,7 +57,7 @@ export class AddeventComponent implements OnInit {
     return null; // Valid date
   }
 
-  log(vvvv:any){
+  log(vvvv: any) {
     console.log(vvvv)
   }
 
@@ -67,7 +67,7 @@ export class AddeventComponent implements OnInit {
     //this.loadWeatherform();
   }
 
-  setOtherReasonValidation(event:any) {
+  setOtherReasonValidation(event: any) {
     const { value } = event.target;
     this.isOtherDescriptionRequired = value.toLowerCase() === 'others';
   }
@@ -77,7 +77,8 @@ export class AddeventComponent implements OnInit {
       frmVaCode: '',
       frmWeatherEvent: '',
       frmReasons: '',
-      frmCountry: '',
+      frmCountry: 'usa',
+      state: [{ name: 'Alaska', value: 'al' }],
       frmLocation: '',
       frmStartDate: '',
       frmEndDate: '',
@@ -88,7 +89,17 @@ export class AddeventComponent implements OnInit {
   closeModal(): void {
     this.open = false;
   }
-
+  getClass(selected: any) {
+    const isexist = this.prevSelectedStates.find(it => it.name === selected);
+    if (isexist) {
+      const ariaLabel = `[aria-label="Delete selected option ${selected}"]`
+      var element = document.querySelector(ariaLabel);
+      if (element)
+        (element as any).hidden = true;
+      return 'disabled'
+    }
+    return "";
+  }
   onSubmit(_form: any): void {
     this.alertService.pushMessage({
       clrAlertType: 'danger',

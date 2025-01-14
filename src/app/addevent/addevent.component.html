@@ -72,9 +72,9 @@
             <clr-combobox-container>
                 <label class="clr-col-12 clr-col-md-6">States</label>
                 <clr-combobox class="clr-col-12 clr-col-md-6" [(ngModel)]="weatherAdd.state" clrMulti="true" name="frmState" #frmState="ngModel" [required]="weatherAdd.frmCountry.toLowerCase() === 'usa'">
-                  <ng-container *clrOptionSelected="let selected">
-                    {{ selected?.name }}
-                  </ng-container>
+                    <ng-container *clrOptionSelected="let selected">
+                        <span [ngClass]="getClass(selected?.name)"> {{ selected?.name }}</span>
+                    </ng-container>
                   <clr-options>
                     <clr-option *clrOptionItems="let state of states; field: 'name'" [clrValue]="state">
                       {{ state.name }}

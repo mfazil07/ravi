@@ -25,3 +25,7 @@
 ::ng-deep .combo-box clr-combobox .clr-combobox-wrapper:hover{
     background-color: transparent;
 }
+.disabled{
+    pointer-events: none;
+    opacity: .3;
+}
