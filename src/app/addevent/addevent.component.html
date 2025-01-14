@@ -76,7 +76,7 @@
                         <span [ngClass]="getClass(selected?.name)"> {{ selected?.name }}</span>
                     </ng-container>
                   <clr-options>
-                    <clr-option *clrOptionItems="let state of states; field: 'name'" [clrValue]="state">
+                    <clr-option *clrOptionItems="let state of states; field: 'name'" [clrValue]="state" [ngClass]="getClass(state.name)">
                       {{ state.name }}
                     </clr-option>
                   </clr-options>
