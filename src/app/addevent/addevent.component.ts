@@ -66,7 +66,12 @@ export class AddeventComponent implements OnInit {
     this.eventType = mode === 'add' ? 'Add' : 'Edit'
     //this.loadWeatherform();
   }
-
+  checkStates(values: any) {
+    if (!values) {
+      const s = JSON.parse(JSON.stringify(this.prevSelectedStates));
+      this.weatherAdd.state = s;
+    }
+  }
   setOtherReasonValidation(event: any) {
     const { value } = event.target;
     this.isOtherDescriptionRequired = value.toLowerCase() === 'others';
