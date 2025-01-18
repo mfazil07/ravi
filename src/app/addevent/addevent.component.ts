@@ -43,7 +43,7 @@ export class AddeventComponent implements OnInit {
   weatherAdd: any;
   request = {} as WeatherEventRequest;
   isOtherDescriptionRequired: boolean = false;
-  prevSelectedStates = [{ name: 'Alaska', value: 'al' }];
+  prevSelectedStates = [{ name: 'Alaska', value: 'al' }, { name: 'Alaska1', value: 'al1' }];
   constructor(private commonService: CommonService, private alertService: AlertService) {
 
   }
@@ -67,7 +67,7 @@ export class AddeventComponent implements OnInit {
     //this.loadWeatherform();
   }
   checkStates(values: any) {
-    if (!values) {
+    if (!values || (values && values.length < this.prevSelectedStates.length)) {
       const s = JSON.parse(JSON.stringify(this.prevSelectedStates));
       this.weatherAdd.state = s;
     }
@@ -83,7 +83,7 @@ export class AddeventComponent implements OnInit {
       frmWeatherEvent: '',
       frmReasons: '',
       frmCountry: 'usa',
-      state: [{ name: 'Alaska', value: 'al' }],
+      state: [{ name: 'Alaska', value: 'al' }, { name: 'Alaska1', value: 'al1' }],
       frmLocation: '',
       frmStartDate: '',
       frmEndDate: '',
