@@ -29,3 +29,8 @@
     pointer-events: none;
     opacity: .3;
 }
+.charlim{
+    color: red;
+    font-size: 7px;
+    padding: 0 10px;
+}

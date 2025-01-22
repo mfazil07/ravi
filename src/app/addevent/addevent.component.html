@@ -90,7 +90,7 @@
         <div class="clr-col-12 clr-col-md-8 req">
             <clr-input-container>
                 <label for="location" class="clr-col-12 clr-col-md-6 req">Location</label>
-                <input type="text" class="clr-col-12 clr-col-md-6" placeholder="" pattern=".*\S.*" required clrInput maxlength="60"   id="location" name="frmLocation" #frmLocation="ngModel" [(ngModel)]="weatherAdd.frmLocation" />
+                <input type="text" class="clr-col-12 clr-col-md-6" placeholder="" onkeypress="return /^[a-zA-Z ]*$/i.test(event.key)" required clrInput maxlength="60"   id="location" name="frmLocation" #frmLocation="ngModel" [(ngModel)]="weatherAdd.frmLocation" />
                 <clr-control-error *ngIf="frmLocation?.invalid && frmLocation?.touched" >
                     <span *ngIf="frmLocation?.errors?.['required'] || frmLocation?.errors?.['pattern']"> This field is required!</span>
                     <span *ngIf="frmLocation?.errors?.['maxLength']"> Max length is exceeded!</span>
@@ -125,13 +125,14 @@
     <div class="clr-row">
         <div class="clr-col-12 clr-col-md-9 req">
             <clr-textarea-container>
-                <label for="description" class="clr-col-12 clr-col-md-5">Description</label>
-                <textarea  class="clr-col-12 clr-col-md-7"  [maxLength]="300" required  clrTextarea  id="description" name="frmDescription" #frmDescription="ngModel" [(ngModel)]="weatherAdd.frmDescription"  ></textarea>
+                <label for="description" class="clr-col-12 clr-col-md-5">Description  <div class="charlim">Max char limit 200</div></label>
+                <textarea  class="clr-col-12 clr-col-md-7" [maxLength]="200" required  clrTextarea  id="description" name="frmDescription" #frmDescription="ngModel" [(ngModel)]="weatherAdd.frmDescription"  ></textarea>
+                <clr-control-helper class="charlim">{{200-weatherAdd.frmDescription.length}} characters left.</clr-control-helper>
                 <clr-control-error *ngIf="frmDescription?.invalid && frmDescription?.touched" >
                     <span *ngIf="frmDescription?.errors?.['required'] || frmDescription?.errors?.['pattern']"> This field is required!</span>
                     <span *ngIf="frmDescription?.errors?.['length']"> Max length is exceeded!</span>
                     </clr-control-error>
-              </clr-textarea-container>
+              </clr-textarea-container>      
             </div>
         </div>
         
