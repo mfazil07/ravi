@@ -10,12 +10,8 @@
 
 div.trim {
   max-width: 350px;
-  white-space: nowrap;
-  overflow: hidden;
   transition: all .2s linear;
-  text-overflow: ellipsis;
-  
+  word-break: break-all;
   padding: 0;
   margin: 0;
-
 }
