@@ -11,7 +11,7 @@
 div.trim {
   max-width: 350px;
   transition: all .2s linear;
-  word-break: break-all;
+  word-break: break-word;
   padding: 0;
   margin: 0;
 }
