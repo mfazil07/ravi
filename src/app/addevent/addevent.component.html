@@ -90,7 +90,7 @@
         <div class="clr-col-12 clr-col-md-8 req">
             <clr-input-container>
                 <label for="location" class="clr-col-12 clr-col-md-6 req">Location</label>
-                <input type="text" class="clr-col-12 clr-col-md-6" placeholder="" onkeypress="return /^[a-zA-Z ]*$/i.test(event.key)" required clrInput maxlength="60"   id="location" name="frmLocation" #frmLocation="ngModel" [(ngModel)]="weatherAdd.frmLocation" />
+                <input type="text" class="clr-col-12 clr-col-md-6" placeholder="" (blur)="weatherAdd.frmLocation=weatherAdd.frmLocation?.trim()" onkeypress="return /^[a-zA-Z0-9 ]*$/i.test(event.key)" required clrInput maxlength="60"   id="location" name="frmLocation" #frmLocation="ngModel" [(ngModel)]="weatherAdd.frmLocation" />
                 <clr-control-error *ngIf="frmLocation?.invalid && frmLocation?.touched" >
                     <span *ngIf="frmLocation?.errors?.['required'] || frmLocation?.errors?.['pattern']"> This field is required!</span>
                     <span *ngIf="frmLocation?.errors?.['maxLength']"> Max length is exceeded!</span>
@@ -132,7 +132,8 @@
                     <span *ngIf="frmDescription?.errors?.['required'] || frmDescription?.errors?.['pattern']"> This field is required!</span>
                     <span *ngIf="frmDescription?.errors?.['length']"> Max length is exceeded!</span>
                     </clr-control-error>
-              </clr-textarea-container>      
+              </clr-textarea-container>
+      
             </div>
         </div>
         
