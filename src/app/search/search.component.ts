@@ -45,7 +45,10 @@ export class SearchComponent {
         this.isUSAExist = true;
       }
     }
-    (document.getElementById('clr-form-control-1') as HTMLInputElement).value = "";
+    const frmctrl1 = (document.getElementById('clr-form-control-1') as HTMLInputElement);
+    if (frmctrl1) {
+      frmctrl1.value = "";
+    }
   }
   clearSearch(this: any, event: any) {
     (document.getElementById('clr-form-control-14') as HTMLInputElement).value = "";
