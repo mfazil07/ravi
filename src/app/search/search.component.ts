@@ -13,6 +13,7 @@ export class SearchComponent {
   states: Array<any> = [{ name: 'Alaska', value: 'al' }, { name: 'Alaska1', value: 'al1' }, { name: 'Alaska2', value: 'al2' }];
   isUSAExist = false;
   initialFormValue: any = {
+    country: [{ countryName: 'United States of America', countryCode: 'usa' }],
     frmSrchCountry: [{ countryName: 'United States of America', countryCode: 'usa' }],
     frmSrchWeatherType: '',
     frmSrchStDt: '01/02/2015',
