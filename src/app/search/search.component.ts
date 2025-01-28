@@ -90,7 +90,7 @@ export class SearchComponent {
       }
 
     });
-
+    this.countryChanged()
   }
   onSubmit(_form: any): void {
     const formValue = _form.value; // use this value to pass to the  service and get data
