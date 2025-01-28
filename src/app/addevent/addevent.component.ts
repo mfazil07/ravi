@@ -36,7 +36,7 @@ export class AddeventComponent implements OnInit {
   states: Array<any> = [{ name: 'Alaska', value: 'al' }, { name: 'Alaska1', value: 'al1' }, { name: 'Alaska2', value: 'al2' }]
   weatherTypes: any;
   eventType: string = 'New ';
-  countries: any;
+  countries = [{ name: 'United State of America', value: 'usa' }, { name: 'India', value: 'in' }]
   input: any;
   weatherEvent = {} as WeatherEvent;
   open: boolean = false;
@@ -44,6 +44,8 @@ export class AddeventComponent implements OnInit {
   request = {} as WeatherEventRequest;
   isOtherDescriptionRequired: boolean = false;
   prevSelectedStates = [{ name: 'Alaska', value: 'al' }, { name: 'Alaska1', value: 'al1' }];
+  prevSelectedCountries = [];
+  isUSAExist = false;
   constructor(private commonService: CommonService, private alertService: AlertService) {
 
   }
@@ -70,6 +72,18 @@ export class AddeventComponent implements OnInit {
     if (!values || (values && values.length < this.prevSelectedStates.length)) {
       const s = JSON.parse(JSON.stringify(this.prevSelectedStates));
       this.weatherAdd.state = s;
+    }
+  }
+  checkCountries(values: any) {
+    if (!values || (values && values.length < this.prevSelectedCountries.length)) {
+      const s = JSON.parse(JSON.stringify(this.prevSelectedCountries));
+      this.weatherAdd.country = s;
+    }
+    this.isUSAExist = false;
+    if (values && values.length) {
+      if (values.find((it: any) => it.value === 'usa')) {
+        this.isUSAExist = true;
+      }
     }
   }
   setOtherReasonValidation(event: any) {

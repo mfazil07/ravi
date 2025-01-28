@@ -1,18 +1,22 @@
 <form clrForm clrLayout="horizontal" #weathersearchform="ngForm" (ngSubmit)="onSubmit(weathersearchform)">
   <div class="clr-row">
-    <div class="clr-col-12 clr-col-md-3">
-      <clr-datalist-container>
-        <label class="clr-col-12 clr-col-md-2">Country</label>
-        <input clrDatalistInput placeholder="Select" id="country1" required name="frmSrchCountry"
-          [(ngModel)]="weathersearch.frmSrchCountry" #frmSrchCountry="ngModel" class="clr-col-12 clr-col-md-8" />
-        <clr-control-error *ngIf="frmSrchCountry?.invalid && frmSrchCountry?.touched">
-          <span *ngIf="frmSrchCountry?.errors?.['required']"> This field is required!</span>
-        </clr-control-error>
-        <datalist>
-          <option *ngFor="let item of countries" [value]="item.countryName">{{item.countryName}}</option>
-        </datalist>
-
-      </clr-datalist-container>
+    <div class="clr-col-12 clr-col-md-3 combo-box">
+      <clr-combobox-container>
+        <label class="clr-col-12 clr-col-md-3">Country </label>
+        <clr-combobox class="clr-col-12 clr-col-md-6" [(ngModel)]="weathersearch.country" clrMulti="true"
+          name="frmCountry" #selCountries="ngModel" [required]="true" (ngModelChange)="countryChanged()">
+          <ng-container *clrOptionSelected="let selected">
+            {{ selected?.countryName }}
+          </ng-container>
+          <clr-options>
+            <clr-option *clrOptionItems="let country of countries; field: 'countryName'" [clrValue]="country">
+              {{ country.countryName }}
+            </clr-option>
+          </clr-options>
+        </clr-combobox>
+        <clr-control-error *ngIf="selCountries?.invalid && selCountries?.touched">This field is
+          required</clr-control-error>
+      </clr-combobox-container>
     </div>
 
     <div class="clr-col-12 clr-col-md-3">
@@ -52,12 +56,11 @@
           #frmSrchLocation="ngModel" [(ngModel)]="weathersearch.frmSrchLocation" />
       </clr-input-container>
     </div>
-    <div class="clr-col-12 clr-col-md-3 combo-box" *ngIf="weathersearch.frmSrchCountry === 'usa'">
+    <div class="clr-col-12 clr-col-md-3 combo-box" *ngIf="isUSAExist">
       <clr-combobox-container>
         <label class="clr-col-12 clr-col-md-3">States</label>
         <clr-combobox class="clr-col-12 clr-col-md-6" (clrSelectionChange)="clearSearch($event)"
-          [(ngModel)]="weathersearch.state" clrMulti="true" name="frmState" #frmState="ngModel"
-          [required]="weathersearch.frmSrchCountry.toLowerCase() === 'usa'">
+          [(ngModel)]="weathersearch.state" clrMulti="true" name="frmState" #frmState="ngModel" [required]="isUSAExist">
           <ng-container *clrOptionSelected="let selected">
             {{ selected?.name }}
           </ng-container>
