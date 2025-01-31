@@ -45,6 +45,9 @@ export class SearchComponent {
         this.isUSAExist = true;
       }
     }
+    if(!this.isUSAExist){
+      this.weathersearch.state=[];
+    }
     const frmctrl1 = (document.getElementById('clr-form-control-1') as HTMLInputElement);
     if (frmctrl1) {
       frmctrl1.value = "";
