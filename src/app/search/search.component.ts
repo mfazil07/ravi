@@ -12,8 +12,9 @@ export class SearchComponent {
   @ViewChild(AddeventComponent) addevent!: AddeventComponent;
   states: Array<any> = [{ name: 'Alaska', value: 'al' }, { name: 'Alaska1', value: 'al1' }, { name: 'Alaska2', value: 'al2' }];
   isUSAExist = false;
+  countries: Country[] = [{ countryName: 'United States of America', countryCode: 'usa' }, { countryName: 'India', countryCode: 'in' }];
   initialFormValue: any = {
-    country: [{ countryName: 'United States of America', countryCode: 'usa' }],
+    country: this.countries.filter(it => it.countryCode === 'usa'),
     frmSrchCountry: [{ countryName: 'United States of America', countryCode: 'usa' }],
     frmSrchWeatherType: '',
     frmSrchStDt: '01/02/2015',
@@ -28,7 +29,7 @@ export class SearchComponent {
     'weatherType': 'Severe winter', 'description': 'Truecaller finally adds live caller ID on iPhones: How to enable the feature', 'location': 'West to East', 'country': 'USA'
   }]
   //weatherEvents: WeatherEvent[]=[];
-  countries: Country[] = [{ countryName: 'United States of America', countryCode: 'usa' }, { countryName: 'India', countryCode: 'in' }];
+
   weatherTypes: WeatherType[] = [];
   weathersearch: any = JSON.parse(JSON.stringify(this.initialFormValue));
   weatherResult = {} as Result;
@@ -38,15 +39,26 @@ export class SearchComponent {
   constructor(private commonService: CommonService) {
     this.filterEnabled = true;
   }
+  getUniqueCountries() {
+    this.weathersearch.country = Array.from(new Set
+      (this.weathersearch.country.map((obj: Country) => obj.countryCode)));
+  }
   countryChanged() {
     this.isUSAExist = false;
     if (this.weathersearch.country && this.weathersearch.country.length) {
+      this.weathersearch.country.reverse();
+      this.weathersearch.country = this.weathersearch.country.
+        filter((obj: any, index: number, self: any) => index ===
+          self.findIndex((o: Country) => o.countryCode === obj.countryCode)
+
+        );
+      this.weathersearch.country.reverse();
       if (this.weathersearch.country.find((it: Country) => it.countryCode === 'usa')) {
         this.isUSAExist = true;
       }
     }
-    if(!this.isUSAExist){
-      this.weathersearch.state=[];
+    if (!this.isUSAExist) {
+      this.weathersearch.state = [];
     }
     const frmctrl1 = (document.getElementById('clr-form-control-1') as HTMLInputElement);
     if (frmctrl1) {
