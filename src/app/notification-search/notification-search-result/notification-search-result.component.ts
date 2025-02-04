@@ -7,28 +7,38 @@ import { weatherEventType } from '../../models/notification';
   styleUrl: './notification-search-result.component.css'
 })
 export class NotificationSearchResultComponent implements OnInit {
-  selected:Array<weatherEventType>=[];
-  weatherEventsList:weatherEventType[] | null = null;
+  selected: Array<weatherEventType> = [];
+  prevSelected: Array<weatherEventType> = [];
+  weatherEventsList: weatherEventType[] | null = null;
   @Output() onSelectChange = new EventEmitter();
-  @Input() set weatherEvents(_events:weatherEventType[] | null){
-    if(_events?.length && !this.weatherEventsList?.length){
+  @Output() onUnSelectChange = new EventEmitter();
+  @Input() set weatherEvents(_events: weatherEventType[] | null) {
+    if (_events?.length && !this.weatherEventsList?.length) {
       this.weatherEventsList = _events;
     }
   };
-  
-  tableHeader:Array<string> = ['Weather Event','Weather Type','Description','Location','Country','State','Event Start Date','Event End Date','Status'];
+
+  tableHeader: Array<string> = ['Weather Event', 'Weather Type', 'Description', 'Location', 'Country', 'State', 'Event Start Date', 'Event End Date', 'Status'];
   /**
    *  Emit the value when a change in selection is happening
    * 
    */
-  handleRowChange(){
-    this.onSelectChange.emit(this.selected)
+  handleRowChange() {
+    if (this.prevSelected.length > this.selected.length) {
+      this.onUnSelectChange.emit(this.prevSelected.filter(o => !this.selected.some(i => i === o)));
+    }
+    else {
+      this.onSelectChange.emit(this.selected);
+    }
+    this.prevSelected = Array.from(this.selected);
+
   }
 
-  ngOnInit(){
-    if(this.weatherEventsList){
+  ngOnInit() {
+    if (this.weatherEventsList) {
       setTimeout(() => {
         this.selected = this.weatherEventsList?.filter(weather => weather.status === 'active') || [];
+        this.prevSelected = Array.from(this.selected);
       }, 0);
     }
   }
