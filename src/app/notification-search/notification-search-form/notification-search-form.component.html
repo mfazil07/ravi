@@ -32,7 +32,7 @@
         </div>
     </div>
    <div class="action-button">
-        <button type="submit" class="btn btn-primary" [disabled]="!notificationSearchform.valid || !enableSave">Save</button>
+        <button type="submit" (click)="save()" class="btn btn-primary" [disabled]="!(notificationSearchform.valid || enableSave)">Save</button>
         <button type="button" class="btn btn-primary" [disabled]="!notificationSearchform.valid" (click)="onSearch(notificationSearchform)"><cds-icon shape="search"></cds-icon>Search</button>
         <button type="button" class="btn btn-primary" [disabled]="!notificationSearchform.valid" (click)="notificationSearchform.reset()"><cds-icon shape="refresh"></cds-icon>Reset</button>
         <button type="button" class="btn btn-primary" (click)="closeForm()">Close</button>

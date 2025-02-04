@@ -10,44 +10,46 @@ import { NgForm } from '@angular/forms';
 export class NotificationSearchFormComponent {
   @ViewChild('notificationSearchform') form!: NgForm;
   @Output() onFormUpdate = new EventEmitter()
-  @Input() set buttonStatus(val:boolean){
+  @Input() set buttonStatus(val: boolean) {
     this.enableSave = val
-  } 
-  enableSave:boolean = false;
-  notificationSearch:SearchForm={
-    startDate:'',
-    endDate:'',
-    location:''
+  }
+  enableSave: boolean = false;
+  notificationSearch: SearchForm = {
+    startDate: '',
+    endDate: '',
+    location: ''
   }
 
   // Handle form submit
-  onSubmit(_form:any){
-    if(_form.valid){
-      this.onFormUpdate.emit({form: _form.value, type:'save'})
-    }
-  }
-  
-  // Save search form 
-  onSearch(_form:any){
-    // Call the api to save the content
-    if(_form.valid){
-      this.onFormUpdate.emit({form: _form.value, type:'search'})
+  onSubmit(_form: any) {
+    if (_form.valid) {
+      this.onFormUpdate.emit({ form: _form.value, type: 'save' })
     }
   }
 
-  log(r:any){
+  // Save search form 
+  onSearch(_form: any) {
+    // Call the api to save the content
+    if (_form.valid) {
+      this.onFormUpdate.emit({ form: _form.value, type: 'search' })
+    }
+  }
+  save() {
+    this.enableSave = false;
+  }
+  log(r: any) {
     console.log('Log in search form', r)
   }
 
   // Trigger the close event, it can be redirect also
-  closeForm(){
+  closeForm() {
     console.log("close event triggered")
   }
 
   validateDates(form: NgForm) {
     const startDateControl = form.controls['startDatepickrnm'];
     const endDateControl = form.controls['endDatepickrnm'];
-    
+
     if (this.notificationSearch.startDate && this.notificationSearch.endDate) {
       const startDate = new Date(this.notificationSearch.startDate).getTime();
       const endDate = new Date(this.notificationSearch.endDate).getTime();
@@ -65,9 +67,10 @@ export class NotificationSearchFormComponent {
   ngAfterViewInit() {
     // Listen for changes in the entire form
     this.form.valueChanges?.subscribe((value) => {
-      Object.keys(value).forEach((formItem:string) =>{
-        if(value[formItem] !==''){
-          this.enableSave = true
+
+      Object.keys(value).forEach((formItem: string) => {
+        if (value[formItem] !== '') {
+          // this.enableSave = true
         }
       })
     });

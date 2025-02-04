@@ -10,6 +10,7 @@ import { ActivatedRoute } from '@angular/router';
 export class NotificationSearchComponent implements OnInit {
   constructor(private route: ActivatedRoute) { }
   selectedEvents: weatherEventType[] = [];
+  buttonStatus = false;
   weatherEvents: Array<weatherEventType> = [
     {
       "weatherEvent": "Hurricane Delta",
@@ -204,15 +205,18 @@ export class NotificationSearchComponent implements OnInit {
    */
   handleSelectionChange(selectedRow: Array<any>) {
     this.selectedEvents = selectedRow;
+    this.buttonStatus = true;
   }
   handleUnSelect(unSelectedRow: Array<any>) {
     console.log("unselected");
     console.log(JSON.stringify(unSelectedRow));
+    this.buttonStatus = true;
   }
   /**
    *    handle save form event
    */
   handleSave(payload: SearchForm) {
+    this.buttonStatus = false;
     console.log(payload)
   }
 
