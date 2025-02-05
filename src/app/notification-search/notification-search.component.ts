@@ -203,14 +203,14 @@ export class NotificationSearchComponent implements OnInit {
   /**
    *    Trigger when a row is selected in the grid table
    */
-  handleSelectionChange(selectedRow: Array<any>) {
-    this.selectedEvents = selectedRow;
-    this.buttonStatus = true;
+  handleSelectionChange(selected: any) {
+    this.selectedEvents = selected.event;
+    this.buttonStatus = selected.buttonStatus;
+    console.log("selected" + JSON.stringify(selected.event));
   }
-  handleUnSelect(unSelectedRow: Array<any>) {
-    console.log("unselected");
-    console.log(JSON.stringify(unSelectedRow));
-    this.buttonStatus = true;
+  handleUnSelect(unSelected: any) {
+    console.log("unselected" + JSON.stringify(unSelected.event));
+    this.buttonStatus = unSelected.buttonStatus;
   }
   /**
    *    handle save form event

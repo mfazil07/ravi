@@ -28,13 +28,13 @@ export class NotificationSearchResultComponent implements OnInit {
       if (this.prevSelected.length > this.selected.length) {
 
         this.onUnSelectChange.emit({
-          butonStatus: "",
+          buttonStatus: true,
           event: this.prevSelected.filter(o => !this.selected.some(i => i === o))
         });
       }
       else {
         this.onSelectChange.emit({
-          butonStatus: "",
+          buttonStatus: true,
           event: this.selected
         });
       }
