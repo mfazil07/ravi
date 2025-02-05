@@ -26,10 +26,17 @@ export class NotificationSearchResultComponent implements OnInit {
   handleRowChange() {
     if (confirm("Are you sure to delete ")) {
       if (this.prevSelected.length > this.selected.length) {
-        this.onUnSelectChange.emit(this.prevSelected.filter(o => !this.selected.some(i => i === o)));
+
+        this.onUnSelectChange.emit({
+          butonStatus: "",
+          event: this.prevSelected.filter(o => !this.selected.some(i => i === o))
+        });
       }
       else {
-        this.onSelectChange.emit(this.selected);
+        this.onSelectChange.emit({
+          butonStatus: "",
+          event: this.selected
+        });
       }
       this.prevSelected = Array.from(this.selected);
     }
