@@ -44,7 +44,7 @@ export class AddeventComponent implements OnInit {
   request = {} as WeatherEventRequest;
   isOtherDescriptionRequired: boolean = false;
   prevSelectedStates = [{ name: 'Alaska', value: 'al' }, { name: 'Alaska1', value: 'al1' }];
-  prevSelectedCountries = [];
+  prevSelectedCountries = [{ name: 'United State of America', value: 'usa' }];
   isUSAExist = false;
   constructor(private commonService: CommonService, private alertService: AlertService) {
 
@@ -85,6 +85,7 @@ export class AddeventComponent implements OnInit {
         this.isUSAExist = true;
       }
     }
+    
   }
   setOtherReasonValidation(event: any) {
     const { value } = event.target;
@@ -110,6 +111,17 @@ export class AddeventComponent implements OnInit {
   }
   getClass(selected: any) {
     const isexist = this.prevSelectedStates.find(it => it.name === selected);
+    if (isexist) {
+      const ariaLabel = `[aria-label="Delete selected option ${selected}"]`
+      var element = document.querySelector(ariaLabel);
+      if (element)
+        (element as any).hidden = true;
+      return 'disabled'
+    }
+    return "";
+  }
+  getCountryClass(selected: any) {
+    const isexist = this.prevSelectedCountries.find(it => it.name === selected);
     if (isexist) {
       const ariaLabel = `[aria-label="Delete selected option ${selected}"]`
       var element = document.querySelector(ariaLabel);

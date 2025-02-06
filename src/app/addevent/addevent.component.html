@@ -73,11 +73,11 @@
                             (ngModelChange)="checkCountries(weatherAdd.country)" clrMulti="true" name="frmCountry"
                             #frmCountry="ngModel" [required]="true">
                             <ng-container *clrOptionSelected="let selected">
-                                <span> {{ selected?.name }}</span>
+                                <span [ngClass]="getCountryClass(selected?.name)"> {{ selected?.name }}</span>
                             </ng-container>
                             <clr-options>
                                 <clr-option *clrOptionItems="let country of countries; field: 'name'"
-                                    [clrValue]="country">
+                                    [clrValue]="country"  [ngClass]="getCountryClass(country.name)">
                                     {{ country.name }}
                                 </clr-option>
                             </clr-options>
