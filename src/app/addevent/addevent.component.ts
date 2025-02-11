@@ -647,6 +647,7 @@ export class AddeventComponent implements OnInit {
       const selectedcountries = JSON.parse(JSON.stringify(this.prevSelectedCountries));
 
       this.weatherAdd.frmCountry = selectedcountries;
+      values = selectedcountries;
 
     }
 
