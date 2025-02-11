@@ -13,6 +13,11 @@ export class NotificationSearchFormComponent {
   @Input() set buttonStatus(val: boolean) {
     this.enableSave = val
   }
+  @Input() set triggerRefresh(val: boolean) {
+    if (val) {
+      this.onFormUpdate.emit({ form: this.form.value, type: 'search' })
+    }
+  }
   enableSave: boolean = false;
   notificationSearch: SearchForm = {
     startDate: '',

@@ -12,6 +12,7 @@ export class NotificationSearchResultComponent implements OnInit {
   weatherEventsList: weatherEventType[] | null = null;
   @Output() onSelectChange = new EventEmitter();
   @Output() onUnSelectChange = new EventEmitter();
+  @Output() triggerRefresh = new EventEmitter();
   @Input() set weatherEvents(_events: weatherEventType[] | null) {
     if (_events?.length && !this.weatherEventsList?.length) {
       this.weatherEventsList = _events;
@@ -41,6 +42,7 @@ export class NotificationSearchResultComponent implements OnInit {
       this.prevSelected = Array.from(this.selected);
     }
     else {
+      this.triggerRefresh.emit(true);
       this.selected = Array.from(this.prevSelected);
     }
 

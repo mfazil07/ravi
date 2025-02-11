@@ -11,6 +11,7 @@ export class NotificationSearchComponent implements OnInit {
   constructor(private route: ActivatedRoute) { }
   selectedEvents: weatherEventType[] = [];
   buttonStatus = false;
+  triggerRefresh = false;
   weatherEvents: Array<weatherEventType> = [
     {
       "weatherEvent": "Hurricane Delta",
@@ -198,6 +199,7 @@ export class NotificationSearchComponent implements OnInit {
         this.handleSave(_form.form)
         break;
     }
+    this.triggerRefresh=false;
   }
 
   /**
@@ -226,6 +228,7 @@ export class NotificationSearchComponent implements OnInit {
   handleSearch(payload: SearchForm) {
     // Call the api to search the data 
     console.log(payload)
+    console.log("triggering Search")
   }
 
   ngOnInit() {
