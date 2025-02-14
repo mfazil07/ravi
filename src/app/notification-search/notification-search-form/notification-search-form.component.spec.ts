@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { NotificationSearchFormComponent } from './notification-search-form.component';
+import { ClarityModule } from '@clr/angular';
+import { FormsModule } from '@angular/forms';
 
 describe('NotificationSearchFormComponent', () => {
   let component: NotificationSearchFormComponent;
@@ -8,10 +9,11 @@ describe('NotificationSearchFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [NotificationSearchFormComponent]
-    })
-    .compileComponents();
-    
+      declarations: [NotificationSearchFormComponent],
+      imports: [ClarityModule, FormsModule],
+      providers: []
+    }).compileComponents();
+
     fixture = TestBed.createComponent(NotificationSearchFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -19,5 +21,19 @@ describe('NotificationSearchFormComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('enableSave set to true disables the submit button', () => {
+    component.enableSave = false;
+    fixture.detectChanges();
+    const submitEl = fixture.debugElement.nativeElement.querySelector('button[type="submit"]');
+    expect(submitEl.disabled).toBeTruthy();
+  });
+
+  it('enableSave set to false enables the submit button', () => {
+    component.enableSave = true;
+    fixture.detectChanges();
+    const submitEl = fixture.debugElement.nativeElement.querySelector('button[type="submit"]');
+    expect(submitEl.disabled).toBeFalsy();
   });
 });
