@@ -23,14 +23,14 @@ describe('NotificationSearchFormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('enableSave set to true disables the submit button', () => {
+  it('enableSave set to false disables the submit button', () => {
     component.enableSave = false;
     fixture.detectChanges();
     const submitEl = fixture.debugElement.nativeElement.querySelector('button[type="submit"]');
     expect(submitEl.disabled).toBeTruthy();
   });
 
-  it('enableSave set to false enables the submit button', () => {
+  it('enableSave set to true enables the submit button', () => {
     component.enableSave = true;
     fixture.detectChanges();
     const submitEl = fixture.debugElement.nativeElement.querySelector('button[type="submit"]');
