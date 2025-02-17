@@ -6,13 +6,18 @@ import { ClrComboboxModule, ClrDatagridModule, ClrDatalistModule, ClrDataModule,
 import { AddeventComponent } from '../addevent/addevent.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { CommonService } from '../services/common.service';
+import { of } from 'rxjs';
 
 describe('SearchComponent', () => {
   let component: SearchComponent;
   let fixture: ComponentFixture<SearchComponent>;
+  let commonService: jasmine.SpyObj<CommonService>;
 
   beforeEach(async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000; // Increase timeout interval
+
+    const commonServiceSpy = jasmine.createSpyObj('CommonService', ['getallWeatherEvents']);
 
     await TestBed.configureTestingModule({
       declarations: [SearchComponent, AddeventComponent],
@@ -27,12 +32,13 @@ describe('SearchComponent', () => {
         ClrDataModule,
         ClrModalModule
       ],
-      providers: [],
+      providers: [{ provide: CommonService, useValue: commonServiceSpy }],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(SearchComponent);
     component = fixture.componentInstance;
+    commonService = TestBed.inject(CommonService) as jasmine.SpyObj<CommonService>;
     fixture.detectChanges();
   });
 
@@ -56,5 +62,35 @@ describe('SearchComponent', () => {
       console.error('Test case error:', error);
       throw error;
     }
+  });
+
+  it('form submit', () => {
+    const mockResult: any = {
+      data: [
+        { startDate: 1728561703122, WeatherAlertID: '001', endDate: 1733952000000, weatherEvent: 'Storm X', weatherType: 'Storm', description: 'Storm Description', location: 'Location X', country: 'USA' }
+      ]
+    };
+    commonService.getallWeatherEvents.and.returnValue(of(mockResult));
+
+    const mockForm = {
+      value: {
+        country: 'USA',
+        weatherTypenm: 'Storm',
+        frmSrchStDt: '2023-01-01',
+        frmSrchEndDt: '2023-12-31',
+        frmSrchLocation: 'New York'
+      },
+      form: {
+        markAsPristine: jasmine.createSpy('markAsPristine'),
+        markAsUntouched: jasmine.createSpy('markAsUntouched'),
+        updateValueAndValidity: jasmine.createSpy('updateValueAndValidity')
+      }
+    };
+
+    component.onSubmit(mockForm);
+
+    expect(component.weatherResult).toEqual(mockResult);
+    expect(component.weatherEvents).toEqual(mockResult.data);
+    expect(component.filterEnabled).toBeTrue();
   });
 });
