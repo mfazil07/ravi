@@ -17,7 +17,7 @@ describe('SearchComponent', () => {
   beforeEach(async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000; // Increase timeout interval
 
-    const commonServiceSpy = jasmine.createSpyObj('CommonService', ['getallWeatherEvents']);
+    const commonServiceSpy = jasmine.createSpyObj('CommonService', ['getallWeatherEvents', 'getallCountries']);
 
     await TestBed.configureTestingModule({
       declarations: [SearchComponent, AddeventComponent],
@@ -92,5 +92,16 @@ describe('SearchComponent', () => {
     expect(component.weatherResult).toEqual(mockResult);
     expect(component.weatherEvents).toEqual(mockResult.data);
     expect(component.filterEnabled).toBeTrue();
+  });
+
+  it('should update countries when getallCountries is called', () => {
+    const mockCountries =  [
+        { countryName: 'United States of America', countryCode: 'usa' },
+        { countryName: 'India', countryCode: 'ind' }
+      ]
+    commonService.getallCountries.and.returnValue(of(mockCountries));
+
+    component.ngOnInit();
+    expect(component.countries).toEqual(mockCountries);
   });
 });
