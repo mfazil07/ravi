@@ -8,11 +8,16 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { CommonService } from '../services/common.service';
 import { of } from 'rxjs';
+import { Country } from '../dtos/dtos';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { environment } from '../environments/environnment';
 
 describe('SearchComponent', () => {
+  let httpMock: HttpTestingController;
   let component: SearchComponent;
   let fixture: ComponentFixture<SearchComponent>;
   let commonService: jasmine.SpyObj<CommonService>;
+  
 
   beforeEach(async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000; // Increase timeout interval
@@ -39,6 +44,8 @@ describe('SearchComponent', () => {
     fixture = TestBed.createComponent(SearchComponent);
     component = fixture.componentInstance;
     commonService = TestBed.inject(CommonService) as jasmine.SpyObj<CommonService>;
+    httpMock = TestBed.inject(HttpTestingController);
+
     fixture.detectChanges();
   });
 
@@ -103,5 +110,19 @@ describe('SearchComponent', () => {
 
     component.ngOnInit();
     expect(component.countries).toEqual(mockCountries);
+  });
+  it('should get all countries', () => {
+    const mockCountries: Country[] = [
+      { countryName: 'United States of America', countryCode: 'usa' },
+      { countryName: 'India', countryCode: 'ind' }
+    ];
+
+    commonService.getallCountries().subscribe((countries:Country[]) => {
+      expect(countries).toEqual(mockCountries);
+    });
+
+    const req = httpMock.expectOne(`${environment.domainApiUrl}Country`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockCountries);
   });
 });
