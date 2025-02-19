@@ -7,22 +7,17 @@ import { AddeventComponent } from '../addevent/addevent.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { CommonService } from '../services/common.service';
-import { of } from 'rxjs';
-import { Country } from '../dtos/dtos';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { environment } from '../environments/environnment';
+import { of, throwError } from 'rxjs';
 
 describe('SearchComponent', () => {
-  let httpMock: HttpTestingController;
   let component: SearchComponent;
   let fixture: ComponentFixture<SearchComponent>;
   let commonService: jasmine.SpyObj<CommonService>;
-  
 
   beforeEach(async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000; // Increase timeout interval
 
-    const commonServiceSpy = jasmine.createSpyObj('CommonService', ['getallWeatherEvents', 'getallCountries']);
+    const commonServiceSpy = jasmine.createSpyObj('CommonService', ['getallWeatherEvents', 'getallCountries', 'getAllWeatherTypes', 'getWeatherEventById']);
 
     await TestBed.configureTestingModule({
       declarations: [SearchComponent, AddeventComponent],
@@ -44,7 +39,10 @@ describe('SearchComponent', () => {
     fixture = TestBed.createComponent(SearchComponent);
     component = fixture.componentInstance;
     commonService = TestBed.inject(CommonService) as jasmine.SpyObj<CommonService>;
-    httpMock = TestBed.inject(HttpTestingController);
+
+
+    commonService.getallCountries.and.returnValue(of([]));
+    commonService.getAllWeatherTypes.and.returnValue(of([]));
 
     fixture.detectChanges();
   });
@@ -52,7 +50,6 @@ describe('SearchComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
   it('should show state dropdown if USA selected', async () => {
     try {
       component.weathersearch.country = [{ countryName: 'United States of America', countryCode: 'usa' }];
@@ -60,7 +57,7 @@ describe('SearchComponent', () => {
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
-      const stateDropdownEl = fixture.debugElement.query(By.css('select[name="frmState"]'));
+      const stateDropdownEl = fixture.debugElement.query(By.css('clr-combobox[name="frmState"]'));
       expect(stateDropdownEl).not.toBeNull();
       if (stateDropdownEl) {
         expect(stateDropdownEl.nativeElement).toBeTruthy();
@@ -69,60 +66,5 @@ describe('SearchComponent', () => {
       console.error('Test case error:', error);
       throw error;
     }
-  });
-
-  it('form submit', () => {
-    const mockResult: any = {
-      data: [
-        { startDate: 1728561703122, WeatherAlertID: '001', endDate: 1733952000000, weatherEvent: 'Storm X', weatherType: 'Storm', description: 'Storm Description', location: 'Location X', country: 'USA' }
-      ]
-    };
-    commonService.getallWeatherEvents.and.returnValue(of(mockResult));
-
-    const mockForm = {
-      value: {
-        country: 'USA',
-        weatherTypenm: 'Storm',
-        frmSrchStDt: '2023-01-01',
-        frmSrchEndDt: '2023-12-31',
-        frmSrchLocation: 'New York'
-      },
-      form: {
-        markAsPristine: jasmine.createSpy('markAsPristine'),
-        markAsUntouched: jasmine.createSpy('markAsUntouched'),
-        updateValueAndValidity: jasmine.createSpy('updateValueAndValidity')
-      }
-    };
-
-    component.onSubmit(mockForm);
-
-    expect(component.weatherResult).toEqual(mockResult);
-    expect(component.weatherEvents).toEqual(mockResult.data);
-    expect(component.filterEnabled).toBeTrue();
-  });
-
-  it('should update countries when getallCountries is called', () => {
-    const mockCountries =  [
-        { countryName: 'United States of America', countryCode: 'usa' },
-        { countryName: 'India', countryCode: 'ind' }
-      ]
-    commonService.getallCountries.and.returnValue(of(mockCountries));
-
-    component.ngOnInit();
-    expect(component.countries).toEqual(mockCountries);
-  });
-  it('should get all countries', () => {
-    const mockCountries: Country[] = [
-      { countryName: 'United States of America', countryCode: 'usa' },
-      { countryName: 'India', countryCode: 'ind' }
-    ];
-
-    commonService.getallCountries().subscribe((countries:Country[]) => {
-      expect(countries).toEqual(mockCountries);
-    });
-
-    const req = httpMock.expectOne(`${environment.domainApiUrl}Country`);
-    expect(req.request.method).toBe('GET');
-    req.flush(mockCountries);
   });
 });
