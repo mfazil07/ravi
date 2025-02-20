@@ -67,4 +67,33 @@ describe('SearchComponent', () => {
       throw error;
     }
   });
+  it('should open modal on button click', () => {
+    spyOn(component.addevent, 'openModal');
+    component.openModal('add');
+    fixture.detectChanges();
+    expect(component.addevent.openModal).toHaveBeenCalledWith('add');
+    expect(component.gridData).toBeNull();
+  });
+  it('should reset form and variables', () => {
+    // Set initial values for testing
+    component.weathersearch = { country: 'India', city: 'Delhi' };
+    // Create a mock form with a markAsPristine, markAsUntouched and updateValueAndValidity methods
+    const mockForm = {
+      form: {
+        markAsPristine: jasmine.createSpy('markAsPristine'),
+        markAsUntouched: jasmine.createSpy('markAsUntouched'),
+        updateValueAndValidity: jasmine.createSpy('updateValueAndValidity')
+      }
+    };
+
+    // Call reset method
+    component.reset(mockForm as any);
+
+    // Verify that the form and variables have been reset
+    expect(component.weathersearch).toEqual(component.initialFormValue);
+    expect(mockForm.form.markAsPristine).toHaveBeenCalled();
+    expect(mockForm.form.markAsUntouched).toHaveBeenCalled();
+    expect(mockForm.form.updateValueAndValidity).toHaveBeenCalled();
+    expect(component.weatherEvents).toEqual([]);
+  });
 });
