@@ -67,12 +67,12 @@ describe('SearchComponent', () => {
       throw error;
     }
   });
-  it('should open modal on button click', () => {
-    spyOn(component.addevent, 'openModal');
+  it('should open modal in add mode', () => {
+    spyOn(component.addevent, 'openModal').and.callThrough();
     component.openModal('add');
-    fixture.detectChanges();
-    expect(component.addevent.openModal).toHaveBeenCalledWith('add');
     expect(component.gridData).toBeNull();
+    expect(component.addevent.openModal).toHaveBeenCalledWith('add');
+  
   });
   it('should reset form and variables', () => {
     // Set initial values for testing
