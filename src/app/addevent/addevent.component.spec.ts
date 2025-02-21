@@ -46,4 +46,17 @@ describe('AddeventComponent', () => {
     const endDate = new Date(component.weatheraddform.value.frmEndDate);
     expect(startDate < endDate).toBeTrue();
   });
+
+  it('should close the modal when the Close button is clicked', () => {
+    component.open = true;
+    const form = {
+      value: {},
+      controls: {},
+      form: { get: (field: string) => ({ disabled: false, enable: () => {}, disable: () => {} }) }
+    };
+    component.weatheraddform = form as any;
+    component.openConfirmationDialog(form);
+    fixture.detectChanges();
+    expect(component.open).toBeFalse();
+  });
 });
