@@ -136,4 +136,40 @@ describe('NotificationSearchFormComponent', () => {
     expect(component.startDateErrorMsgs).toBe('Start Date is required!');
     expect(component.endDateErrorMsgs).toBe('End Date is required!');
   });
+
+  it('should handle invalid start and end date formats', () => {
+    const form = {
+      controls: {
+        startDatepickrnm: { setErrors: jasmine.createSpy('setErrors') },
+        endDatepickrnm: { setErrors: jasmine.createSpy('setErrors') }
+      }
+    } as unknown as NgForm;
+
+    component.notificationSearch.startDate = 'invalid-date';
+    component.notificationSearch.endDate = 'invalid-date';
+
+    component.validateDates(form, 'startDate');
+    expect(form.controls.startDatepickrnm.setErrors).toHaveBeenCalledWith({ invalidDate: true });
+    expect(component.startDateErrorMsgs).toBe('Invalid date!');
+    expect(form.controls.endDatepickrnm.setErrors).toHaveBeenCalledWith({ invalidDate: true });
+    expect(component.endDateErrorMsgs).toBe('Invalid date!');
+  });
+
+  it('should handle valid start and end dates', () => {
+    const form = {
+      controls: {
+        startDatepickrnm: { setErrors: jasmine.createSpy('setErrors') },
+        endDatepickrnm: { setErrors: jasmine.createSpy('setErrors') }
+      }
+    } as unknown as NgForm;
+
+    component.notificationSearch.startDate = '01/01/2022';
+    component.notificationSearch.endDate = '12/31/2022';
+
+    component.validateDates(form, 'startDate');
+    expect(form.controls.startDatepickrnm.setErrors).toHaveBeenCalledWith(null);
+    expect(component.startDateErrorMsgs).toBe('');
+    expect(form.controls.endDatepickrnm.setErrors).toHaveBeenCalledWith(null);
+    expect(component.endDateErrorMsgs).toBe('');
+  });
 });
