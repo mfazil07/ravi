@@ -1,51 +1,52 @@
 import { TestBed } from '@angular/core/testing';
-import { AlertService, IAlertType, IAlertConfig } from './alert.service';
+import { ConfirmDialogService } from './confirm-dialog.service';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { Subject } from 'rxjs';
 
-describe('AlertService', () => {
-  let service: AlertService;
+describe('ConfirmDialogService', () => {
+  let service: ConfirmDialogService;
+  let componentMock: ConfirmDialogComponent;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(AlertService);
+    service = TestBed.inject(ConfirmDialogService);
+
+    // Create a mock instance of ConfirmDialogComponent
+    componentMock = {
+      message: '',
+      confirmButtonLabel: '',
+      cancelButtonLabel: '',
+      show: jasmine.createSpy('show'),
+      confirm: new Subject<boolean>()
+    } as any as ConfirmDialogComponent;
+
+    // Set the mock component in the service
+    service.setComponent(componentMock);
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should show alert with given config', () => {
-    const config: IAlertConfig = {
-      clrAlertType: IAlertType.SUCCESS,
-      message: "Test message",
-      clrAlertAppLevel: true,
-      clrAlertClosable: false
-    };
-    service.show(config);
-    expect(service.shouldShowAlert).toBeTrue();
-    expect(service.alertConfig.message).toBe("Test message");
+  it('should set the component', () => {
+    service.setComponent(componentMock);
+    expect(service['confirmDialogComponent']).toBe(componentMock);
   });
 
-
-  it('should hide alert', () => {
-    service.hide();
-    expect(service.shouldShowAlert).toBeFalse();
+  it('should throw an error if confirmDialogComponent is not initialized', () => {
+    service.setComponent(undefined as any);
+    expect(() => service.confirm('Test message')).toThrowError('ConfirmDialogComponent is not initialized');
   });
 
-  it('should toggle alert visibility', () => {
-    service.toggle();
-    expect(service.shouldShowAlert).toBeTrue();
-    service.toggle();
-    expect(service.shouldShowAlert).toBeFalse();
-  });
+  it('should open the dialog and resolve with true on confirm', async () => {
+    const promise = service.confirm('Test message', 'Yes', 'No');
+    expect(componentMock.show).toHaveBeenCalled();
+    expect(componentMock.message).toBe('Test message');
+    expect(componentMock.confirmButtonLabel).toBe('Yes');
+    expect(componentMock.cancelButtonLabel).toBe('No');
 
-  it('should close alert and emit close event', () => {
-    spyOn(service.close, 'next');
-    service.onClose('test');
-    expect(service.close.next).toHaveBeenCalled();
-    expect(service.shouldShowAlert).toBeFalse();
-  });
-
-  it('should return close event observable', () => {
-    expect(service.onClose$()).toBe(service.close);
+    componentMock.confirm.next(true); // Simulate confirmation
+    const result = await promise;
+    expect(result).toBeTrue();
   });
 });
