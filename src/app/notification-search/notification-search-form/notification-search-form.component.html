@@ -31,10 +31,66 @@
               </clr-input-container>
         </div>
     </div>
-   <div class="action-button">
+
+    <div class="clr-row">
+        <div class="clr-col-12 clr-col-md-3">
+            <clr-combobox-container>
+                <label class="clr-col-12 clr-col-md-3">Country</label>
+                <clr-combobox class="clr-col-12 clr-col-md-6" 
+                              clrMulti="false"
+                              name="frmCountry" 
+                              [required]="true"
+                              [(ngModel)]="notificationSearch.country"
+                              (ngModelChange)="onCountryChange($event)"
+                              #selCountries="ngModel">
+                    <ng-container *clrOptionSelected="let selected">
+                        {{ selected?.countryName }}
+                    </ng-container>
+                    <clr-options>
+                        <clr-option *clrOptionItems="let country of countries; field: 'countryName'" 
+                                    [clrValue]="country">
+                            {{ country?.countryName }}
+                        </clr-option>
+                    </clr-options>
+                </clr-combobox>
+                 <!-- Validation Message -->
+                <clr-control-error *ngIf="selCountries?.invalid && selCountries?.touched">
+                    This field is required
+                </clr-control-error>
+            </clr-combobox-container>
+        </div>
+
+        <div class="clr-col-12 clr-col-md-3" *ngIf="isCountrySelected">
+            <clr-combobox-container>
+                <label class="clr-col-12 clr-col-md-3">States</label>
+                <clr-combobox class="clr-col-12 clr-col-md-6" 
+                              clrMulti="false" 
+                              name="frmState" 
+                              [(ngModel)]="notificationSearch.state"
+                              #selStates="ngModel"
+                              [required]="isCountrySelected">
+                    <ng-container *clrOptionSelected="let selected">
+                        {{ selected?.name }}
+                    </ng-container>
+                    <clr-options>
+                        <clr-option *clrOptionItems="let state of states; field: 'name'" 
+                                    [clrValue]="state">
+                            {{ state.name }}
+                        </clr-option>
+                    </clr-options>
+                </clr-combobox>
+                 <!-- Validation Message -->
+                <clr-control-error *ngIf="selStates?.invalid && selStates?.touched">
+                    This field is required
+                </clr-control-error>
+            </clr-combobox-container>
+        </div>
+    </div>
+
+    <div class="action-button">
         <button type="submit" (click)="save()" class="btn btn-primary" [disabled]="!(notificationSearchform.valid || enableSave)">Save</button>
         <button type="button" class="btn btn-primary" [disabled]="!notificationSearchform.valid" (click)="onSearch(notificationSearchform)"><cds-icon shape="search"></cds-icon>Search</button>
         <button type="button" class="btn btn-primary" [disabled]="!notificationSearchform.valid" (click)="notificationSearchform.reset()"><cds-icon shape="refresh"></cds-icon>Reset</button>
         <button type="button" class="btn btn-primary" (click)="closeForm()">Close</button>
-   </div>
+    </div>
 </form>
