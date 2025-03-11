@@ -172,4 +172,26 @@ describe('NotificationSearchFormComponent', () => {
     expect(form.controls.endDatepickrnm.setErrors).toHaveBeenCalledWith(null);
     expect(component.endDateErrorMsgs).toBe('');
   });
+
+  it('should set claimantResidentState when claimantState is provided', () => {
+    const testState = 'California';
+    component.claimantState = testState;
+    expect(component.claimantResidentState).toEqual(testState);
+  });
+
+  it('should not set claimantResidentState when claimantState is undefined', () => {
+    component.claimantState = undefined;
+    expect(component.claimantResidentState).toBeUndefined();
+  });
+
+  it('should set claimantResidentCountry when claimantCountry is provided', () => {
+    const testCountry = 'USA';
+    component.claimantCountry = testCountry;
+    expect(component.claimantResidentCountry).toEqual(testCountry);
+  });
+
+  it('should not set claimantResidentCountry when claimantCountry is undefined', () => {
+    component.claimantCountry = undefined;
+    expect(component.claimantResidentCountry).toBeUndefined();
+  });
 });
