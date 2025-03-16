@@ -31,3 +31,17 @@ p {
 .trademark {
     font-family: arial;
 }
+
+.notes-ccontainer {
+    position: relative;
+    padding: 0 1em;
+    .notes-text {
+        position: relative;
+        top: 1.4em;
+        color: white;
+        text-transform: none !important;
+        &:hover {
+            cursor: pointer;
+        }
+    }
+}
