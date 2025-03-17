@@ -6,5 +6,11 @@ import { Component } from '@angular/core';
   styleUrl: './qtc-header.component.css'
 })
 export class QtcHeaderComponent {
+modalOpen: boolean = false;
+  urlToOpen: any= '';
 
+  constructor(private domSanitizer: DomSanitizer) {
+    const url = 'https://www.google.com';
+    this.urlToOpen = this.domSanitizer.bypassSecurityTrustResourceUrl(url);
+  }
 }
