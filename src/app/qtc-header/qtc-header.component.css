@@ -28,6 +28,7 @@ p {
     text-transform: uppercase;
     font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
 .trademark {
     font-family: arial;
 }
@@ -44,4 +45,22 @@ p {
             cursor: pointer;
         }
     }
+}
+
+.action-dd {
+    padding-top: 1.5em;
+    padding-right: 1em;
+    padding-left: 0.5em;
+}
+
+.vl {
+    border-left: 1px solid white;
+    margin-top: 0.8em;
+    margin-bottom: 0.8em;
+}
+
+.header-actions-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
 }
