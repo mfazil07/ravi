@@ -1,4 +1,4 @@
-<header class="header-6">
+<!-- <header class="header-6">
     <div class="branding">
       <a  class="nav-link">
         <img height="48.8" alt="logo" width="100" src="/weatheralert/assets/Leidos_QTC_Logo_White.png">
@@ -10,16 +10,7 @@
    
     <div class="header-actions">
 
-      <div class="notes-ccontainer">
-        <a href="https://www.google.com" 
-           class="notes-text"
-           target="_blank">
-          <cds-icon shape="note" 
-                    title="Notes"
-                    size="md">
-          </cds-icon>
-        </a>
-      </div>
+      
 
       <clr-dropdown>
         <button class="nav-icon" clrDropdownTrigger aria-label="toggle settings menu">
@@ -33,4 +24,53 @@
         </clr-dropdown-menu>
       </clr-dropdown>
     </div>
+  </header> -->
+
+  <header class="header">
+    <div class="branding">
+      <a  class="nav-link">
+        <img height="48.8" 
+             alt="logo" 
+             width="100" 
+             src="assets/Leidos_QTC_Logo_White.png">
+        <span class="logotext">Weather Notifications</span>
+      </a>
+    </div>
+
+    <div class="header-actions-wrap">
+      <div class="notes-ccontainer">
+        <a (click)="modalOpen = true"
+           class="notes-text"
+           target="_blank">
+          <cds-icon shape="note" 
+                    title="Notes"
+                    size="md">
+          </cds-icon>
+        </a>
+      </div> 
+
+      <div class="vl"></div>
+
+      <div class="settings-dd-wrap">
+        <clr-dropdown class="action-dd">    
+          <span class="user-Icon"><cds-icon shape="user" solid="true"></cds-icon></span>              
+          <span class="user-icon-text">RAVIK</span>        
+        </clr-dropdown> 
+      </div>
+       
+    </div>
+
   </header>
+
+
+  <clr-modal [(clrModalOpen)]="modalOpen"  clrModalSize="xl">
+    
+    <div class="modal-body">
+      <iframe [src]="urlToOpen"
+              title="W3Schools Free Online Web Tutorials"
+              width="100%"
+              height="100%">
+      </iframe>
+    </div>
+   
+  </clr-modal>
