@@ -1,96 +1,108 @@
-<div class="search-title">
-    <cds-icon shape="folder-open" solid="true" style="display: block;"></cds-icon>
-    <p cds-text="subsection">Weather Notificaiton Search</p>
+<div class="search-title" *ngIf="showButton">
+    <cds-icon shape="folder-open" solid="true" ></cds-icon>
+    <p cds-text="subsection">Weather Notification Search</p>
 </div>
-<form clrForm clrLayout="horizontal" #notificationSearchform="ngForm" (ngSubmit)="onSubmit(notificationSearchform)" >
-    <div class="clr-row">
-        <div class="clr-col-12 clr-col-md-3 ">
+<form clrForm clrLayout="horizontal" #notificationSearchform="ngForm" (ngSubmit)="onSubmit(notificationSearchform)">
+    <div class="clr-row" *ngIf="showButton">
+        <div class="clr-col-12 clr-col-md-3 clr-col-sm-3">
             <clr-date-container>
                 <label for="startDatepickrnm" class="clr-col-12 clr-col-md-3">Start&nbsp;Date</label>
-                <input class="clr-col-12 clr-col-md-9" type="date" required clrDate id="startDatepickrnm" name="startDatepickrnm" #frmSrchStDt="ngModel" [(ngModel)]="notificationSearch.startDate"
-                (ngModelChange)="validateDates(notificationSearchform)">
-            </clr-date-container>
-            <div *ngIf="frmSrchStDt.errors?.['invalidDate']" class="clr-col-12 text-danger">
-                Start date must be lesser than Start date.
-            </div>
+                <input class="clr-col-12 clr-col-md-9" type="date" required clrDate id="startDatepickrnm" name="startDatepickrnm" #frmSrchStDt="ngModel" 
+                [disabled]="notificationSearch.mappedEvents" [(ngModel)]="notificationSearch.startDate" 
+                (ngModelChange)="validateDates(notificationSearchform,'startDate')">                                             
+            </clr-date-container>                       
+            <clr-control-error *ngIf="frmSrchStDt.errors?.['invalidDate']" class="text-danger">
+                {{startDateErrorMsgs}}
+              </clr-control-error>
+                    
         </div>
-        <div class="clr-col-12 clr-col-md-3">
-            <clr-date-container>
-                <label for="endDatepickrnm" class="clr-col-12 clr-col-md-3">End&nbsp;Date</label>
-                <input class="clr-col-12 clr-col-md-9" type="date" required clrDate id="endDatepickrnm" name="endDatepickrnm" #frmSrchEndDt="ngModel" [(ngModel)]="notificationSearch.endDate"
-                (ngModelChange)="validateDates(notificationSearchform)">
-            </clr-date-container>
-            <div *ngIf="frmSrchEndDt.errors?.['invalidDate']" class="clr-col-12 text-danger">
-                End date must be greater than Start date.
-            </div>
+        <div class="clr-col-12 clr-col-md-3 clr-col-sm-3">
+            <clr-date-container>               
+                <label for="endDatepickrnm" class="clr-col-12 clr-col-md-3 space-text">End Date</label>
+                <input class="clr-col-12 clr-col-md-9" type="date" required clrDate id="endDatepickrnm" name="endDatepickrnm" #frmSrchEndDt="ngModel" 
+                [disabled]="notificationSearch.mappedEvents" [(ngModel)]="notificationSearch.endDate" 
+                (ngModelChange)="validateDates(notificationSearchform, 'endDate')">                                      
+            </clr-date-container>            
+            <clr-control-error *ngIf="frmSrchEndDt.errors?.['invalidDate']" class="text-danger">
+                {{endDateErrorMsgs}}
+              </clr-control-error>
+                       
         </div>
-        <div class="clr-col-12 clr-col-md-3">
+        <div class="clr-col-12 clr-col-md-3 clr-col-sm-3">
             <clr-input-container>
                 <label for="location" class="clr-col-12 clr-col-md-2"><div>Location</div></label>
-                <input class="clr-col-12 clr-col-md-8" clrInput type="text" id="location" required name="location" #frmSrchLocation="ngModel" [(ngModel)]="notificationSearch.location" />
+                <input class="clr-col-12 clr-col-md-8" clrInput type="text" id="location" name="location" #frmSrchLocation="ngModel" 
+                [disabled]="notificationSearch.mappedEvents" [(ngModel)]="notificationSearch.location" />
               </clr-input-container>
         </div>
+        <div class="clr-col-12 clr-col-md-3 clr-col-sm-3">
+            <div class="checkbox-container clr-form-control clr-row" [class.clr-checkbox-disable]="!enableMapEvent" >
+                
+                <input type="checkbox" class="clr-col-12 clr-col-md-2"  clrCheckbox id="mappedEvents" name="mappedEvents" 
+                [(ngModel)]="notificationSearch.mappedEvents"
+                #mappedEvents="ngModel" (change)="onmappedEventsBox(notificationSearchform)">
+           
+                <label for="mappedEvents" class="clr-col-12 clr-col-md-8"><div>Mapped&nbsp;Events</div></label>
+            </div>
+        </div>
     </div>
-
     <div class="clr-row">
-        <div class="clr-col-12 clr-col-md-3">
+        <div class="clr-col-12 clr-col-md-4 clr-col-sm-4">
             <clr-combobox-container>
-                <label class="clr-col-12 clr-col-md-3">Country</label>
-                <clr-combobox class="clr-col-12 clr-col-md-6" 
-                              clrMulti="false"
-                              name="frmCountry" 
-                              [required]="true"
-                              [(ngModel)]="notificationSearch.country"
-                              (ngModelChange)="onCountryChange($event)"
-                              #selCountries="ngModel">
-                    <ng-container *clrOptionSelected="let selected">
-                        {{ selected?.countryName }}
-                    </ng-container>
-                    <clr-options>
-                        <clr-option *clrOptionItems="let country of countries; field: 'countryName'" 
-                                    [clrValue]="country">
-                            {{ country?.countryName }}
-                        </clr-option>
-                    </clr-options>
-                </clr-combobox>
-                 <!-- Validation Message -->
-                <clr-control-error *ngIf="selCountries?.invalid && selCountries?.touched">
-                    This field is required
-                </clr-control-error>
-            </clr-combobox-container>
+              <label for="frmSrchCountry" class="clr-col-12 clr-col-md-3">Country</label>
+              <clr-combobox class="clr-col-12 clr-col-md-9 narrow-select" 
+                            [(ngModel)]="notificationSearch.frmSrchCountry" 
+                            clrMulti="true"
+                            (ngModelChange)="checkCountries(notificationSearch.frmSrchCountry)" 
+                            name="frmSrchCountry"  
+                            [placeholder]="notificationSearch?.frmSrchCountry?.length > 0 ?'' :'ALL'"
+                            #frmSrchCountry="ngModel" 
+                            (ngModelChange)="countryChanged()"  
+                            [disabled]="notificationSearch.mappedEvents">
+              <ng-container *clrOptionSelected="let selected">
+                <span [ngClass]="getCountryClass(selected?.key)">
+                    {{ selected?.value }}</span>
+            </ng-container>
+            <clr-options>
+                <clr-option *clrOptionItems="let country of getAvailableCountries(); field: 'key'"
+                    [clrValue]="country">
+                    {{ country.value }}
+                </clr-option>
+            </clr-options>
+              </clr-combobox>              
+            </clr-combobox-container>               
         </div>
 
-        <div class="clr-col-12 clr-col-md-3" *ngIf="isCountrySelected">
+           <!-- State Dropdown (Visible if USA is selected for Country) -->
+        <div  class="clr-col-12 clr-col-md-4 clr-col-sm-4" *ngIf="isUSAExist">           
             <clr-combobox-container>
-                <label class="clr-col-12 clr-col-md-3">States</label>
-                <clr-combobox class="clr-col-12 clr-col-md-6" 
-                              clrMulti="false" 
-                              name="frmState" 
-                              [(ngModel)]="notificationSearch.state"
-                              #selStates="ngModel"
-                              [required]="isCountrySelected">
-                    <ng-container *clrOptionSelected="let selected">
-                        {{ selected?.name }}
-                    </ng-container>
-                    <clr-options>
-                        <clr-option *clrOptionItems="let state of states; field: 'name'" 
-                                    [clrValue]="state">
-                            {{ state.name }}
-                        </clr-option>
-                    </clr-options>
-                </clr-combobox>
-                 <!-- Validation Message -->
-                <clr-control-error *ngIf="selStates?.invalid && selStates?.touched">
-                    This field is required
-                </clr-control-error>
-            </clr-combobox-container>
+            <label for="frmState" class="clr-col-12 clr-col-md-3">States <span class="us-state-text-font">(US only)</span></label>
+            <clr-combobox class="clr-col-12 clr-col-md-9 narrow-select2"  [(ngModel)]="notificationSearch.frmSrchState"
+            (ngModelChange)="checkStates(notificationSearch.frmSrchState)" [disabled]="notificationSearch.mappedEvents"
+            [placeholder]="notificationSearch?.frmSrchState?.length > 0 ?'' :'ALL'" 
+            clrMulti="true" name="frmSrchState" #frmSrchState="ngModel">
+            <ng-container *clrOptionSelected="let selected"> <span [ngClass]="getClass(selected?.key)">
+                {{ selected?.key }}</span></ng-container>
+                <clr-options>
+                <clr-option *clrOptionItems="let state of getAvailableStates(); field:'value'" [clrValue]="state">
+                    {{ state.value }}
+                </clr-option>
+                </clr-options>
+            </clr-combobox>                
+            </clr-combobox-container>    
         </div>
+
+        <div class="clr-col-12 clr-col-md-4 clr-col-sm-4"> 
+
+        </div>
+        
     </div>
 
-    <div class="action-button">
-        <button type="submit" (click)="save()" class="btn btn-primary" [disabled]="!(notificationSearchform.valid || enableSave)">Save</button>
-        <button type="button" class="btn btn-primary" [disabled]="!notificationSearchform.valid" (click)="onSearch(notificationSearchform)"><cds-icon shape="search"></cds-icon>Search</button>
-        <button type="button" class="btn btn-primary" [disabled]="!notificationSearchform.valid" (click)="notificationSearchform.reset()"><cds-icon shape="refresh"></cds-icon>Reset</button>
+   
+   <div class="action-button">
+        <button type="submit" class="btn btn-primary" *ngIf="showButton" [disabled]="!enableSave" >Save</button>
+        <button type="button" class="btn btn-primary" *ngIf="showButton" [disabled]="notificationSearch.mappedEvents ? notificationSearch.mappedEvents : !notificationSearchform.valid" (click)="onSearch(notificationSearchform)"><cds-icon shape="search"></cds-icon>Search</button>
+        <button type="button" class="btn btn-primary" *ngIf="showButton" (click)="onReset(notificationSearchform)"><cds-icon shape="refresh"></cds-icon>Reset</button>
         <button type="button" class="btn btn-primary" (click)="closeForm()">Close</button>
-    </div>
+   </div>
 </form>
