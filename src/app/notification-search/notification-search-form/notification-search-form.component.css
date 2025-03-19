@@ -1,14 +1,24 @@
-.responsive-row {
-  display: flex;
-  flex-wrap: wrap;
-}
-
+/* Stack action buttons vertically on small screens */
 @media (max-width: 768px) {
-  .clr-combobox-container label {
-    width: 100%;
-  }
+    .action-button .clr-col-12 {
+        margin-bottom: 10px;
+    }
 
-  .clr-combobox-container clr-combobox {
-    width: 100%;
-  }
+    .action-button .btn {
+        width: 100%;
+    }
+
+    /* Adjust spacing for form fields */
+    .clr-row .clr-col-12 {
+        margin-bottom: 15px;
+    }
+
+    /* Reduce font size for labels on small screens */
+    .search-title p {
+        font-size: 1.2rem;
+    }
+
+    .clr-form-control label {
+        font-size: 0.9rem;
+    }
 }
