@@ -48,9 +48,9 @@
     </div>
     <div class="clr-row">
         <div class="clr-col-12 clr-col-md-4 clr-col-sm-4">
-            <clr-combobox-container>
-                <label for="frmSrchCountry">Country</label>
-                <clr-combobox 
+            <clr-combobox-container class="clr-row">
+                <label for="frmSrchCountry" class="clr-col-12 clr-col-md-4">Country</label>
+                <clr-combobox class="clr-col-12 clr-col-md-8"
                               [(ngModel)]="notificationSearch.frmSrchCountry" 
                               clrMulti="true"
                               (ngModelChange)="checkCountries(notificationSearch.frmSrchCountry)"
@@ -77,8 +77,8 @@
            <!-- State Dropdown (Visible if USA is selected for Country) -->
         <div  class="clr-col-12 clr-col-md-4 clr-col-sm-4" *ngIf="isUSAExist">           
             <clr-combobox-container class="clr-row">
-            <label for="frmState" class="clr-col-12 clr-col-md-3">States <span class="us-state-text-font">(US only)</span></label>
-            <clr-combobox class="clr-col-12 clr-col-md-9 narrow-select2"  [(ngModel)]="notificationSearch.frmSrchState"
+            <label for="frmState" class="clr-col-12 clr-col-md-4">States <span class="us-state-text-font">(US only)</span></label>
+            <clr-combobox class="clr-col-12 clr-col-md-8 narrow-select2"  [(ngModel)]="notificationSearch.frmSrchState"
             (ngModelChange)="checkStates(notificationSearch.frmSrchState)" [disabled]="notificationSearch.mappedEvents"
             [placeholder]="notificationSearch?.frmSrchState?.length > 0 ?'' :'ALL'" 
             clrMulti="true" name="frmSrchState" #frmSrchState="ngModel">
