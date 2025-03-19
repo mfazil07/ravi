@@ -1,58 +1,14 @@
-.search-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.responsive-row {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-.clr-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.clr-col-12, .clr-col-md-3, .clr-col-md-6 {
-    box-sizing: border-box;
-}
-
-.clr-combobox-container, .clr-date-container, .clr-input-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-}
-
-.clr-combobox, .clr-date-container input, .clr-input-container input {
-    width: 100%;
-}
-
-.label {
-    z-index: 2;
-    position: relative;
-}
-
-/* Media query for responsive design */
 @media (max-width: 768px) {
-    .clr-col-12, .clr-col-md-3, .clr-col-md-6 {
-        width: 100%;
-    }
+  .clr-combobox-container label {
+    width: 100%;
+  }
 
-    .clr-combobox-container, .clr-date-container, .clr-input-container {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .clr-date-container label, .clr-input-container label, .clr-combobox-container label {
-        width: 100%;
-    }
-
-    .clr-date-container input, .clr-input-container input, .clr-combobox {
-        width: 100%;
-    }
-}
-
-.action-button {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+  .clr-combobox-container clr-combobox {
+    width: 100%;
+  }
 }
