@@ -1,15 +1,27 @@
-.search-title{
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; /* Add space between elements */
 }
-.action-button{
-    display: flex;
-    margin-top: 2rem;
-    width: 100%;
-    justify-content: flex-end;
+
+.combo-box {
+  position: relative; /* Ensure proper stacking context */
 }
-.text-danger{
-    font-size: 12px;
-    color: red;
+
+.clr-col-12, .clr-col-md-3, .clr-col-md-6, .clr-col-md-4, .clr-col-md-8 {
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+.clr-combobox-container, .clr-datalist-container {
+  display: flex;
+  flex-direction: column;
+  align-items: start; /* Align items to the start of the container */
+}
+
+.clr-combobox, clr-datalist-container {
+  z-index: 1; /* Ensure the combobox and datalist are on top */
+}
+
+label {
+  z-index: 2; /* Ensure labels are on top of inputs */
 }
