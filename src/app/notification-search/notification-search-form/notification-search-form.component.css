@@ -1,62 +1,14 @@
-<div class="clr-row">
-  <!-- Country Dropdown -->
-  <div class="clr-col-12 clr-col-md-6 clr-col-lg-3">
-    <clr-combobox-container>
-      <label for="frmSrchCountry" class="clr-col-12 clr-col-md-3">Country</label>
-      <clr-combobox
-        class="clr-col-12 clr-col-md-9 narrow-select"
-        [(ngModel)]="notificationSearch.frmSrchCountry"
-        clrMulti="true"
-        (ngModelChange)="checkCountries(notificationSearch.frmSrchCountry)"
-        name="frmSrchCountry"
-        [placeholder]="notificationSearch?.frmSrchCountry?.length > 0 ? '' : 'ALL'"
-        #frmSrchCountry="ngModel"
-        (ngModelChange)="countryChanged()"
-        [disabled]="notificationSearch.mappedEvents"
-      >
-        <ng-container *clrOptionSelected="let selected">
-          <span [ngClass]="getCountryClass(selected?.key)">{{ selected?.value }}</span>
-        </ng-container>
-        <clr-options>
-          <clr-option
-            *clrOptionItems="let country of getAvailableCountries(); field: 'key'"
-            [clrValue]="country"
-          >
-            {{ country.value }}
-          </clr-option>
-        </clr-options>
-      </clr-combobox>
-    </clr-combobox-container>
-  </div>
+.responsive-row {
+  display: flex;
+  flex-wrap: wrap;
+}
 
-  <!-- State Dropdown (Visible if USA is selected for Country) -->
-  <div class="clr-col-12 clr-col-md-6 clr-col-lg-3" *ngIf="isUSAExist">
-    <clr-combobox-container>
-      <label for="frmState" class="clr-col-12 clr-col-md-3"
-        >States <span class="us-state-text-font">(US only)</span></label
-      >
-      <clr-combobox
-        class="clr-col-12 clr-col-md-9 narrow-select2"
-        [(ngModel)]="notificationSearch.frmSrchState"
-        (ngModelChange)="checkStates(notificationSearch.frmSrchState)"
-        [disabled]="notificationSearch.mappedEvents"
-        [placeholder]="notificationSearch?.frmSrchState?.length > 0 ? '' : 'ALL'"
-        clrMulti="true"
-        name="frmSrchState"
-        #frmSrchState="ngModel"
-      >
-        <ng-container *clrOptionSelected="let selected">
-          <span [ngClass]="getClass(selected?.key)">{{ selected?.key }}</span>
-        </ng-container>
-        <clr-options>
-          <clr-option
-            *clrOptionItems="let state of getAvailableStates(); field: 'value'"
-            [clrValue]="state"
-          >
-            {{ state.value }}
-          </clr-option>
-        </clr-options>
-      </clr-combobox>
-    </clr-combobox-container>
-  </div>
-</div>
+@media (max-width: 768px) {
+  .clr-combobox-container label {
+    width: 100%;
+  }
+
+  .clr-combobox-container clr-combobox {
+    width: 100%;
+  }
+}
