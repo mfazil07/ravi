@@ -49,27 +49,30 @@
     <div class="clr-row">
         <div class="clr-col-12 clr-col-md-4 clr-col-sm-4">
             <clr-combobox-container>
-              <label for="frmSrchCountry" class="clr-col-12 clr-col-md-3">Country</label>
-              <clr-combobox class="clr-col-12 clr-col-md-9 narrow-select" 
-                            [(ngModel)]="notificationSearch.frmSrchCountry" 
-                            clrMulti="true"
-                            (ngModelChange)="checkCountries(notificationSearch.frmSrchCountry)" 
-                            name="frmSrchCountry"  
-                            [placeholder]="notificationSearch?.frmSrchCountry?.length > 0 ?'' :'ALL'"
-                            #frmSrchCountry="ngModel" 
-                            (ngModelChange)="countryChanged()"  
-                            [disabled]="notificationSearch.mappedEvents">
-              <ng-container *clrOptionSelected="let selected">
-                <span [ngClass]="getCountryClass(selected?.key)">
-                    {{ selected?.value }}</span>
-            </ng-container>
-            <clr-options>
-                <clr-option *clrOptionItems="let country of getAvailableCountries(); field: 'key'"
-                    [clrValue]="country">
-                    {{ country.value }}
-                </clr-option>
-            </clr-options>
-              </clr-combobox>              
+                <div class="clr-row">
+                    <label for="frmSrchCountry" class="clr-col-12 clr-col-md-3">Country</label>
+                    <clr-combobox class="clr-col-12 clr-col-md-9" 
+                                  [(ngModel)]="notificationSearch.frmSrchCountry" 
+                                  clrMulti="true"
+                                  (ngModelChange)="checkCountries(notificationSearch.frmSrchCountry)"
+                                  name="frmSrchCountry"
+                                  [placeholder]="notificationSearch?.frmSrchCountry?.length > 0 ?'' :'ALL'" 
+                                  #frmSrchCountry="ngModel"
+                                  (ngModelChange)="countryChanged()" 
+                                  [disabled]="notificationSearch.mappedEvents">
+                        <ng-container *clrOptionSelected="let selected">
+                            <span [ngClass]="getCountryClass(selected?.key)">
+                                {{ selected?.value }}</span>
+                        </ng-container>
+                        <clr-options>
+                            <clr-option *clrOptionItems="let country of getAvailableCountries(); field: 'key'"
+                                      [clrValue]="country">
+                                {{ country.value }}
+                            </clr-option>
+                        </clr-options>
+                    </clr-combobox>
+               </div>
+                          
             </clr-combobox-container>               
         </div>
 
