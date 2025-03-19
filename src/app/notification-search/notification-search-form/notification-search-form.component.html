@@ -76,7 +76,7 @@
 
            <!-- State Dropdown (Visible if USA is selected for Country) -->
         <div  class="clr-col-12 clr-col-md-4 clr-col-sm-4" *ngIf="isUSAExist">           
-            <clr-combobox-container>
+            <clr-combobox-container class="clr-row">
             <label for="frmState" class="clr-col-12 clr-col-md-3">States <span class="us-state-text-font">(US only)</span></label>
             <clr-combobox class="clr-col-12 clr-col-md-9 narrow-select2"  [(ngModel)]="notificationSearch.frmSrchState"
             (ngModelChange)="checkStates(notificationSearch.frmSrchState)" [disabled]="notificationSearch.mappedEvents"
