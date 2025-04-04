@@ -1,4 +1,10 @@
-/* You can add global styles to this file, and also import other style files */
-.pd-20{
-    padding: 20px;
-}
+flowchart TD
+    A[ePROCESS SUITE] --> B[LOGIN]
+    B --> C[VERIFY attend]
+    C --> D[Consulant Level]
+    D --> E[Create Diag]
+    E --> F[Create Diagnostic Pop-up]
+    F --> G[Add CPT Button]
+    G --> H[Enter CPT Sleep Study Description or CPT Code]
+    H --> I[HSAT Device Selection]
+    I --> J[Save to Database]
