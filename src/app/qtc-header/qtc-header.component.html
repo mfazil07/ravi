@@ -1,81 +1,34 @@
-<!-- <header class="header-6">
-    <div class="branding">
-      <a  class="nav-link">
-        <img height="48.8" alt="logo" width="100" src="/weatheralert/assets/Leidos_QTC_Logo_White.png">
-        <span class="logotext">Weather Notifications</span>
-        
+<header class="header">
+  <div class="branding">
+    <a class="nav-link">
+      <img height="48.8" alt="logo" width="100" src="assets/Leidos_QTC_Logo_White.png">
+      <span class="logotext">Weather Notifications</span>
+    </a>
+  </div>
+  <div class="header-actions-wrap">
+    <div class="notes-container" *ngIf="appointmentsIconRequired">
+      <a class="notes-text">
+        <cds-icon shape="folder-open" title="Appointments" size="md" (click)="openAppointmentsWindow()">
+        </cds-icon>
+        <span>Appointments</span>
+      </a> 
+    </div>
+    <div class="notes-container" *ngIf="notesRequired">
+      <a class="notes-text">
+        <cds-icon shape="note" title="Notes" size="md" (click)="openNotesWindow()">
+        </cds-icon>
+        <span class="notes-icon-text">Notes</span>
       </a>
     </div>
-
-   
-    <div class="header-actions">
-
-      
-
-      <clr-dropdown>
-        <button class="nav-icon" clrDropdownTrigger aria-label="toggle settings menu">
-          <cds-icon shape="cog"></cds-icon>
-          <cds-icon shape="angle" direction="down"></cds-icon>
-        </button>
-        <clr-dropdown-menu *clrIfOpen clrPosition="bottom-right">
-          <a href="/weatheralert" clrDropdownItem>About</a>
-          <a href="/weatheralert" clrDropdownItem>Preferences</a>
-          <a href="/weatheralert" clrDropdownItem>Log out</a>
-        </clr-dropdown-menu>
+    <div class="vl"></div>
+    <div class="settings-dd-wrap">
+      <clr-dropdown class="action-dd">
+        <span class="user-Icon">
+          <cds-icon shape="user" solid="true" style="vertical-align: text-top;">
+          </cds-icon>
+        </span>
+        <span class="user-icon-text">{{userName}}</span>
       </clr-dropdown>
     </div>
-  </header> -->
-
-  <header class="header">
-    <div class="branding">
-      <a  class="nav-link">
-        <img height="48.8" 
-             alt="logo" 
-             width="100" 
-             src="assets/Leidos_QTC_Logo_White.png">
-        <span class="logotext">Weather Notifications</span>
-      </a>
-    </div>
-
-    <div class="header-actions-wrap">
-      <div class="notes-ccontainer">
-        <a (click)="modalOpen = true"
-           class="notes-text"
-           target="_blank">
-          <cds-icon shape="note" 
-                    title="Notes"
-                    size="md">
-          </cds-icon>
-        </a>
-      </div> 
-
-      <div class="vl"></div>
-
-      <div class="settings-dd-wrap">
-        <clr-dropdown class="action-dd">    
-          <span class="user-Icon">
-                <cds-icon shape="user" 
-                          solid="true"
-                          style="vertical-align: text-top;">
-                </cds-icon>
-          </span>              
-          <span class="user-icon-text">RAVIK</span>        
-        </clr-dropdown> 
-      </div>
-       
-    </div>
-
-  </header>
-
-
-  <clr-modal [(clrModalOpen)]="modalOpen"  clrModalSize="xl">
-    
-    <div class="modal-body">
-      <iframe [src]="urlToOpen"
-              title="W3Schools Free Online Web Tutorials"
-              width="100%"
-              height="100%">
-      </iframe>
-    </div>
-   
-  </clr-modal>
+  </div>
+</header>
