@@ -10,7 +10,22 @@ modalOpen: boolean = false;
   urlToOpen: any= '';
 
   constructor(private domSanitizer: DomSanitizer) {
-    const url = 'https://www.google.com';
-    this.urlToOpen = this.domSanitizer.bypassSecurityTrustResourceUrl(url);
+   this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        const url = event.urlAfterRedirects;
+
+        // Example logic for determining claimantLevel
+        if (url.includes('/admin')) {
+          this.claimantLevel = 'Admin';
+        } else if (url.includes('/provider')) {
+          this.claimantLevel = 'Provider';
+        } else if (url.includes('/user')) {
+          this.claimantLevel = 'User';
+        } else {
+          this.claimantLevel = 'Guest';
+        }
+      });
+  }
   }
 }
