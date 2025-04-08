@@ -52,6 +52,22 @@ export class QtcHeaderComponent implements OnInit {
       this.caseId = caseId;
     });
 
+     this.router.events
+    .pipe(filter(event => event instanceof NavigationEnd))
+    .subscribe((event: NavigationEnd) => {
+      const currentUrl = event.urlAfterRedirects;
+
+      if (currentUrl.includes('/admin')) {
+        this.claimantLevel = 'ADMIN LEVEL';
+      } else if (currentUrl.includes('/provider')) {
+        this.claimantLevel = 'PROVIDER LEVEL';
+      } else if (currentUrl.includes('/case')) {
+        this.claimantLevel = 'CASE LEVEL';
+      } else {
+        this.claimantLevel = 'DEFAULT LEVEL';
+      }
+    });
+
     this.externalUrl = this.commonService.getReferrerUrl();
   }
 
