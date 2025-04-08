@@ -4,7 +4,7 @@
     <rewrite>
       <rules>
         <rule name="Angular Routes" stopProcessing="true">
-          <match url="search.*" />
+          <match url="^(search|withAppointment).*"         />
           <match url="withAppointment.*" />
           <conditions logicalGrouping="MatchAll">
             <add input="{REQUEST_FILENAME}" pattern="api" negate="true" />
