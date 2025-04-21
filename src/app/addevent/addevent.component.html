@@ -1,4 +1,4 @@
-<clr-modal [(clrModalOpen)]="open" [clrModalSize]="'lg'">
+<clr-modal [(clrModalOpen)]="open" [clrModalSize]="'xl'">
     <h3 class="modal-title">{{eventType}} Weather Event</h3>
     <div class="modal-body">
         <form clrForm #weatheraddform="ngForm" (ngSubmit)="onSubmit(weatheraddform)">
@@ -71,18 +71,18 @@
 
            <!-- Country Dropdown -->
           <div class="clr-row">
-            <div class="clr-col-12 clr-col-md-8 combo-box req">
-                <clr-combobox-container>
+            <div #addEventCountryComboBox class="clr-col-12 clr-col-md-8 combo-box req">
+                <clr-combobox-container class="inline-error">
                     <label class="clr-col-12 clr-col-md-6 clr-col-lg-4 clr-control-label">Country</label>
                     <clr-combobox class="clr-col-12 clr-col-md-6" [(ngModel)]="weatherAdd.frmCountry"
                         (ngModelChange)="checkCountries(weatherAdd.frmCountry)" clrMulti="true" name="frmCountry"
                         #frmCountry="ngModel" [required]="true">
                         <ng-container *clrOptionSelected="let selected">
-                            <span [ngClass]="getCountryClass(selected?.key)">
+                            <span [ngClass]="getCountryClass(selected?.value)">
                                 {{ selected?.value }}</span>
                         </ng-container>
                         <clr-options>
-                            <clr-option *clrOptionItems="let country of getAvailableCountries(); field: 'key'"
+                            <clr-option *clrOptionItems="let country of getAvailableCountries(); field: 'value'"
                                 [clrValue]="country">
                                 {{ country.value }}
                             </clr-option>
@@ -97,8 +97,8 @@
 
         <!-- State Dropdown (Visible if USA is selected for Country) -->
         <div class="clr-row" *ngIf="isUSAExist">
-            <div class="clr-col-12 clr-col-md-8 combo-box req">
-                <clr-combobox-container>
+            <div #addEventStateComboBox class="clr-col-12 clr-col-md-8 combo-box req">
+                <clr-combobox-container class="inline-error">
                     <label for="frmStates" class="clr-col-12 clr-col-md-6 clr-col-lg-4 clr-control-label">States (US only)</label>
                     <clr-combobox class="clr-col-12 clr-col-md-6" [(ngModel)]="weatherAdd.frmState"
                         (ngModelChange)="checkStates(weatherAdd.frmState)" clrMulti="true" name="frmState"
@@ -165,7 +165,7 @@
                         (ngModelChange)="onInputChange()">
                     <clr-control-error class="clr-col-12 clr-col-md-12 dateerror"
                         *ngIf="frmEndDate?.invalid && frmEndDate?.touched">
-                        <span *ngIf="frmEndDate?.errors?.['required'] || frmEndDate?.errors?.['pattern']">This field is
+                        <span *ngIf="(frmEndDate?.errors?.['required'] || frmEndDate?.errors?.['pattern'])&&(weatheraddform.submitted)">This field is
                             required!</span>
                         <span *ngIf="frmEndDate?.errors?.['invalidDate']">Select today or future date</span>
                         <span *ngIf="frmEndDate?.errors?.['invalidEndDate']">Select a date greater than or equal to
