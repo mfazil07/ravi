@@ -1,36 +1,106 @@
 .req label:before {
-    color: var(--cds-alias-status-danger);
+    color: #e32;
     content: '* ';
-    display:inline;
+    display: inline;
+    width: 100px;
+
 }
-::ng-deep clr-modal .modal-header--accessible{
-    padding: 0!important;
+
+.narrow-select {
+    width: 190px;
 }
-::ng-deep clr-modal form{
-    padding: 0!important;
+
+.red-text {
+    font-size: 14px;
+    float: left;
+    margin-top: 10px;
+    color: rgb(215, 8, 8);
+    padding: 3px;
 }
-::ng-deep clr-modal form .action-btn{
+
+.yellow-icon {
+    color: #FFCC00;
+    margin-bottom: 2px;
+}
+
+.warning-icon cds-icon path {
+    fill: #000000;
+}
+
+.normaldateinput {
+    margin-top: 30px;
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
 }
-::ng-deep clr-modal form .clr-form-control{
-    margin-top: 20px!important;
+
+.normaldateinput label::before {
+    color: rgb(215, 8, 8);
+    content: '* ';
+    display: inline;
+
 }
-::ng-deep .combo-box clr-combobox .clr-combobox-wrapper{
-    border-style: none;
-    background-color: transparent;
-    border-radius: 0;
-    border-bottom: var(--cds-alias-object-border-width-100) solid var(--clr-forms-border-color);;
+
+.normaldateinput label {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 10px;
 }
-::ng-deep .combo-box clr-combobox .clr-combobox-wrapper:hover{
-    background-color: transparent;
+
+.dateerror {
+    margin-left: 160px;
 }
-.disabled{
+
+.normaldateinput input {
+    width: auto;
+    flex: 1 0 auto;
+}
+
+.clr-control-error {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.clr-control-error span {
+    padding-left: 10px;
+    margin-left: 15px;
+}
+
+.normaldateinput .clr-before-err {
+    margin-right: 10px
+}
+
+.disabled {
     pointer-events: none;
     opacity: .3;
 }
-.charlim{
+
+.charlim {
     color: red;
-    font-size: 7px;
+    font-size: 9px;
     padding: 0 10px;
+}
+
+.inline-error clr-control-error {
+    display: inline-block;
+    white-space: nowrap;
+    font-size: 0.8 rem;
+}
+
+.clr-modal .modal-body .clr-row {
+    margin-bottom: 0.5 rem
+}
+
+::ng-deep .modal-content
+{
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+:ng-deep .modal-body
+{
+   padding-top: 0.25rem;
+   margin-top:0;
 }
