@@ -106,40 +106,15 @@
 }
 
 
-
-/* 1) Hide any scrolling on the outer modal container */
-::ng-deep clr-modal .modal,
-::ng-deep clr-modal .modal-dialog {
-  overflow: hidden !important;
+/* Custom styling to remove vertical scrollbar */
+clr-modal .modal-body {
+    max-height: 90vh; /* Limit height to viewport */
+    overflow: hidden; /* Remove scroll */
+    padding: 1.5rem; /* Adjust padding */
+    box-sizing: border-box;
 }
 
-/* 2) Make the dialog flex‐column so header/body/footer stack */
-::ng-deep clr-modal .modal-dialog {
-  display: flex !important;
-  flex-direction: column !important;
-  max-height: 90vh !important;   /* cap total height */
-  margin: auto;                   /* center vertically/horizontally */
+/* Adjust modal container if necessary */
+clr-modal {
+    overflow: hidden; /* Ensure no scroll for the entire modal */
 }
-
-/* 3) Prevent the content pane itself from scrolling */
-::ng-deep clr-modal .modal-content {
-  flex: 1 1 auto !important;
-  overflow: hidden !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-/* 4) Finally, allow only the body to scroll */
-::ng-deep clr-modal .modal-body {
-  flex: 1 1 auto !important;
-  overflow-y: auto !important;
-  /* preserve your existing padding/margin */
-  padding-top: 0.25rem;
-  margin-top: 0;
-}
-
-/* 5) Make sure footer doesn’t shrink away */
-::ng-deep clr-modal .modal-footer {
-  flex-shrink: 0 !important;
-}
-
