@@ -105,16 +105,25 @@
    margin-top:0;
 }
 
-
-/* Custom styling to remove vertical scrollbar */
-clr-modal .modal-body {
-    max-height: 90vh; /* Limit height to viewport */
-    overflow: hidden; /* Remove scroll */
-    padding: 1.5rem; /* Adjust padding */
-    box-sizing: border-box;
+/* Ensure modal content does not exceed the viewport height */
+::ng-deep .modal-content {
+    max-height: 90vh !important; /* Enforce height limit */
+    overflow-y: hidden !important; /* Remove vertical scroll */
 }
 
-/* Adjust modal container if necessary */
+/* Remove excess padding and ensure no overflow in modal body */
+:ng-deep .modal-body {
+    padding-top: 0.25rem !important;
+    margin-top: 0 !important;
+    max-height: calc(90vh - 2rem) !important; /* Adjust to fit modal height */
+    overflow-y: hidden !important; /* Ensure no vertical scroll */
+}
+
+/* Set modal container to hidden overflow */
 clr-modal {
-    overflow: hidden; /* Ensure no scroll for the entire modal */
+    overflow: hidden !important;
+    max-height: 100vh !important; /* Ensure modal fits within viewport */
+    display: flex; /* Ensure proper alignment */
+    align-items: center; /* Center the modal vertically */
+    justify-content: center; /* Center the modal horizontally */
 }
