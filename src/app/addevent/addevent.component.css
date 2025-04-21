@@ -1,22 +1,15 @@
-/* General Styles */
-.req label:before, 
-.normaldateinput label::before {
+.req label:before {
     color: #e32;
     content: '* ';
     display: inline;
+    width: 100px;
+
 }
 
-/* Inputs and Selects */
 .narrow-select {
     width: 190px;
 }
 
-.normaldateinput input {
-    width: auto;
-    flex: 1 0 auto;
-}
-
-/* Errors and Warnings */
 .red-text {
     font-size: 14px;
     float: left;
@@ -34,6 +27,36 @@
     fill: #000000;
 }
 
+.normaldateinput {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.normaldateinput label::before {
+    color: rgb(215, 8, 8);
+    content: '* ';
+    display: inline;
+
+}
+
+.normaldateinput label {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 10px;
+}
+
+.dateerror {
+    margin-left: 160px;
+}
+
+.normaldateinput input {
+    width: auto;
+    flex: 1 0 auto;
+}
+
 .clr-control-error {
     display: block;
     width: 100%;
@@ -45,14 +68,13 @@
     margin-left: 15px;
 }
 
-.inline-error clr-control-error {
-    display: inline-block;
-    white-space: nowrap;
-    font-size: 0.8rem;
+.normaldateinput .clr-before-err {
+    margin-right: 10px
 }
 
-.dateerror {
-    margin-left: 160px;
+.disabled {
+    pointer-events: none;
+    opacity: .3;
 }
 
 .charlim {
@@ -61,82 +83,25 @@
     padding: 0 10px;
 }
 
-/* Disabled State */
-.disabled {
-    pointer-events: none;
-    opacity: .3;
+.inline-error clr-control-error {
+    display: inline-block;
+    white-space: nowrap;
+    font-size: 0.8 rem;
 }
 
-/* Date Input Section */
-.normaldateinput {
-    margin-top: 30px;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
+.clr-modal .modal-body .clr-row {
+    margin-bottom: 0 rem
 }
 
-.normaldateinput label {
-    padding-left: 0;
-    padding-right: 0;
-    margin-left: 0;
-    margin-right: 10px;
-}
-
-.normaldateinput .clr-before-err {
-    margin-right: 10px;
-}
-
-/* Modal Styles */
-::ng-deep .modal-content {
-    max-height: 90vh !important; /* Ensure modal content fits within viewport */
-    overflow-y: auto !important; /* Allow content to scroll if it overflows */
-}
-
-:ng-deep .modal-body {
-    padding-top: 0.25rem !important;
-    margin-top: 0 !important;
-    max-height: calc(90vh - 2rem) !important; /* Adjust to fit modal height */
-    overflow-y: hidden !important; /* Prevent vertical scroll */
-    box-sizing: border-box;
-}
-
+ /* Custom styling to remove vertical scrollbar */
 clr-modal .modal-body {
-    max-height: 90vh;
-    overflow: hidden;
-    padding: 1.5rem;
+    max-height: 95vh; /* Limit height to viewport */
+    overflow: hidden; /* Remove scroll */
+    padding: 1.5rem; /* Adjust padding */
     box-sizing: border-box;
 }
 
+/* Adjust modal container if necessary */
 clr-modal {
-    overflow: hidden;
-    max-height: 100vh !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-clr-modal .modal-body .clr-row {
-    margin-bottom: 0.5rem;
-}
-
-/* Increase modal height and allow vertical scrolling */
-::ng-deep .modal-content {
-    max-height: 95vh !important; /* Increase modal height to 95% of the viewport */
-    overflow-y: auto !important; /* Enable vertical scrolling for overflowing content */
-}
-
-:ng-deep .modal-body {
-    padding-top: 0.25rem !important;
-    margin-top: 0 !important;
-    max-height: calc(95vh - 2rem) !important; /* Adjust modal body height to fit inside new modal height */
-    overflow-y: auto !important; /* Allow scrolling for modal body content */
-    box-sizing: border-box;
-}
-
-clr-modal {
-    max-height: 95vh !important; /* Ensure the modal container height matches the content height */
-    overflow: hidden; /* Prevent scrolling for the entire modal container */
-    display: flex;
-    align-items: center; /* Center the modal vertically */
-    justify-content: center; /* Center the modal horizontally */
+    overflow: hidden; /* Ensure no scroll for the entire modal */
 }
