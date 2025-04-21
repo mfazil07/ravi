@@ -118,3 +118,25 @@ clr-modal {
 clr-modal .modal-body .clr-row {
     margin-bottom: 0.5rem;
 }
+
+/* Increase modal height and allow vertical scrolling */
+::ng-deep .modal-content {
+    max-height: 95vh !important; /* Increase modal height to 95% of the viewport */
+    overflow-y: auto !important; /* Enable vertical scrolling for overflowing content */
+}
+
+:ng-deep .modal-body {
+    padding-top: 0.25rem !important;
+    margin-top: 0 !important;
+    max-height: calc(95vh - 2rem) !important; /* Adjust modal body height to fit inside new modal height */
+    overflow-y: auto !important; /* Allow scrolling for modal body content */
+    box-sizing: border-box;
+}
+
+clr-modal {
+    max-height: 95vh !important; /* Ensure the modal container height matches the content height */
+    overflow: hidden; /* Prevent scrolling for the entire modal container */
+    display: flex;
+    align-items: center; /* Center the modal vertically */
+    justify-content: center; /* Center the modal horizontally */
+}
