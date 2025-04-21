@@ -1,15 +1,22 @@
-.req label:before {
+/* General Styles */
+.req label:before, 
+.normaldateinput label::before {
     color: #e32;
     content: '* ';
     display: inline;
-    width: 100px;
-
 }
 
+/* Inputs and Selects */
 .narrow-select {
     width: 190px;
 }
 
+.normaldateinput input {
+    width: auto;
+    flex: 1 0 auto;
+}
+
+/* Errors and Warnings */
 .red-text {
     font-size: 14px;
     float: left;
@@ -27,36 +34,6 @@
     fill: #000000;
 }
 
-.normaldateinput {
-    margin-top: 30px;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.normaldateinput label::before {
-    color: rgb(215, 8, 8);
-    content: '* ';
-    display: inline;
-
-}
-
-.normaldateinput label {
-    padding-left: 0;
-    padding-right: 0;
-    margin-left: 0;
-    margin-right: 10px;
-}
-
-.dateerror {
-    margin-left: 160px;
-}
-
-.normaldateinput input {
-    width: auto;
-    flex: 1 0 auto;
-}
-
 .clr-control-error {
     display: block;
     width: 100%;
@@ -68,13 +45,14 @@
     margin-left: 15px;
 }
 
-.normaldateinput .clr-before-err {
-    margin-right: 10px
+.inline-error clr-control-error {
+    display: inline-block;
+    white-space: nowrap;
+    font-size: 0.8rem;
 }
 
-.disabled {
-    pointer-events: none;
-    opacity: .3;
+.dateerror {
+    margin-left: 160px;
 }
 
 .charlim {
@@ -83,47 +61,60 @@
     padding: 0 10px;
 }
 
-.inline-error clr-control-error {
-    display: inline-block;
-    white-space: nowrap;
-    font-size: 0.8 rem;
+/* Disabled State */
+.disabled {
+    pointer-events: none;
+    opacity: .3;
 }
 
-.clr-modal .modal-body .clr-row {
-    margin-bottom: 0.5 rem
+/* Date Input Section */
+.normaldateinput {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
-::ng-deep .modal-content
-{
-    max-height: 90vh;
-    overflow-y: auto;
+.normaldateinput label {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 10px;
 }
 
-:ng-deep .modal-body
-{
-   padding-top: 0.25rem;
-   margin-top:0;
+.normaldateinput .clr-before-err {
+    margin-right: 10px;
 }
 
-/* Ensure modal content does not exceed the viewport height */
+/* Modal Styles */
 ::ng-deep .modal-content {
-    max-height: 90vh !important; /* Enforce height limit */
-    overflow-y: hidden !important; /* Remove vertical scroll */
+    max-height: 90vh !important; /* Ensure modal content fits within viewport */
+    overflow-y: auto !important; /* Allow content to scroll if it overflows */
 }
 
-/* Remove excess padding and ensure no overflow in modal body */
 :ng-deep .modal-body {
     padding-top: 0.25rem !important;
     margin-top: 0 !important;
     max-height: calc(90vh - 2rem) !important; /* Adjust to fit modal height */
-    overflow-y: hidden !important; /* Ensure no vertical scroll */
+    overflow-y: hidden !important; /* Prevent vertical scroll */
+    box-sizing: border-box;
 }
 
-/* Set modal container to hidden overflow */
+clr-modal .modal-body {
+    max-height: 90vh;
+    overflow: hidden;
+    padding: 1.5rem;
+    box-sizing: border-box;
+}
+
 clr-modal {
-    overflow: hidden !important;
-    max-height: 100vh !important; /* Ensure modal fits within viewport */
-    display: flex; /* Ensure proper alignment */
-    align-items: center; /* Center the modal vertically */
-    justify-content: center; /* Center the modal horizontally */
+    overflow: hidden;
+    max-height: 100vh !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+clr-modal .modal-body .clr-row {
+    margin-bottom: 0.5rem;
 }
