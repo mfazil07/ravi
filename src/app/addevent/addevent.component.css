@@ -49,7 +49,7 @@
 }
 
 .dateerror {
-    margin-left: 160px;
+    margin-left: 264px;
 }
 
 .normaldateinput input {
@@ -96,12 +96,20 @@
  /* Custom styling to remove vertical scrollbar */
 clr-modal .modal-body {
     max-height: 95vh; /* Limit height to viewport */
-    overflow: hidden; /* Remove scroll */
-    padding: 1.5rem; /* Adjust padding */
+    padding: 0.5rem; /* Adjust padding */
     box-sizing: border-box;
 }
 
 /* Adjust modal container if necessary */
 clr-modal {
     overflow: hidden; /* Ensure no scroll for the entire modal */
+}
+
+::ng-deep .modal-header--accessible {
+    padding-bottom: 10px !important;
+}
+
+::ng-deep .modal-body-wrapper {
+    overflow-y: auto !important;
+    max-height: 73vh !important;
 }
