@@ -40,3 +40,24 @@
         </clr-select-container>
     </div>
 </div>
+                    /* Make combobox and select inputs match VA Weather Code width */
+::ng-deep .clr-combobox-input, 
+::ng-deep .clr-select {
+    width: 100% !important;
+}
+
+/* Remove the narrow-select class if it was limiting width */
+.narrow-select {
+    width: 100% !important;
+}
+
+/* Ensure the combobox container expands */
+.clr-combobox {
+    width: 100%;
+}
+
+/* Make sure the dropdown options are wide enough */
+::ng-deep .clr-options {
+    min-width: 100% !important;
+    width: auto !important;
+}
