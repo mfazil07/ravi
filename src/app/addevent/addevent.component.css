@@ -114,21 +114,26 @@ clr-modal {
     max-height: 73vh !important;
 }
 
-
-/* Ensure the modal's body is scrollable but without vertical scrollbars */
+ /* Ensure the modal's body is scrollable but without vertical scrollbars */
 clr-modal .modal-body {
-    max-height: 95vh; /* Limit height to viewport */
-    overflow-y: scroll; /* Enable scrolling */
+    max-height: 95vh; /* Limit height relative to the viewport */
+    overflow-y: auto; /* Allow scrolling inside the modal body */
     -ms-overflow-style: none; /* Hide scrollbar in Internet Explorer */
     scrollbar-width: none; /* Hide scrollbar in Firefox */
 }
 
-/* Hide scrollbar for all browsers */
+/* Hide scrollbar for WebKit browsers (Chrome, Safari) */
 clr-modal .modal-body::-webkit-scrollbar {
-    display: none; /* Hide scrollbar in WebKit browsers (Chrome, Safari) */
+    display: none; /* Hide scrollbar in Chrome, Safari */
 }
 
-/* Adjust the modal container to ensure proper layout */
+/* Ensure no extra scrollbars on the modal container itself */
 clr-modal {
-    overflow: hidden; /* Prevent extra scrollbars on the modal container */
+    overflow: hidden; /* Prevent extra scrollbars on the entire modal */
+}
+
+/* Adjust padding for the modal body to ensure content fits properly */
+clr-modal .modal-body {
+    padding: 1rem; /* Adjust padding for better spacing */
+    box-sizing: border-box; /* Ensure padding does not affect dimensions */
 }
