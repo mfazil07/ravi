@@ -6,10 +6,6 @@
 
 }
 
-.narrow-select {
-    width: 190px;
-}
-
 .red-text {
     font-size: 14px;
     float: left;
@@ -49,7 +45,7 @@
 }
 
 .dateerror {
-    margin-left: 264px;
+    margin-left: 130px;
 }
 
 .normaldateinput input {
@@ -91,19 +87,7 @@
 
 .clr-modal .modal-body .clr-row {
     margin-bottom: 0 rem
-}
-
- /* Custom styling to remove vertical scrollbar */
-clr-modal .modal-body {
-    max-height: 95vh; /* Limit height to viewport */
-    padding: 0.5rem; /* Adjust padding */
-    box-sizing: border-box;
-}
-
-/* Adjust modal container if necessary */
-clr-modal {
-    overflow: hidden; /* Ensure no scroll for the entire modal */
-}
+} 
 
 ::ng-deep .modal-header--accessible {
     padding-bottom: 10px !important;
@@ -113,27 +97,10 @@ clr-modal {
     overflow-y: auto !important;
     max-height: 73vh !important;
 }
-
- /* Ensure the modal's body is scrollable but without vertical scrollbars */
-clr-modal .modal-body {
-    max-height: 95vh; /* Limit height relative to the viewport */
-    overflow-y: auto; /* Allow scrolling inside the modal body */
-    -ms-overflow-style: none; /* Hide scrollbar in Internet Explorer */
-    scrollbar-width: none; /* Hide scrollbar in Firefox */
+.pr-remove{
+    padding-right: 0px;
 }
 
-/* Hide scrollbar for WebKit browsers (Chrome, Safari) */
-clr-modal .modal-body::-webkit-scrollbar {
-    display: none; /* Hide scrollbar in Chrome, Safari */
-}
-
-/* Ensure no extra scrollbars on the modal container itself */
-clr-modal {
-    overflow: hidden; /* Prevent extra scrollbars on the entire modal */
-}
-
-/* Adjust padding for the modal body to ensure content fits properly */
-clr-modal .modal-body {
-    padding: 1rem; /* Adjust padding for better spacing */
-    box-sizing: border-box; /* Ensure padding does not affect dimensions */
+.float-right{
+    float:right;
 }
