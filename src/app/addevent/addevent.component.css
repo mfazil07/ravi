@@ -113,3 +113,22 @@ clr-modal {
     overflow-y: auto !important;
     max-height: 73vh !important;
 }
+
+
+/* Ensure the modal's body is scrollable but without vertical scrollbars */
+clr-modal .modal-body {
+    max-height: 95vh; /* Limit height to viewport */
+    overflow-y: scroll; /* Enable scrolling */
+    -ms-overflow-style: none; /* Hide scrollbar in Internet Explorer */
+    scrollbar-width: none; /* Hide scrollbar in Firefox */
+}
+
+/* Hide scrollbar for all browsers */
+clr-modal .modal-body::-webkit-scrollbar {
+    display: none; /* Hide scrollbar in WebKit browsers (Chrome, Safari) */
+}
+
+/* Adjust the modal container to ensure proper layout */
+clr-modal {
+    overflow: hidden; /* Prevent extra scrollbars on the modal container */
+}
