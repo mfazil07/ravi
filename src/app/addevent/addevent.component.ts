@@ -61,3 +61,66 @@
     min-width: 100% !important;
     width: auto !important;
 }
+
+
+
+/// date 
+
+
+<!-- Start and End Date Fields - Modified -->
+<div class="clr-row">
+    <div class="clr-col-12 clr-col-md-8">
+        <div class="clr-row">
+            <!-- Start Date -->
+            <div class="clr-col-12 clr-col-md-6 normaldateinput">
+                <label for="startDate" class="clr-control-label"><b>Start Date</b></label>
+                <input [min]="minStartDate" [max]="maxStartDate" class="clr-input" type="date" autocomplete="off" 
+                    pattern=".*\S.*" required id="startDate" name="frmStartDate" #frmStartDate="ngModel"
+                    [(ngModel)]="weatherAdd.frmStartDate" (change)="onDateChange(frmStartDate)" 
+                    (ngModelChange)="onInputChange()">
+                <clr-control-error class="dateerror" *ngIf="frmStartDate?.invalid && frmStartDate?.touched">
+                    <!-- existing error messages -->
+                </clr-control-error>
+            </div>
+            
+            <!-- End Date -->
+            <div class="clr-col-12 clr-col-md-6 normaldateinput">
+                <label for="endDate" class="clr-control-label"><b>End Date</b></label>
+                <input [min]="minEndDate" class="clr-input" type="date" autocomplete="off"
+                    pattern=".*\S.*" required id="enddate" name="frmEndDate" #frmEndDate="ngModel"
+                    [(ngModel)]="weatherAdd.frmEndDate" [class.disabled]="!weatherAdd.frmStartDate"
+                    (change)="onDateChange(frmEndDate)" (ngModelChange)="onInputChange()">
+                <clr-control-error class="dateerror" *ngIf="frmEndDate?.invalid && frmEndDate?.touched">
+                    <!-- existing error messages -->
+                </clr-control-error>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    /* Adjust date inputs to align properly */
+.normaldateinput {
+    padding-right: 0.5rem; /* Add some spacing between the two fields */
+}
+
+.normaldateinput:last-child {
+    padding-right: 0; /* Remove right padding for the last field */
+}
+
+/* Make date inputs fill their containers */
+.normaldateinput .clr-input {
+    width: 100%;
+}
+
+/* Adjust label alignment */
+.normaldateinput label.clr-control-label {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+/* Error message adjustments */
+.normaldateinput .dateerror {
+    display: block;
+    margin-top: 0.25rem;
+}
