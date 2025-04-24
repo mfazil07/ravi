@@ -1,262 +1,192 @@
-<clr-modal [(clrModalOpen)]="open" [clrModalSize]="'lg'">
-    <h3 class="modal-title">{{eventType}} Weather Event</h3>
-    <div class="modal-body">
-      <form clrForm #weatheraddform="ngForm" (ngSubmit)="onSubmit(weatheraddform)">
-        <!-- VA Weather Code field -->
-        <div class="clr-row">
-          <div class="clr-col-12 req">
+<div *ngIf="!loading" >
+  <div class="title flex m-t">
+    <div cds-text="subsection"><cds-icon shape="folder-open" solid="true"></cds-icon> Weather Notification Search</div>
+  </div>
+  
+  <form clrForm clrLayout="horizontal" #weathersearchform="ngForm" (ngSubmit)="onSubmit(weathersearchform)">
+      <div class="clr-row">
+          <!-- Location field -->
+          <div class="clr-col-12 clr-col-md-3">
             <clr-input-container>
-              <label for="vacode" class="clr-col-2 clr-control-label pr-remove">
-                VA Weather Code
-              </label>
-              <input class="clr-col-6" pattern=".*\S.*" required [maxLength]="50" size="50"
-                     clrInput id="vacode" name="frmVaCode" #frmVaCode="ngModel"
-                     [(ngModel)]="weatherAdd.frmVaCode" (ngModelChange)="onInputChange()" />
-              <clr-control-error *ngIf="frmVaCode?.invalid && frmVaCode?.touched">
-                <span *ngIf="frmVaCode?.errors?.['required'] || frmVaCode?.errors?.['pattern']">
-                  This field is required!
-                </span>
-              </clr-control-error>
-            </clr-input-container>
+              <label for="location" class="clr-col-12 clr-col-md-2"><div>Location</div></label>
+              <input class="clr-col-12 clr-col-md-8 narrow-select" clrInput type="text" id="location"  name="location" #frmSrchLocation="ngModel" [(ngModel)]="weathersearch.frmSrchLocation" />
+            </clr-input-container>     
+          </div>
+  
+          <!-- Weather Type field -->
+          <div  class="clr-col-12 clr-col-md-3">
+              <clr-select-container>
+                <label for="weatherType" class="clr-col-12 clr-col-md-4">Weather&nbsp;Type</label>
+                    <select class="clr-col-12 clr-col-md-8 narrow-select2" clrSelect id="weatherType" name="weatherTypenm"[(ngModel)]="weathersearch.weatherTypenm" #weatherTypenm="ngModel">
+                      <option value="">ALL</option>
+                      <option *ngFor="let item of weatherTypes" [value]="item.key">{{ item.value }}</option>
+                    </select>
+              </clr-select-container>
+          </div>
+         
+         <!-- Start Date field -->        
+         <div class="clr-col-12 clr-col-md-3 ">
+          <clr-date-container [ngClass]="{'clr-error': startDateError && frmSrchStDt.touched}">
+              <label for="startDatepickrnm" class="clr-col-12 clr-col-md-3">Start&nbsp;Date</label>
+              <input class="clr-col-12 clr-col-md-9" type="date" required  clrDate id="startDatepickrnm" name="startDatepickrnm"#frmSrchStDt="ngModel" 
+                [(ngModel)]="weathersearch.frmSrchStDt"
+                (ngModelChange)="checkDates()">                
+          </clr-date-container>
+          <clr-control-error *ngIf="startDateError">
+            {{startDateErrorMsgs}}
+          </clr-control-error>
+        </div>
+  
+        <!-- End Date field -->
+        <div class="clr-col-12 clr-col-md-3">
+          <clr-date-container [ngClass]="{'clr-error': endDateError  && frmSrchEndDt.touched}">
+              <label for="endDatepickrnm" class="clr-col-12 clr-col-md-3">End&nbsp;Date</label>
+              <input class="clr-col-12 clr-col-md-9" type="date" required clrDate id="endDatepickrnm" name="endDatepickrnm" #frmSrchEndDt="ngModel" 
+                [(ngModel)]="weathersearch.frmSrchEndDt"
+                (ngModelChange)="checkDates()">           
+          </clr-date-container>
+          <clr-control-error *ngIf="endDateError">
+           {{endDateErrorMsgs}}
+          </clr-control-error>
+        </div>
+      </div>
+  
+      <div class="clr-row">
+        <!-- Country field -->
+        <div class="clr-col-12 clr-col-md-3">
+          <clr-combobox-container>
+            <label for="frmSrchCountry" class="clr-col-12 clr-col-md-2">Country</label>
+            <clr-combobox class="clr-col-12 clr-col-md-8 narrow-select" [(ngModel)]="weathersearch.frmSrchCountry" clrMulti="true"
+              name="frmSrchCountry"  #frmSrchCountry="ngModel" (ngModelChange)="countryChanged()">
+              <ng-container *clrOptionSelected="let selected">
+                {{ selected?.value }}
+              </ng-container>
+              <clr-options>
+                <clr-option *clrOptionItems="let country of getAvailableCountries(); field: 'value'" [clrValue]="country">
+                  {{ country.value }}
+                </clr-option>
+              </clr-options>
+            </clr-combobox>              
+          </clr-combobox-container>               
+        </div>
+  
+      <!-- State Dropdown (Visible if USA is selected for Country) -->
+      <div  class="clr-col-12 clr-col-md-3" *ngIf="isUSAExist">           
+          <clr-combobox-container>
+            <label for="frmState" class="clr-col-12 clr-col-md-4">States <span class="us-state-text-font">(US only)</span></label>
+            <clr-combobox class="clr-col-12 clr-col-md-3 narrow-select2"  [(ngModel)]="weathersearch.frmSrchState" (clrSelectionChange)="clearSearch($event)" 
+            [placeholder]="weathersearch?.frmSrchState?.length > 0 ?'' :'ALL'" 
+            clrMulti="true" name="frmSrchState" #frmSrchState="ngModel">
+              <ng-container *clrOptionSelected="let selected">
+                {{ selected?.value }}
+              </ng-container>
+              <clr-options>
+                <clr-option *clrOptionItems="let state of states; field:'value'" [clrValue]="state">
+                  {{ state.key }}
+                </clr-option>
+              </clr-options>
+            </clr-combobox>                
+          </clr-combobox-container>    
+      </div>
+  
+          <!-- Check box field -->
+          <div class="clr-col-12 clr-col-md-2">
+            <div class="checkbox-container">
+              <input type="checkbox" clrCheckbox id="activeBox" name="activeBox" [(ngModel)]="weathersearch.frmActiveBox" #frmActiveBox="ngModel">
+              <label for="frmActiveBox" class="activelabel">Active</label>
+            </div>
+          </div> 
+          <div class="clr-col-12 clr-col-md-3"></div>
+      </div>
+      <!-- Button section -->
+      <div class="clr-row">
+        <div class="clr-col-12 clr-col-md-9"></div>
+          <div class="clr-col-12 clr-col-md-3.5">
+            <button type="button" class="btn btn-primary button-float-right" (click)="reset(weathersearchform)">
+                <cds-icon shape="sync"></cds-icon>Reset</button>
+            <button type="submit" class="btn btn-primary button-float-right" [disabled]="!enableSearch ? !enableSearch : !weathersearchform.valid">
+                <cds-icon shape="search"></cds-icon>Search</button>
+            <button type="button" class="btn btn-primary button-float-right" (click)="openModal('add')">
+                <cds-icon shape="plus"></cds-icon>Add New Event</button>            
           </div>
         </div>
-        <!-- Weather Event field -->
-        <div class="clr-row">
-          <div class="clr-col-12 req">
-            <clr-input-container>
-              <label for="WeatherEvent" class="clr-col-2 clr-control-label">
-                Weather
-                Event
-              </label>
-              <input class="clr-col-6" type="text" pattern=".*\S.*" required [maxLength]="50"
-                     size="50" clrInput id="WeatherEvent" name="frmWeatherEvent" #frmWeatherEvent="ngModel"
-                     [(ngModel)]="weatherAdd.frmWeatherEvent" (ngModelChange)="onInputChange()" />
-              <clr-control-error *ngIf="frmWeatherEvent?.invalid && frmWeatherEvent?.touched">
-                <span *ngIf="frmWeatherEvent?.errors?.['required'] || frmWeatherEvent?.errors?.['pattern']">
-                  This field is required!
-                </span>
-              </clr-control-error>
-            </clr-input-container>
-          </div>
-        </div>
-
-        <!-- Reason Dropdown -->
-        <div class="clr-row">
-          <div class="clr-col-12 req">
-            <clr-select-container>
-              <label for="reasons"
-                     class="clr-col-2 clr-control-label">Reason</label>
-              <select class="clr-col-6" clrSelect id="reasons" name="frmReasons"
-                      #frmReasons="ngModel" [(ngModel)]="weatherAdd.frmReasons"
-                      (change)="setOtherReasonValidation($event)" required (ngModelChange)="onInputChange()">
-                <option *ngFor="let item of weatherTypes" [value]="item.key">{{ item.value }}</option>
-              </select>
-              <clr-control-error *ngIf="frmReasons?.invalid && frmReasons?.touched">
-                <span *ngIf="frmReasons?.errors?.['required']"> This field is required!</span>
-              </clr-control-error>
-            </clr-select-container>
-          </div>
-        </div>
-
-        <!-- Other Description Field (Visible if "Other" is selected for Reason) -->
-        <div *ngIf="frmReasons?.value === 'Other' || weatherAdd.frmReasons === 'WEATHER008'" class="clr-row">
-          <div class="clr-col-12 req">
-            <clr-input-container>
-              <label for="otherDescription" class="clr-col-2 clr-control-label">
-                If
-                Other
-              </label>
-              <input class="clr-col-6" placeholder="" pattern=".*\S.*" [maxLength]="60"
-                     size="50" [required]="isOtherDescriptionRequired" clrInput name="frmOtherDescription"
-                     #frmOtherDescription="ngModel" [(ngModel)]="weatherAdd.frmOtherDescription"
-                     [disabled]="isOtherDisabled" (ngModelChange)="onInputChange()" />
-              <clr-control-error *ngIf="frmOtherDescription?.invalid && frmOtherDescription?.touched">
-                <span *ngIf="frmOtherDescription?.errors?.['required'] || frmOtherDescription?.errors?.['pattern']">
-                  This field is required!
-                </span>
-              </clr-control-error>
-            </clr-input-container>
-          </div>
-        </div>
-
-        <!-- Country Dropdown -->
-        <div class="clr-row">
-          <div #addEventCountryComboBox class="clr-col-12 combo-box req">
-            <clr-combobox-container class="inline-error">
-              <label for="frmCountry" class="clr-col-2 clr-control-label">Country</label>
-              <clr-combobox class="clr-col-6" [(ngModel)]="weatherAdd.frmCountry"
-                            (ngModelChange)="checkCountries(weatherAdd.frmCountry)" clrMulti="true" name="frmCountry"
-                            #frmCountry="ngModel" [required]="true">
-                <ng-container *clrOptionSelected="let selected">
-                  <span [ngClass]="getCountryClass(selected?.value)">
-                    {{ selected?.value }}
-                  </span>
-                </ng-container>
-                <clr-options>
-                  <clr-option *clrOptionItems="let country of getAvailableCountries(); field: 'value'"
-                              [clrValue]="country">
-                    {{ country.value }}
-                  </clr-option>
-                </clr-options>
-              </clr-combobox>
-              <clr-control-error clr-control-error *ngIf="frmCountry?.invalid && frmCountry?.touched">
-                <span *ngIf="frmCountry?.errors?.['required']"> This field is required!</span>
-              </clr-control-error>
-            </clr-combobox-container>
-          </div>
-        </div>
-
-        <!-- State Dropdown (Visible if USA is selected for Country) -->
-        <div class="clr-row" *ngIf="isUSAExist">
-          <div #addEventStateComboBox class="clr-col-12  combo-box req">
-            <clr-combobox-container class="inline-error">
-              <label for="frmStates" class="clr-col-2 clr-control-label">
-                States (US only)
-              </label>
-              <clr-combobox class="clr-col-7" [(ngModel)]="weatherAdd.frmState"
-                            (ngModelChange)="checkStates(weatherAdd.frmState)" clrMulti="true" name="frmState"
-                            #frmState="ngModel" [required]="isUSAExist">
-                <ng-container *clrOptionSelected="let selected">
-                  <span [ngClass]="getClass(selected?.key)">
-                    {{ selected?.key }}
-                  </span>
-                </ng-container>
-                <clr-options>
-                  <clr-option *clrOptionItems="let state of getAvailableStates(); field: 'value'"
-                              [clrValue]="state" [ngClass]="getClass(state.key)">{{ state.key }}</clr-option>
-                </clr-options>
-              </clr-combobox>
-              <clr-control-error *ngIf="frmState?.invalid && frmState?.touched">
-                This field is
-                required
-              </clr-control-error>
-            </clr-combobox-container>
-          </div>
-        </div>
-
-        <!-- Location Field -->
-        <div class="clr-row">
-          <div class="clr-col-12  req">
-            <clr-input-container>
-              <label for="location"
-                     class="clr-col-2 clr-control-label req">Location</label>
-              <input type="text" class="clr-col-6" placeholder="" pattern=".*\S.*"
-                     [maxLength]="100" required clrInput size="50" id="location" name="frmLocation"
-                     #frmLocation="ngModel" [(ngModel)]="weatherAdd.frmLocation"
-                     (ngModelChange)="onInputChange()" />
-              <clr-control-error *ngIf="frmLocation?.invalid && frmLocation?.touched">
-                <span *ngIf="frmLocation?.errors?.['required'] || frmLocation?.errors?.['pattern']">
-                  This
-                  field is required!
-                </span>
-                <span *ngIf="frmLocation?.errors?.['maxLength']"> Max length is exceeded!</span>
-              </clr-control-error>
-            </clr-input-container>
-          </div>
-        </div>
-
-        <!-- Date Range -->
-        <div class="clr-row">
-          <!-- Start Date Field -->
-          <div class="clr-col-6 normaldateinput">
-            <label for="startDate" class="clr-col-4 clr-control-label">
-              <b>
-                Start Date
-              </b>
-            </label>
-            <input [min]="minStartDate" [max]="maxStartDate" class="clr-input clr-col-5"
-                   type="date" autocomplete="off" pattern=".*\S.*" required id="startDate" name="frmStartDate"
-                   #frmStartDate="ngModel" [(ngModel)]="weatherAdd.frmStartDate"
-                   (change)="onDateChange(frmStartDate)" (ngModelChange)="onInputChange()">
-            <clr-control-error class="clr-col-12 clr-col-md-12 dateerror"
-                               *ngIf="frmStartDate?.invalid && frmStartDate?.touched">
-              <span *ngIf="frmStartDate?.errors?.['required'] || frmStartDate?.errors?.['pattern']">
-                This field
-                is required!
+   </form>
+  
+  <!-- Grid Section -->
+  <div  class="clr-row">
+    <div class="clr-col-12">
+      <clr-datagrid> 
+        <clr-dg-column [clrDgField]="'alertName'">
+          <ng-container *clrDgHideableColumn>Weather Event</ng-container>
+        </clr-dg-column>
+        <clr-dg-column [clrDgField]="'alertType'">
+          <ng-container *clrDgHideableColumn>Weather Type</ng-container>
+        </clr-dg-column>
+        <clr-dg-column [clrDgField]="'description'" >
+          <ng-container *clrDgHideableColumn>Description</ng-container>
+        </clr-dg-column>
+        <clr-dg-column [clrDgField]="'location'">
+          <ng-container *clrDgHideableColumn>Location</ng-container>
+        </clr-dg-column> 
+        <clr-dg-column [clrDgField]="'countryCode'">
+          <ng-container *clrDgHideableColumn>Country</ng-container>
+        </clr-dg-column>
+        <clr-dg-column [clrDgField]="'stateList'">
+          <ng-container *clrDgHideableColumn>States (US only)</ng-container>
+        </clr-dg-column>
+        <clr-dg-column [clrDgField]="'startDate'">
+          <ng-container *clrDgHideableColumn>Event Start Date</ng-container>
+        </clr-dg-column>
+        <clr-dg-column [clrDgField]="'endDate'">
+          <ng-container *clrDgHideableColumn>Event End Date</ng-container>
+        </clr-dg-column>        
+        <clr-dg-column [clrDgField]="'activeStatus'" >
+          <ng-container *clrDgHideableColumn>Event Expiry Status</ng-container>
+        </clr-dg-column>
+        <clr-dg-column>Action</clr-dg-column>      
+        
+        <!-- placeholder if there is no weather events-->
+        <clr-dg-placeholder *ngIf="!weatherEvents || weatherEvents.length === 0">
+               No Weather Events found!
+        </clr-dg-placeholder>
+  
+        <clr-dg-row *clrDgItems="let weather of weatherEvents">              
+          <clr-dg-cell>
+            <span class="break-word">{{ weather?.alertName }}</span>
+          </clr-dg-cell>
+          <clr-dg-cell>{{ weather?.alertType}}</clr-dg-cell>
+          <clr-dg-cell><div class="break-word">{{ weather?.description}}</div></clr-dg-cell>
+          <clr-dg-cell>
+            <span class="break-word">{{ weather?.location }}</span>
+          </clr-dg-cell>
+          <clr-dg-cell>{{ weather?.countryCode }}</clr-dg-cell>
+          <clr-dg-cell>
+            <span class="break-word">{{ weather?.stateList }}</span>
+          </clr-dg-cell>
+          <clr-dg-cell>{{ weather?.startDate | date: 'MM/dd/yyyy' }}</clr-dg-cell>
+          <clr-dg-cell>{{ weather?.endDate | date: 'MM/dd/yyyy' }}</clr-dg-cell>          
+          <clr-dg-cell>{{ weather?.activeStatus }}</clr-dg-cell>
+          <clr-dg-cell>
+            <div class="button-wrapper">
+              <span class="cellContainer" (click)="editEntry(weather)">
+                 <cds-icon shape="pencil" solid="true"></cds-icon>
               </span>
-              <span *ngIf="frmStartDate?.errors?.['invalidDate']">Select today or future date</span>
-              <span *ngIf="frmStartDate?.errors?.['invalidStartDate']">
-                Select a date less than or equal to End
-                Date
-              </span>
-              <span *ngIf="frmStartDate?.errors?.['invalidMaxEndDate']">
-                Select a date less than or equal to
-                {{maxStartDate | date:'MM/dd/yyyy' }}
-              </span>
-            </clr-control-error>
-          </div>
-
-          <!-- End Date Field -->
-          <div class="clr-col-6 normaldateinput">
-            <label for="endDate" class="clr-col-4 clr-control-label">
-              <b>
-                End Date
-              </b>
-            </label>
-            <input [min]="minEndDate" class="clr-input clr-col-5" type="date" autocomplete="off"
-                   pattern=".*\S.*" required id="enddate" name="frmEndDate" #frmEndDate="ngModel"
-                   [(ngModel)]="weatherAdd.frmEndDate" [class.disabled]="!weatherAdd.frmStartDate"
-                   (change)="onDateChange(frmEndDate)" (ngModelChange)="onInputChange()">
-            <clr-control-error class="clr-col-12 clr-col-md-12 dateerror"
-                               *ngIf="frmEndDate?.invalid && frmEndDate?.touched">
-              <span *ngIf="frmEndDate?.errors?.['required'] || frmEndDate?.errors?.['pattern']">
-                This field is
-                required!
-              </span>
-              <span *ngIf="frmEndDate?.errors?.['invalidDate']">Select today or future date</span>
-              <span *ngIf="frmEndDate?.errors?.['invalidEndDate']">
-                Select a date greater than or equal to
-                Start Date
-              </span>
-              <span *ngIf="frmEndDate?.errors?.['invalidMinEndDate']">
-                Select a date greater than or equal to
-                {{minEndDate | date:'MM/dd/yyyy' }}
-              </span>
-            </clr-control-error>
-          </div>
-        </div>
-
-        <!-- label for warning expiry -->
-        <div class="clr-row">
-          <div class="clr-col-12 clr-col-md-8">
-            <label for=""
-                   *ngIf="frmStartDate?.valid && frmEndDate?.valid && weatherAdd?.frmEndDate && weatherAdd?.frmStartDate"
-                   class="clr-col-12 clr-col-md-12 red-text">
-              <cds-icon class="yellow-icon" shape="exclamation-triangle" solid="true"></cds-icon> Event
-              expires after <b>{{eventExpire()}}</b>
-            </label>
-          </div>
-        </div>
-        <!-- Description Field -->
-        <div class="clr-row">
-          <div class="clr-col-12 req">
-            <clr-textarea-container class="clr-row">
-              <label label for="description" class="clr-col-2 clr-control-label">Description</label>
-              <textarea class="clr-col-9" [maxLength]="100" pattern=".*\S.*" required cols="80"
-                        clrTextarea id="description" name="frmDescription" #frmDescription="ngModel"
-                        [(ngModel)]="weatherAdd.frmDescription" (ngModelChange)="onInputChange()"></textarea>
-              <clr-control-helper class="charlim">
-                {{100-weatherAdd.frmDescription?.length}} characters
-                left.
-              </clr-control-helper>
-              <clr-control-error *ngIf="frmDescription?.invalid && frmDescription?.touched">
-                <span *ngIf="frmDescription?.errors?.['required'] || frmEndDate?.errors?.['pattern']">
-                  This
-                  field is required!
-                </span>
-                <span *ngIf="frmDescription?.errors?.['length']"> Max length is exceeded!</span>
-              </clr-control-error>
-            </clr-textarea-container>
-          </div>
-        </div>
-
-        <!-- Submit and Close Buttons -->
-        <div class="clr-row float-right">
-          <div>
-            <button type="submit" class="btn btn-primary" [disabled]="weatherAdd.invalid">Save</button>
-            <button type="button" class="btn btn-outline" (click)="openConfirmationDialog(weatheraddform)">Close</button>
-          </div>
-        </div>
-      </form>
+              <span class="cellContainer" (click)="onDelete(weather)" [class.disabled]="checkIsActiveWeatherEvent(weather)">
+                  <cds-icon shape="trash" solid="true" class="cur-ptr trash-color"></cds-icon>
+              </span>                  
+            </div>
+          </clr-dg-cell>
+        </clr-dg-row>
+  
+        <!-- footer section-->
+        <clr-dg-footer>
+          <clr-dg-pagination #pagination>
+            <clr-dg-page-size [clrPageSizeOptions]="[10, 20, 50, 100]">weather alerts per page</clr-dg-page-size>
+              {{ pagination.firstItem + 1 }} - {{ pagination.lastItem + 1 }} of {{ pagination.totalItems }} weather alerts
+          </clr-dg-pagination>
+        </clr-dg-footer>
+      </clr-datagrid>
     </div>
-</clr-modal>
+  </div>
+  <app-addevent [formData]="gridData" (closeEvent)="handleFormClose($event)" />
+  </div>
