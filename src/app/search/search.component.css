@@ -1,17 +1,82 @@
-.search {
-  font-size: x-small;
-}
+  .search {
+    font-size: x-small;
+  }
 
+  .cellContainer {
+    width: 50%;
+    float: left;
+  }
 
-.cellContainer {
-  width: 50%;
-  float: left;
-}
+  .narrow-select {
+    width: 195px;
+  }
 
-div.trim {
-  max-width: 350px;
-  transition: all .2s linear;
-  word-break: break-word;
-  padding: 0;
-  margin: 0;
-}
+  .narrow-select2 {
+    width: 185px;
+  }
+
+  .disabled {
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  clr-modal .clr-modal-close {
+    display: none !important;
+  }
+
+  .button-float-right {
+    float: right;
+  }
+
+  .clr-datagrid {
+    display: block;
+    height: auto;
+  }
+
+  .clr-datagrid-wrapper {
+    max-height: none !important;
+  }
+
+  .activeOn {
+    padding-left: 50px;
+  }
+
+  .checkbox-container {
+    margin-top: 25px;
+    margin-left: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    /* Aligns the checkbox and label in the same row */
+  }
+
+  .activelabel {
+    margin: 0;
+    padding: 0;
+  }
+
+  .combobox {
+    width: 50px;
+  }
+
+  clr-control-error {
+    margin-left: 90px;
+  }
+
+  .break-word {
+    word-break: break-word;
+  }
+
+  clr-datagrid {
+    height: auto !important;
+  }
+
+  .trash-color {
+    color: red;
+  }
+
+  .us-state-text-font {
+    font-size: 11px;
+
+  }
