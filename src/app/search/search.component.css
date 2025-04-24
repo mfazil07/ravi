@@ -1,82 +1,81 @@
-  .search {
-    font-size: x-small;
-  }
+<div *ngIf="!loading; else loadingSpinner">
+  <!-- Existing content remains the same -->
+</div>
 
-  .cellContainer {
-    width: 50%;
-    float: left;
-  }
+<ng-template #loadingSpinner>
+  <div class="loading-spinner">
+    <clr-spinner clrMedium>Loading data...</clr-spinner>
+  </div>
+</ng-template>
 
-  .narrow-select {
-    width: 195px;
-  }
 
-  .narrow-select2 {
-    width: 185px;
-  }
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+}
 
-  .disabled {
-    cursor: not-allowed;
-    pointer-events: none;
-    opacity: 0.5;
-  }
 
-  clr-modal .clr-modal-close {
-    display: none !important;
-  }
 
-  .button-float-right {
-    float: right;
-  }
+// Add this property to your component class
+searchInProgress: boolean = false;
 
-  .clr-datagrid {
-    display: block;
-    height: auto;
-  }
+// Update your searchSubmit method
+searchSubmit(countryCode: KeyValueObject[] = [], reasonCode = '', startDate = formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'), endDate = formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'), location = '', status = true, states: KeyValueObject[] = []) {
+  this.searchInProgress = true;
+  this.commonService.getallWeatherEvents(countryCode, reasonCode, startDate, endDate, location, status, states).subscribe({
+    next: (result: WeatherEvent[]) => {
+      this.weatherEvents = result;
+      this.filterEnabled = true;
+      this.searchInProgress = false;
+    },
+    error: (error: HttpErrorResponse) => {
+      this.weatherEvents = [];
+      this.searchInProgress = false;
+      this.handleError(error);
+    }
+  });
+}
 
-  .clr-datagrid-wrapper {
-    max-height: none !important;
-  }
+// Update your reset method
+reset(_form: any): void {
+  this.searchInProgress = true;
+  this.weathersearch = { ...this.initialFormValue };
+  this.weathersearch.frmSrchCountry = [];
+  this.weathersearch.frmSrchCountry = [{ key: 'USA', value: 'UNITED STATES OF AMERICA' }]
+  this.countryChanged();
+  this.startDateError = false;
+  this.endDateError = false;
+  this.enableSearch = true;
+  _form.form.markAsPristine();
+  _form.form.markAsUntouched();
+  _form.form.updateValueAndValidity();
+  
+  this.searchSubmit([{ key: 'USA', value: 'United States of America', }], '', formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'), formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'), '', true, []);
+}
 
-  .activeOn {
-    padding-left: 50px;
-  }
+// Update your ngOnInit to handle initial loading
+ngOnInit() {
+  this.loading = true;
+  
+  this.route.queryParams.subscribe((params: any) => {
+    // Existing code remains the same
+  });
 
-  .checkbox-container {
-    margin-top: 25px;
-    margin-left: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    /* Aligns the checkbox and label in the same row */
-  }
+  // Add this to your existing initialization
+  this.loading = false;
+}
 
-  .activelabel {
-    margin: 0;
-    padding: 0;
-  }
 
-  .combobox {
-    width: 50px;
-  }
 
-  clr-control-error {
-    margin-left: 90px;
-  }
-
-  .break-word {
-    word-break: break-word;
-  }
-
-  clr-datagrid {
-    height: auto !important;
-  }
-
-  .trash-color {
-    color: red;
-  }
-
-  .us-state-text-font {
-    font-size: 11px;
-
-  }
+<button type="button" class="btn btn-primary button-float-right" (click)="reset(weathersearchform)" [disabled]="searchInProgress">
+  <cds-icon *ngIf="!searchInProgress" shape="sync"></cds-icon>
+  <clr-spinner *ngIf="searchInProgress" clrSmall></clr-spinner>
+  Reset
+</button>
+<button type="submit" class="btn btn-primary button-float-right" [disabled]="!enableSearch ? !enableSearch : !weathersearchform.valid || searchInProgress">
+  <cds-icon *ngIf="!searchInProgress" shape="search"></cds-icon>
+  <clr-spinner *ngIf="searchInProgress" clrSmall></clr-spinner>
+  Search
+</button>
