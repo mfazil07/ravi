@@ -1,144 +1,192 @@
-<form clrForm clrLayout="horizontal" #weathersearchform="ngForm" (ngSubmit)="onSubmit(weathersearchform)">
-  <div class="clr-row">
-    <div class="clr-col-12 clr-col-md-3 combo-box">
-      <clr-combobox-container>
-        <label class="clr-col-12 clr-col-md-3">Country </label>
-        <clr-combobox class="clr-col-12 clr-col-md-6" [(ngModel)]="weathersearch.country" clrMulti="true"
-          name="frmCountry" #selCountries="ngModel" [required]="true" (ngModelChange)="countryChanged()">
-          <ng-container *clrOptionSelected="let selected">
-            {{ selected?.countryName }}
-          </ng-container>
-          <clr-options>
-            <clr-option *clrOptionItems="let country of countries; field: 'countryName'" [clrValue]="country">
-              {{ country.countryName }}
-            </clr-option>
-          </clr-options>
-        </clr-combobox>
-        <clr-control-error *ngIf="selCountries?.invalid && selCountries?.touched">This field is
-          required</clr-control-error>
-      </clr-combobox-container>
-    </div>
-
-    <div class="clr-col-12 clr-col-md-3">
-      <clr-datalist-container>
-        <label for="weatherType" class="clr-col-12 clr-col-md-4">Weather&nbsp;Type</label>
-        <input class="clr-col-12 clr-col-md-8" clrDatalistInput id="weatherType" name="weatherTypenm"
-          [(ngModel)]="weathersearch.weatherTypenm" #weatherTypenm="ngModel" placeholder="Select" />
-        <datalist>
-          <option *ngFor="let item of weatherTypes" [value]="item.weatherName">{{item.weatherName}}</option>
-        </datalist>
-      </clr-datalist-container>
-    </div>
-
-
-    <div class="clr-col-12 clr-col-md-3 ">
-      <clr-date-container>
-        <label for="startDatepickrnm" class="clr-col-12 clr-col-md-3">Start&nbsp;Date</label>
-        <input class="clr-col-12 clr-col-md-9" type="date" clrDate id="startDatepickrnm" name="startDatepickrnm"
-          #frmSrchStDt="ngModel" [(ngModel)]="weathersearch.frmSrchStDt">
-      </clr-date-container>
-    </div>
-    <div class="clr-col-12 clr-col-md-3">
-      <clr-date-container>
-        <label for="endDatepickrnm" class="clr-col-12 clr-col-md-3">End&nbsp;Date</label>
-        <input class="clr-col-12 clr-col-md-9" type="date" clrDate id="endDatepickrnm" name="endDatepickrnm"
-          #frmSrchEndDt="ngModel" [(ngModel)]="weathersearch.frmSrchEndDt">
-      </clr-date-container>
-    </div>
+<div *ngIf="!loading" >
+  <div class="title flex m-t">
+    <div cds-text="subsection"><cds-icon shape="folder-open" solid="true"></cds-icon> Weather Notification Search</div>
   </div>
-  <div class="clr-row">
-    <div class="clr-col-12 clr-col-md-3">
-      <clr-input-container>
-        <label for="location" class="clr-col-12 clr-col-md-2">
-          <div>Location</div>
-        </label>
-        <input class="clr-col-12 clr-col-md-8" clrInput type="text" id="location" name="location"
-          #frmSrchLocation="ngModel" [(ngModel)]="weathersearch.frmSrchLocation" />
-      </clr-input-container>
-    </div>
-    <div class="clr-col-12 clr-col-md-3 combo-box" *ngIf="isUSAExist">
-      <clr-combobox-container>
-        <label class="clr-col-12 clr-col-md-3">States</label>
-        <clr-combobox class="clr-col-12 clr-col-md-6" (clrSelectionChange)="clearSearch($event)"
-          [(ngModel)]="weathersearch.state" clrMulti="true" name="frmState" #frmState="ngModel" [required]="isUSAExist">
-          <ng-container *clrOptionSelected="let selected">
-            {{ selected?.name }}
-          </ng-container>
-          <clr-options>
-            <clr-option *clrOptionItems="let state of states; field: 'name'" [clrValue]="state">
-              {{ state.name }}
-            </clr-option>
-          </clr-options>
-        </clr-combobox>
-        <clr-control-error *ngIf="frmState?.invalid && frmState?.touched">This field is required</clr-control-error>
-      </clr-combobox-container>
-    </div>
-    <div class="clr-col-12 clr-col-md-9"> </div>
-  </div>
-  <div class="clr-row">
-    <div class="clr-col-12 clr-col-md-9"></div>
-    <div class="clr-col-12 clr-col-md-3" style="float: right;">
-      <button type="button" class="btn btn-outline" style="float: right;"
-        (click)="reset(weathersearchform)">Reset</button>
-      <button type="submit" class="btn btn-outline" style="float: right;">Search</button>
-
-      <button type="button" class="btn btn-outline" style="float: right;" (click)="openModal('add')">Add</button>
-
-    </div>
-  </div>
-</form>
-
-<div class="clr-row">
-  <div class="clr-col-12">
-    <clr-datagrid>
-      <clr-dg-column [clrDgField]="'evetstartdate'">Event Start Date</clr-dg-column>
-      <clr-dg-column [clrDgField]="'eventenddate'">Event End Date</clr-dg-column>
-      <clr-dg-column [clrDgField]="'weatherevent'">Weather Event</clr-dg-column>
-      <clr-dg-column [clrDgField]="'waethertype'">Weather Type</clr-dg-column>
-      <clr-dg-column [clrDgField]="'desscription'">Description</clr-dg-column>
-      <clr-dg-column [clrDgField]="'location'">Location</clr-dg-column>
-      <clr-dg-column [clrDgField]="'eventstartdate'">Country</clr-dg-column>
-      <clr-dg-column [style.width.px]="80" />
-
-      <clr-dg-row *ngFor="let weather of weatherEvents">
-        <clr-dg-cell>{{ weather.startDate | date }}</clr-dg-cell>
-        <clr-dg-cell>{{ weather.endDate | date }}</clr-dg-cell>
-        <clr-dg-cell>{{ weather.weatherEvent }}</clr-dg-cell>
-        <clr-dg-cell>{{ weather.weatherType }}</clr-dg-cell>
-        <clr-dg-cell>
-          <div class="box trim">
-            <clr-tooltip>
-              <div class="trim" clrTooltipTrigger>{{ weather.description }}</div>
-              <clr-tooltip-content [clrPosition]="'left'" [clrSize]="'md'">
-                {{ weather.description }}
-              </clr-tooltip-content>
-            </clr-tooltip>
+  
+  <form clrForm clrLayout="horizontal" #weathersearchform="ngForm" (ngSubmit)="onSubmit(weathersearchform)">
+      <div class="clr-row">
+          <!-- Location field -->
+          <div class="clr-col-12 clr-col-md-3">
+            <clr-input-container>
+              <label for="location" class="clr-col-12 clr-col-md-2"><div>Location</div></label>
+              <input class="clr-col-12 clr-col-md-8 narrow-select" clrInput type="text" id="location"  name="location" #frmSrchLocation="ngModel" [(ngModel)]="weathersearch.frmSrchLocation" />
+            </clr-input-container>     
           </div>
-        </clr-dg-cell>
-        <clr-dg-cell>{{ weather.location }}</clr-dg-cell>
-        <clr-dg-cell>{{ weather.country }}</clr-dg-cell>
-        <clr-dg-cell>
-          <div class="button-wrapper">
-
-            <span class="cellContainer" (click)="editEntry(weather)">
-              <cds-icon shape="pencil" solid="true" style="display: block;"></cds-icon>
-            </span>
-            <span class="cellContainer">
-              <cds-icon shape="trash" solid="true" style="display: block;"></cds-icon>
-            </span>
-
+  
+          <!-- Weather Type field -->
+          <div  class="clr-col-12 clr-col-md-3">
+              <clr-select-container>
+                <label for="weatherType" class="clr-col-12 clr-col-md-4">Weather&nbsp;Type</label>
+                    <select class="clr-col-12 clr-col-md-8 narrow-select2" clrSelect id="weatherType" name="weatherTypenm"[(ngModel)]="weathersearch.weatherTypenm" #weatherTypenm="ngModel">
+                      <option value="">ALL</option>
+                      <option *ngFor="let item of weatherTypes" [value]="item.key">{{ item.value }}</option>
+                    </select>
+              </clr-select-container>
           </div>
-        </clr-dg-cell>
-      </clr-dg-row>
-
-      <clr-dg-footer>
-        <clr-dg-pagination #pagination [clrDgPageSize]="10" [clrDgTotalItems]="2" *ngIf="weatherEvents.length > 10">
-          <clr-dg-page-size [clrPageSizeOptions]="[10, 20, 50, 100]">Users per page</clr-dg-page-size>
-          {{ pagination.firstItem + 1 }} - {{ pagination.lastItem + 1 }} of
-          {{ pagination.totalItems }} users
-        </clr-dg-pagination>
-      </clr-dg-footer>
-    </clr-datagrid>
+         
+         <!-- Start Date field -->        
+         <div class="clr-col-12 clr-col-md-3 ">
+          <clr-date-container [ngClass]="{'clr-error': startDateError && frmSrchStDt.touched}">
+              <label for="startDatepickrnm" class="clr-col-12 clr-col-md-3">Start&nbsp;Date</label>
+              <input class="clr-col-12 clr-col-md-9" type="date" required  clrDate id="startDatepickrnm" name="startDatepickrnm"#frmSrchStDt="ngModel" 
+                [(ngModel)]="weathersearch.frmSrchStDt"
+                (ngModelChange)="checkDates()">                
+          </clr-date-container>
+          <clr-control-error *ngIf="startDateError">
+            {{startDateErrorMsgs}}
+          </clr-control-error>
+        </div>
+  
+        <!-- End Date field -->
+        <div class="clr-col-12 clr-col-md-3">
+          <clr-date-container [ngClass]="{'clr-error': endDateError  && frmSrchEndDt.touched}">
+              <label for="endDatepickrnm" class="clr-col-12 clr-col-md-3">End&nbsp;Date</label>
+              <input class="clr-col-12 clr-col-md-9" type="date" required clrDate id="endDatepickrnm" name="endDatepickrnm" #frmSrchEndDt="ngModel" 
+                [(ngModel)]="weathersearch.frmSrchEndDt"
+                (ngModelChange)="checkDates()">           
+          </clr-date-container>
+          <clr-control-error *ngIf="endDateError">
+           {{endDateErrorMsgs}}
+          </clr-control-error>
+        </div>
+      </div>
+  
+      <div class="clr-row">
+        <!-- Country field -->
+        <div class="clr-col-12 clr-col-md-3">
+          <clr-combobox-container>
+            <label for="frmSrchCountry" class="clr-col-12 clr-col-md-2">Country</label>
+            <clr-combobox class="clr-col-12 clr-col-md-8 narrow-select" [(ngModel)]="weathersearch.frmSrchCountry" clrMulti="true"
+              name="frmSrchCountry"  #frmSrchCountry="ngModel" (ngModelChange)="countryChanged()">
+              <ng-container *clrOptionSelected="let selected">
+                {{ selected?.value }}
+              </ng-container>
+              <clr-options>
+                <clr-option *clrOptionItems="let country of getAvailableCountries(); field: 'value'" [clrValue]="country">
+                  {{ country.value }}
+                </clr-option>
+              </clr-options>
+            </clr-combobox>              
+          </clr-combobox-container>               
+        </div>
+  
+      <!-- State Dropdown (Visible if USA is selected for Country) -->
+      <div  class="clr-col-12 clr-col-md-3" *ngIf="isUSAExist">           
+          <clr-combobox-container>
+            <label for="frmState" class="clr-col-12 clr-col-md-4">States <span class="us-state-text-font">(US only)</span></label>
+            <clr-combobox class="clr-col-12 clr-col-md-3 narrow-select2"  [(ngModel)]="weathersearch.frmSrchState" (clrSelectionChange)="clearSearch($event)" 
+            [placeholder]="weathersearch?.frmSrchState?.length > 0 ?'' :'ALL'" 
+            clrMulti="true" name="frmSrchState" #frmSrchState="ngModel">
+              <ng-container *clrOptionSelected="let selected">
+                {{ selected?.value }}
+              </ng-container>
+              <clr-options>
+                <clr-option *clrOptionItems="let state of states; field:'value'" [clrValue]="state">
+                  {{ state.key }}
+                </clr-option>
+              </clr-options>
+            </clr-combobox>                
+          </clr-combobox-container>    
+      </div>
+  
+          <!-- Check box field -->
+          <div class="clr-col-12 clr-col-md-2">
+            <div class="checkbox-container">
+              <input type="checkbox" clrCheckbox id="activeBox" name="activeBox" [(ngModel)]="weathersearch.frmActiveBox" #frmActiveBox="ngModel">
+              <label for="frmActiveBox" class="activelabel">Active</label>
+            </div>
+          </div> 
+          <div class="clr-col-12 clr-col-md-3"></div>
+      </div>
+      <!-- Button section -->
+      <div class="clr-row">
+        <div class="clr-col-12 clr-col-md-9"></div>
+          <div class="clr-col-12 clr-col-md-3.5">
+            <button type="button" class="btn btn-primary button-float-right" (click)="reset(weathersearchform)">
+                <cds-icon shape="sync"></cds-icon>Reset</button>
+            <button type="submit" class="btn btn-primary button-float-right" [disabled]="!enableSearch ? !enableSearch : !weathersearchform.valid">
+                <cds-icon shape="search"></cds-icon>Search</button>
+            <button type="button" class="btn btn-primary button-float-right" (click)="openModal('add')">
+                <cds-icon shape="plus"></cds-icon>Add New Event</button>            
+          </div>
+        </div>
+   </form>
+  
+  <!-- Grid Section -->
+  <div  class="clr-row">
+    <div class="clr-col-12">
+      <clr-datagrid> 
+        <clr-dg-column [clrDgField]="'alertName'">
+          <ng-container *clrDgHideableColumn>Weather Event</ng-container>
+        </clr-dg-column>
+        <clr-dg-column [clrDgField]="'alertType'">
+          <ng-container *clrDgHideableColumn>Weather Type</ng-container>
+        </clr-dg-column>
+        <clr-dg-column [clrDgField]="'description'" >
+          <ng-container *clrDgHideableColumn>Description</ng-container>
+        </clr-dg-column>
+        <clr-dg-column [clrDgField]="'location'">
+          <ng-container *clrDgHideableColumn>Location</ng-container>
+        </clr-dg-column> 
+        <clr-dg-column [clrDgField]="'countryCode'">
+          <ng-container *clrDgHideableColumn>Country</ng-container>
+        </clr-dg-column>
+        <clr-dg-column [clrDgField]="'stateList'">
+          <ng-container *clrDgHideableColumn>States (US only)</ng-container>
+        </clr-dg-column>
+        <clr-dg-column [clrDgField]="'startDate'">
+          <ng-container *clrDgHideableColumn>Event Start Date</ng-container>
+        </clr-dg-column>
+        <clr-dg-column [clrDgField]="'endDate'">
+          <ng-container *clrDgHideableColumn>Event End Date</ng-container>
+        </clr-dg-column>        
+        <clr-dg-column [clrDgField]="'activeStatus'" >
+          <ng-container *clrDgHideableColumn>Event Expiry Status</ng-container>
+        </clr-dg-column>
+        <clr-dg-column>Action</clr-dg-column>      
+        
+        <!-- placeholder if there is no weather events-->
+        <clr-dg-placeholder *ngIf="!weatherEvents || weatherEvents.length === 0">
+               No Weather Events found!
+        </clr-dg-placeholder>
+  
+        <clr-dg-row *clrDgItems="let weather of weatherEvents">              
+          <clr-dg-cell>
+            <span class="break-word">{{ weather?.alertName }}</span>
+          </clr-dg-cell>
+          <clr-dg-cell>{{ weather?.alertType}}</clr-dg-cell>
+          <clr-dg-cell><div class="break-word">{{ weather?.description}}</div></clr-dg-cell>
+          <clr-dg-cell>
+            <span class="break-word">{{ weather?.location }}</span>
+          </clr-dg-cell>
+          <clr-dg-cell>{{ weather?.countryCode }}</clr-dg-cell>
+          <clr-dg-cell>
+            <span class="break-word">{{ weather?.stateList }}</span>
+          </clr-dg-cell>
+          <clr-dg-cell>{{ weather?.startDate | date: 'MM/dd/yyyy' }}</clr-dg-cell>
+          <clr-dg-cell>{{ weather?.endDate | date: 'MM/dd/yyyy' }}</clr-dg-cell>          
+          <clr-dg-cell>{{ weather?.activeStatus }}</clr-dg-cell>
+          <clr-dg-cell>
+            <div class="button-wrapper">
+              <span class="cellContainer" (click)="editEntry(weather)">
+                 <cds-icon shape="pencil" solid="true"></cds-icon>
+              </span>
+              <span class="cellContainer" (click)="onDelete(weather)" [class.disabled]="checkIsActiveWeatherEvent(weather)">
+                  <cds-icon shape="trash" solid="true" class="cur-ptr trash-color"></cds-icon>
+              </span>                  
+            </div>
+          </clr-dg-cell>
+        </clr-dg-row>
+  
+        <!-- footer section-->
+        <clr-dg-footer>
+          <clr-dg-pagination #pagination>
+            <clr-dg-page-size [clrPageSizeOptions]="[10, 20, 50, 100]">weather alerts per page</clr-dg-page-size>
+              {{ pagination.firstItem + 1 }} - {{ pagination.lastItem + 1 }} of {{ pagination.totalItems }} weather alerts
+          </clr-dg-pagination>
+        </clr-dg-footer>
+      </clr-datagrid>
+    </div>
   </div>
-</div>
-<app-addevent [formData]="gridData" (closeEvent)="handleFormClose($event)" />
+  <app-addevent [formData]="gridData" (closeEvent)="handleFormClose($event)" />
+  </div>
