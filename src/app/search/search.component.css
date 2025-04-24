@@ -68,7 +68,7 @@ ngOnInit() {
 }
 
 
-
+/////   update 2
 <button type="button" class="btn btn-primary button-float-right" (click)="reset(weathersearchform)" [disabled]="searchInProgress">
   <cds-icon *ngIf="!searchInProgress" shape="sync"></cds-icon>
   <clr-spinner *ngIf="searchInProgress" clrSmall></clr-spinner>
@@ -78,4 +78,27 @@ ngOnInit() {
   <cds-icon *ngIf="!searchInProgress" shape="search"></cds-icon>
   <clr-spinner *ngIf="searchInProgress" clrSmall></clr-spinner>
   Search
+</button>
+
+<!-- Reset Button -->
+<button type="button" class="btn btn-primary button-float-right" 
+        (click)="reset(weathersearchform)" 
+        [disabled]="resetInProgress || searchInProgress">
+  <span *ngIf="!resetInProgress">
+    <cds-icon shape="sync"></cds-icon> Reset
+  </span>
+  <span *ngIf="resetInProgress">
+    <clr-spinner clrSmall></clr-spinner> Resetting...
+  </span>
+</button>
+
+<!-- Search Button -->
+<button type="submit" class="btn btn-primary button-float-right" 
+        [disabled]="!enableSearch || !weathersearchform.valid || searchInProgress || resetInProgress">
+  <span *ngIf="!searchInProgress">
+    <cds-icon shape="search"></cds-icon> Search
+  </span>
+  <span *ngIf="searchInProgress">
+    <clr-spinner clrSmall></clr-spinner> Searching...
+  </span>
 </button>
