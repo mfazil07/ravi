@@ -2,100 +2,180 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { QtcHeaderComponent } from './qtc-header.component';
 import { CommonService } from '../services/common.service';
 import { of, Subject } from 'rxjs';
-import { By } from '@angular/platform-browser';
-import { ClarityModule } from '@clr/angular';
-import { Router, NavigationEnd, NavigationStart, Event } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
 
 describe('QtcHeaderComponent', () => {
   let component: QtcHeaderComponent;
   let fixture: ComponentFixture<QtcHeaderComponent>;
   let mockCommonService: jasmine.SpyObj<CommonService>;
-  let router: Router;
-  let mockEvents: Subject<Event>;
+  let userNameSubject: Subject<string>;
+  let flagSubject: Subject<boolean>;
+  let appointmentsFlagSubject: Subject<boolean>;
+  let claimantIdSubject: Subject<string>;
+  let caseIdSubject: Subject<string>;
 
   beforeEach(async () => {
-    // Create a mock for the CommonService
-    mockCommonService = jasmine.createSpyObj('CommonService', ['userName$']);
-    mockCommonService.userName$ = of('TestUser');
+    // Create subjects for each observable
+    userNameSubject = new Subject<string>();
+    flagSubject = new Subject<boolean>();
+    appointmentsFlagSubject = new Subject<boolean>();
+    claimantIdSubject = new Subject<string>();
+    caseIdSubject = new Subject<string>();
 
-    // Create a subject to mock router events
-    mockEvents = new Subject<Event>();
+    // Create a mock for the CommonService with all required observables
+    mockCommonService = jasmine.createSpyObj('CommonService', [
+      'userName$',
+      'currentFlag',
+      'currentAppointmentsFlag',
+      'claimantIdSubject$',
+      'caseIdSubject$',
+      'getReferrerUrl'
+    ], {
+      userName$: userNameSubject.asObservable(),
+      currentFlag: flagSubject.asObservable(),
+      currentAppointmentsFlag: appointmentsFlagSubject.asObservable(),
+      claimantIdSubject$: claimantIdSubject.asObservable(),
+      caseIdSubject$: caseIdSubject.asObservable()
+    });
+
+    // Mock getReferrerUrl to return a test URL
+    mockCommonService.getReferrerUrl.and.returnValue('https://test-referrer.com');
 
     await TestBed.configureTestingModule({
       declarations: [ QtcHeaderComponent ],
-      imports: [ 
-        ClarityModule,
-        RouterTestingModule.withRoutes([])
-      ],
       providers: [
         { provide: CommonService, useValue: mockCommonService }
       ]
     }).compileComponents();
 
-    router = TestBed.inject(Router);
-    // Replace the router events with our mock
-    spyOnProperty(router, 'events').and.returnValue(mockEvents.asObservable());
+    // Clear sessionStorage before each test
+    sessionStorage.clear();
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(QtcHeaderComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   afterEach(() => {
-    mockEvents.complete();
+    // Complete all subjects
+    userNameSubject.complete();
+    flagSubject.complete();
+    appointmentsFlagSubject.complete();
+    claimantIdSubject.complete();
+    caseIdSubject.complete();
+    // Clear sessionStorage after each test
+    sessionStorage.clear();
   });
 
-  it('should display the userName initially from the CommonService', () => {
-    expect(component.userName).toBe('TestUser');
-    const userNameElement = fixture.debugElement.query(By.css('.user-icon-text'));
-    expect(userNameElement.nativeElement.textContent).toContain('TestUser');
+  it('should create', () => {
+    expect(component).toBeTruthy();
   });
 
-  describe('router events subscription', () => {
-    it('should set claimantLevel based on NavigationEnd events', fakeAsync(() => {
-      // Test /withAppointment route
-      mockEvents.next(new NavigationEnd(1, '/withAppointment', '/withAppointment'));
+  describe('CommonService subscriptions', () => {
+    it('should update userName in uppercase when userName$ emits', fakeAsync(() => {
+      fixture.detectChanges(); // Trigger initial subscription
+      
+      userNameSubject.next('test user');
       tick();
-      expect(component.claimantLevel).toBe(' - APPOINTMENT LEVEL');
-
-      // Test /search route
-      mockEvents.next(new NavigationEnd(2, '/search', '/search'));
-      tick();
-      expect(component.claimantLevel).toBe(' - CASE LEVEL');
-
-      // Test /notAuthorized route
-      mockEvents.next(new NavigationEnd(3, '/notAuthorized', '/notAuthorized'));
-      tick();
-      expect(component.claimantLevel).toBe('');
-
-      // Test urlAfterRedirects
-      mockEvents.next(new NavigationEnd(4, '/original', '/withAppointment'));
-      tick();
-      expect(component.claimantLevel).toBe(' - APPOINTMENT LEVEL');
+      
+      expect(component.userName).toBe('TEST USER');
     }));
 
-    it('should ignore non-NavigationEnd events', fakeAsync(() => {
-      component.claimantLevel = 'Initial Value';
-      mockEvents.next(new NavigationStart(1, '/some-url'));
+    it('should update notesRequired when currentFlag emits', fakeAsync(() => {
+      fixture.detectChanges();
+      
+      flagSubject.next(true);
       tick();
-      expect(component.claimantLevel).toBe('Initial Value');
+      
+      expect(component.notesRequired).toBeTrue();
+      
+      flagSubject.next(false);
+      tick();
+      
+      expect(component.notesRequired).toBeFalse();
     }));
 
-    it('should handle undefined urlAfterRedirects', fakeAsync(() => {
-      const navEnd = new NavigationEnd(1, '/withAppointment', undefined);
-      mockEvents.next(navEnd);
+    it('should update appointmentsIconRequired when currentAppointmentsFlag emits', fakeAsync(() => {
+      fixture.detectChanges();
+      
+      appointmentsFlagSubject.next(true);
       tick();
-      expect(component.claimantLevel).toBe(' - APPOINTMENT LEVEL');
+      
+      expect(component.appointmentsIconRequired).toBeTrue();
+      
+      appointmentsFlagSubject.next(false);
+      tick();
+      
+      expect(component.appointmentsIconRequired).toBeFalse();
     }));
 
-    it('should not change claimantLevel for unrelated routes', fakeAsync(() => {
-      component.claimantLevel = 'Initial Value';
-      mockEvents.next(new NavigationEnd(1, '/other-route', '/other-route'));
+    it('should update claimantId when claimantIdSubject$ emits', fakeAsync(() => {
+      fixture.detectChanges();
+      
+      claimantIdSubject.next('claimant123');
       tick();
-      expect(component.claimantLevel).toBe('Initial Value');
+      
+      expect(component.claimantId).toBe('claimant123');
     }));
+
+    it('should update caseId when caseIdSubject$ emits', fakeAsync(() => {
+      fixture.detectChanges();
+      
+      caseIdSubject.next('case456');
+      tick();
+      
+      expect(component.caseId).toBe('case456');
+    }));
+  });
+
+  describe('sessionStorage handling', () => {
+    it('should set notesDocumentReferrer in sessionStorage if not present', () => {
+      expect(sessionStorage.getItem('notesDocumentReferrer')).toBeNull();
+      
+      fixture.detectChanges();
+      
+      expect(sessionStorage.getItem('notesDocumentReferrer')).toBe('https://test-referrer.com');
+      expect(component.externalUrl).toBe('https://test-referrer.com');
+      expect(mockCommonService.getReferrerUrl).toHaveBeenCalled();
+    });
+
+    it('should not call getReferrerUrl if notesDocumentReferrer exists in sessionStorage', () => {
+      sessionStorage.setItem('notesDocumentReferrer', 'existing-value');
+      
+      fixture.detectChanges();
+      
+      expect(component.externalUrl).toBe('existing-value');
+      expect(mockCommonService.getReferrerUrl).not.toHaveBeenCalled();
+    });
+
+    it('should handle empty referrer URL', () => {
+      mockCommonService.getReferrerUrl.and.returnValue('');
+      
+      fixture.detectChanges();
+      
+      expect(sessionStorage.getItem('notesDocumentReferrer')).toBe('');
+      expect(component.externalUrl).toBe('');
+    });
+  });
+
+  describe('subscription cleanup', () => {
+    it('should unsubscribe from all observables on destroy', () => {
+      fixture.detectChanges(); // Set up subscriptions
+      
+      // Spy on subscription unsubscribe methods
+      const subscriptions = [
+        spyOn(component['userNameSubscription'], 'unsubscribe'),
+        spyOn(component['notesFlagSubscription'], 'unsubscribe'),
+        spyOn(component['appointmentsFlagSubscription'], 'unsubscribe'),
+        spyOn(component['claimantIdSubscription'], 'unsubscribe'),
+        spyOn(component['caseIdSubscription'], 'unsubscribe')
+      ];
+      
+      component.ngOnDestroy();
+      
+      subscriptions.forEach(sub => {
+        expect(sub).toHaveBeenCalled();
+      });
+    });
   });
 });
