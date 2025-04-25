@@ -102,3 +102,96 @@ ngOnInit() {
     <clr-spinner clrSmall></clr-spinner> Searching...
   </span>
 </button>
+
+///////update 3
+
+
+// Use a single loading state with a purpose flag
+loadingState: { isLoading: boolean, purpose?: 'reset' | 'search' } = { isLoading: false };
+
+reset(_form: any): void {
+  this.loadingState = { isLoading: true, purpose: 'reset' };
+  
+  // Reset form values
+  this.weathersearch = { ...this.initialFormValue };
+  this.weathersearch.frmSrchCountry = [{ key: 'USA', value: 'UNITED STATES OF AMERICA' }];
+  this.countryChanged();
+  
+  // Reset validation states
+  this.startDateError = false;
+  this.endDateError = false;
+  this.enableSearch = true;
+  
+  // Reset form control states
+  _form.form.markAsPristine();
+  _form.form.markAsUntouched();
+  _form.form.updateValueAndValidity();
+
+  // Trigger search without showing search spinner
+  this.searchSubmit(
+    [{ key: 'USA', value: 'United States of America' }], 
+    '', 
+    formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'), 
+    formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'), 
+    '', 
+    true, 
+    [],
+    false // Don't show spinner for this search
+  );
+}
+
+searchSubmit(
+  countryCode: KeyValueObject[] = [],
+  reasonCode = '',
+  startDate = formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'),
+  endDate = formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'),
+  location = '',
+  status = true,
+  states: KeyValueObject[] = [],
+  showSpinner: boolean = true
+) {
+  if (showSpinner) {
+    this.loadingState = { isLoading: true, purpose: 'search' };
+  }
+
+  this.commonService.getallWeatherEvents(countryCode, reasonCode, startDate, endDate, location, status, states).subscribe({
+    next: (result: WeatherEvent[]) => {
+      this.weatherEvents = result;
+      this.loadingState = { isLoading: false };
+    },
+    error: (error: HttpErrorResponse) => {
+      this.weatherEvents = [];
+      this.loadingState = { isLoading: false };
+      this.handleError(error);
+    }
+  });
+}
+
+
+<!-- Reset Button -->
+<button type="button" class="btn btn-primary button-float-right" 
+        (click)="reset(weathersearchform)" 
+        [disabled]="loadingState.isLoading">
+  <span *ngIf="loadingState.purpose !== 'reset'">
+    <cds-icon shape="sync"></cds-icon> Reset
+  </span>
+  <span *ngIf="loadingState.purpose === 'reset'">
+    <clr-spinner clrSmall></clr-spinner> Resetting...
+  </span>
+</button>
+
+<!-- Search Button -->
+<button type="submit" class="btn btn-primary button-float-right" 
+        [disabled]="!enableSearch || !weathersearchform.valid || loadingState.isLoading">
+  <span *ngIf="loadingState.purpose !== 'search'">
+    <cds-icon shape="search"></cds-icon> Search
+  </span>
+  <span *ngIf="loadingState.purpose === 'search'">
+    <clr-spinner clrSmall></clr-spinner> Searching...
+  </span>
+</button>
+
+<!-- Datagrid -->
+<clr-datagrid [clrDgLoading]="loadingState.isLoading && loadingState.purpose === 'search'">
+  <!-- datagrid content -->
+</clr-datagrid>
