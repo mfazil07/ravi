@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonService } from '../services/common.service';
+import { CommonService } from '../services/common.service'; 
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 
@@ -17,31 +17,23 @@ export class QtcHeaderComponent implements OnInit {
   urlToOpen: any = '';
   externalUrl: string = ''
   appointmentsIconRequired: boolean = false;
-  claimantLevel:string = 'CASE LEVEL';
+  claimantLevel: string = '';
 
   constructor(private readonly commonService: CommonService,
     private readonly router: Router,
-  ) {   
-    debugger;
-      
-  
-}
+  ) { }
 
-  
-
-  ngOnInit() {
-    this.commonService.userName$.subscribe(userName => {
-      this.userName = userName;
+  ngOnInit() {   
+    this.commonService.userName$.subscribe(userName => {      
+      this.userName = userName.toUpperCase();
     });
 
     this.commonService.currentFlag.subscribe(flag => {
       this.notesRequired = flag;
     });
 
-    this.commonService.currentAppointmentsFlag.subscribe(appointmentsflag => {
-      debugger;
+    this.commonService.currentAppointmentsFlag.subscribe(appointmentsflag => {    
       this.appointmentsIconRequired = appointmentsflag;
-     
     });
 
     this.commonService.claimantIdSubject$.subscribe(claimantId => {
@@ -50,46 +42,49 @@ export class QtcHeaderComponent implements OnInit {
 
     this.commonService.caseIdSubject$.subscribe(caseId => {
       this.caseId = caseId;
-    });
+    });    
 
-     this.router.events
-    .pipe(filter(event => event instanceof NavigationEnd))
-    .subscribe((event: NavigationEnd) => {
-      const currentUrl = event.urlAfterRedirects;
+    if (sessionStorage.getItem("notesDocumentReferrer") === null) {
+      this.externalUrl = this.commonService.getReferrerUrl();
+      sessionStorage.setItem("notesDocumentReferrer", this.externalUrl);
+    }
 
-      if (currentUrl.includes('/admin')) {
-        this.claimantLevel = 'ADMIN LEVEL';
-      } else if (currentUrl.includes('/provider')) {
-        this.claimantLevel = 'PROVIDER LEVEL';
-      } else if (currentUrl.includes('/case')) {
-        this.claimantLevel = 'CASE LEVEL';
-      } else {
-        this.claimantLevel = 'DEFAULT LEVEL';
-      }
-    });
 
-    this.externalUrl = this.commonService.getReferrerUrl();
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(event => {
+        if (event instanceof NavigationEnd) {
+          const currentUrl = event.urlAfterRedirects;
+
+          if (currentUrl.includes('/withAppointment')) {
+            this.claimantLevel = ' - APPOINTMENT LEVEL';
+          } else if (currentUrl.includes('/search')) {
+            this.claimantLevel = ' - CASE LEVEL';
+    }
+          else if (currentUrl.includes('/notAuthorized')) {            
+            this.claimantLevel = '';
+          }
+        }
+      });
+
   }
 
-  openNotesWindow() {
-    let notesUrl = this.externalUrl + 'notes/Q_NOTES_01.asp?claimant_Id=' + this.claimantId + '&case_Id=' + this.caseId;
+  openNotesWindow() {    
+    let notesUrl = sessionStorage.getItem("notesDocumentReferrer") + 'notes/Q_NOTES_01.asp?claimant_Id=' + this.claimantId + '&case_Id=' + this.caseId;
     window.open(notesUrl, 'Notes', 'toolbar=no, scrollbars=yes, resizable=yes, top=100, left=100, width=900, height=800');
   }
 
   openAppointmentsWindow() {
-    debugger;
+   
     const url = this.router.serializeUrl(this.router.createUrlTree(['withAppointment'], {
       queryParams: {
         claimantId: this.claimantId,
         caseid: this.caseId
       }
     }));
-    
-     
-    
     const fullUrl = `${window.location.origin}${url}`;
     console.log(fullUrl);
-    window.open(fullUrl, '_blank');  
+    window.open(fullUrl, 'AppointmentLevel', 'toolbar=no, scrollbars=yes, resizable=yes, top=100, left=100, width=1200, height=800');
 
   }
 
