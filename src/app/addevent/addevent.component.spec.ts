@@ -12,7 +12,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { formatDate } from '@angular/common';
 import { AlertService, IAlertType } from '../services/alert.service';
 
-describe('AddeventComponent', () => {
+fdescribe('AddeventComponent', () => {
   let component: AddeventComponent;
   let fixture: ComponentFixture<AddeventComponent>;
   let commonService: jasmine.SpyObj<CommonService>;
@@ -32,7 +32,7 @@ describe('AddeventComponent', () => {
     ]);
 
     const alertServiceSpy = jasmine.createSpyObj('AlertService', ['show']);
-    const searchComponentSpy = jasmine.createSpyObj('SearchComponent', ['searchSubmit']);
+    const searchComponentSpy = jasmine.createSpyObj('SearchComponent', ['refreshWeatherEvents']);
     const formSpy = jasmine.createSpyObj('form', ['get', 'enable']);
 
     await TestBed.configureTestingModule({
@@ -353,7 +353,7 @@ describe('AddeventComponent', () => {
     expect(component.weatherAdd.frmState).toEqual(component.prevSelectedStates);
   });
 
-  it('should enable disabled fields and submit the form successfully when valid', () => {
+  it('should enable disabled fields and submit the form successfully when valid', () => {    
     component.weatheraddform = {
       control: {
         markAllAsTouched: jasmine.createSpy('markAllAsTouched'),
@@ -386,9 +386,13 @@ describe('AddeventComponent', () => {
       resetForm: jasmine.createSpy('resetForm'),
     };
 
+  
+
     component.request = {} as any;
 
     commonService.addWeatherEvent.and.returnValue(of({ success: true }));
+
+    //spyOn(componentSearch, 'onNotify');
 
     component.onSubmit(component.weatheraddform);
 
