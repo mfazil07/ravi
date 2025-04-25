@@ -1,10 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { QtcHeaderComponent } from './qtc-header.component';
 import { CommonService } from '../services/common.service';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { ClarityModule } from '@clr/angular';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, NavigationStart, Event } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 
 describe('QtcHeaderComponent', () => {
@@ -12,28 +12,30 @@ describe('QtcHeaderComponent', () => {
   let fixture: ComponentFixture<QtcHeaderComponent>;
   let mockCommonService: jasmine.SpyObj<CommonService>;
   let router: Router;
+  let mockEvents: Subject<Event>;
 
   beforeEach(async () => {
     // Create a mock for the CommonService
     mockCommonService = jasmine.createSpyObj('CommonService', ['userName$']);
-    
-    // Configure the mock to return an observable
     mockCommonService.userName$ = of('TestUser');
 
-    // Set up the testing module
+    // Create a subject to mock router events
+    mockEvents = new Subject<Event>();
+
     await TestBed.configureTestingModule({
       declarations: [ QtcHeaderComponent ],
       imports: [ 
         ClarityModule,
-        RouterTestingModule.withRoutes([]) // Add RouterTestingModule
+        RouterTestingModule.withRoutes([])
       ],
       providers: [
         { provide: CommonService, useValue: mockCommonService }
       ]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     router = TestBed.inject(Router);
+    // Replace the router events with our mock
+    spyOnProperty(router, 'events').and.returnValue(mockEvents.asObservable());
   });
 
   beforeEach(() => {
@@ -42,75 +44,58 @@ describe('QtcHeaderComponent', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => {
+    mockEvents.complete();
+  });
+
   it('should display the userName initially from the CommonService', () => {
     expect(component.userName).toBe('TestUser');
-    
     const userNameElement = fixture.debugElement.query(By.css('.user-icon-text'));
     expect(userNameElement.nativeElement.textContent).toContain('TestUser');
   });
 
   describe('router events subscription', () => {
-    it('should set claimantLevel to " - APPOINTMENT LEVEL" when navigating to /withAppointment', () => {
-      // Simulate NavigationEnd event
-      const navEnd = new NavigationEnd(
-        1,
-        '/withAppointment',
-        '/withAppointment'
-      );
-      (router.events as any).next(navEnd);
-      
+    it('should set claimantLevel based on NavigationEnd events', fakeAsync(() => {
+      // Test /withAppointment route
+      mockEvents.next(new NavigationEnd(1, '/withAppointment', '/withAppointment'));
+      tick();
       expect(component.claimantLevel).toBe(' - APPOINTMENT LEVEL');
-    });
 
-    it('should set claimantLevel to " - CASE LEVEL" when navigating to /search', () => {
-      // Simulate NavigationEnd event
-      const navEnd = new NavigationEnd(
-        1,
-        '/search',
-        '/search'
-      );
-      (router.events as any).next(navEnd);
-      
+      // Test /search route
+      mockEvents.next(new NavigationEnd(2, '/search', '/search'));
+      tick();
       expect(component.claimantLevel).toBe(' - CASE LEVEL');
-    });
 
-    it('should set claimantLevel to empty string when navigating to /notAuthorized', () => {
-      // Simulate NavigationEnd event
-      const navEnd = new NavigationEnd(
-        1,
-        '/notAuthorized',
-        '/notAuthorized'
-      );
-      (router.events as any).next(navEnd);
-      
+      // Test /notAuthorized route
+      mockEvents.next(new NavigationEnd(3, '/notAuthorized', '/notAuthorized'));
+      tick();
       expect(component.claimantLevel).toBe('');
-    });
 
-    it('should not change claimantLevel for other navigation events', () => {
-      // Set initial value
-      component.claimantLevel = 'Initial Value';
-      
-      // Simulate a different route
-      const navEnd = new NavigationEnd(
-        1,
-        '/otherRoute',
-        '/otherRoute'
-      );
-      (router.events as any).next(navEnd);
-      
-      expect(component.claimantLevel).toBe('Initial Value');
-    });
-
-    it('should handle urlAfterRedirects when provided', () => {
-      // Simulate NavigationEnd event with urlAfterRedirects
-      const navEnd = new NavigationEnd(
-        1,
-        '/original',
-        '/withAppointment'
-      );
-      (router.events as any).next(navEnd);
-      
+      // Test urlAfterRedirects
+      mockEvents.next(new NavigationEnd(4, '/original', '/withAppointment'));
+      tick();
       expect(component.claimantLevel).toBe(' - APPOINTMENT LEVEL');
-    });
+    }));
+
+    it('should ignore non-NavigationEnd events', fakeAsync(() => {
+      component.claimantLevel = 'Initial Value';
+      mockEvents.next(new NavigationStart(1, '/some-url'));
+      tick();
+      expect(component.claimantLevel).toBe('Initial Value');
+    }));
+
+    it('should handle undefined urlAfterRedirects', fakeAsync(() => {
+      const navEnd = new NavigationEnd(1, '/withAppointment', undefined);
+      mockEvents.next(navEnd);
+      tick();
+      expect(component.claimantLevel).toBe(' - APPOINTMENT LEVEL');
+    }));
+
+    it('should not change claimantLevel for unrelated routes', fakeAsync(() => {
+      component.claimantLevel = 'Initial Value';
+      mockEvents.next(new NavigationEnd(1, '/other-route', '/other-route'));
+      tick();
+      expect(component.claimantLevel).toBe('Initial Value');
+    }));
   });
 });
