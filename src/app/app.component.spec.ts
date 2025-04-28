@@ -12,7 +12,6 @@
     <!-- PDF.js and Tesseract.js -->
     <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/build/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
-
 </head>
 <body>
 
