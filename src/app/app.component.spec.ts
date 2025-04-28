@@ -1,188 +1,91 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Xunit;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 
-public class SaveOtherAddressTests
-{
-    private readonly Mock<DbContext> _mockContext;
-    private readonly Mock<ILogger<YourServiceClass>> _mockLogger;
-    private readonly YourServiceClass _service;
+    <!-- Polyfills for IE11 -->
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise/dist/es6-promise.auto.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/whatwg-fetch/dist/fetch.umd.js"></script>
 
-    public SaveOtherAddressTests()
-    {
-        _mockContext = new Mock<DbContext>();
-        _mockLogger = new Mock<ILogger<YourServiceClass>>();
-        _service = new YourServiceClass(_mockContext.Object, _mockLogger.Object);
-    }
+    <!-- PDF.js and Tesseract.js -->
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/build/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
 
-    [Fact]
-    public async Task SaveOtherAddress_ShouldSaveNewAddress_WhenAddressDoesNotExist()
-    {
-        // Arrange
-        var claimantOtherAddressDto = new AddClaimantOtherAddressDto
-        {
-            ClaimantOtherAddress_ID = null,
-            ClaimantId = 1,
-            StartDate = DateTime.Now,
-            EndDate = DateTime.Now.AddYears(1),
-            UserName = "testuser"
+</head>
+<body>
+
+    <input type="file" id="pdf-upload" accept="application/pdf" />
+    <input type="text" id="keyword-input" placeholder="Enter keyword to search..." />
+    <button id="scan-btn">Scan PDF</button>
+    <p id="result"></p>
+    <canvas id="pdf-canvas"></canvas>
+    
+    <script>
+    document.getElementById("scan-btn").addEventListener("click", function () {
+        var fileInput = document.getElementById("pdf-upload");
+        var keyword = document.getElementById("keyword-input").value.trim();
+        var resultElement = document.getElementById("result");
+    
+        if (!fileInput.files[0]) {
+            resultElement.innerText = "Please upload a PDF.";
+            return;
+        }
+        if (!keyword) {
+            resultElement.innerText = "Please enter a keyword to search.";
+            return;
+        }
+    
+        var file = fileInput.files[0];
+        var fileReader = new FileReader();
+    
+        fileReader.onload = function () {
+            var typedarray = new Uint8Array(this.result);
+            pdfjsLib.getDocument({ data: typedarray }).promise.then(function (pdf) {
+                var canvas = document.getElementById("pdf-canvas");
+                var context = canvas.getContext("2d");
+                var scale = 2;
+                var found = false;
+                var pagePromises = [];
+    
+                function scanPage(pageNum) {
+                    return pdf.getPage(pageNum).then(function (page) {
+                        var viewport = page.getViewport({ scale: scale });
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+    
+                        return page.render({ canvasContext: context, viewport: viewport }).promise.then(function () {
+                            var imageDataUrl = canvas.toDataURL();
+                            resultElement.innerText = "Scanning page " + pageNum + "...";
+    
+                            return Tesseract.recognize(imageDataUrl, 'eng').then(function (result) {
+                                var text = result.data.text;
+                                console.log("Page " + pageNum + " text:\n", text);
+    
+                                if (text.toLowerCase().indexOf(keyword.toLowerCase()) !== -1) {
+                                    resultElement.innerText = "✅ Keyword \"" + keyword + "\" found on page " + pageNum + ".";
+                                    found = true;
+                                }
+                            });
+                        });
+                    });
+                }
+    
+                for (var pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    pagePromises.push(scanPage(pageNum));
+                }
+    
+                Promise.all(pagePromises).then(function () {
+                    if (!found) {
+                        resultElement.innerText = "❌ Keyword \"" + keyword + "\" not found in the document.";
+                    }
+                });
+            });
         };
-
-        _mockContext.Setup(m => m.ClaimantOtherAddresses.AddAsync(It.IsAny<ClaimantOtherAddress>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        _mockContext.Setup(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(1);
-
-        // Act
-        var result = await _service.SaveOtherAddress(CancellationToken.None, claimantOtherAddressDto);
-
-        // Assert
-        Assert.True(result > 0);
-    }
-
-    [Fact]
-    public async Task SaveOtherAddress_ShouldUpdateExistingAddress_WhenAddressExists()
-    {
-        // Arrange
-        var claimantOtherAddressDto = new AddClaimantOtherAddressDto
-        {
-            ClaimantOtherAddress_ID = 1,
-            ClaimantId = 1,
-            StartDate = DateTime.Now,
-            EndDate = DateTime.Now.AddYears(1),
-            UserName = "testuser"
-        };
-
-        var existingAddress = new ClaimantOtherAddress
-        {
-            Claimant_Other_Address_ID = 1,
-            GlobalAddress = new GlobalAddress(),
-            IsDeleted = 0
-        };
-
-        _mockContext.Setup(m => m.ClaimantOtherAddresses.Include(It.IsAny<Func<IQueryable<ClaimantOtherAddress>, IIncludableQueryable<ClaimantOtherAddress, object>>>()))
-            .Returns(new List<ClaimantOtherAddress> { existingAddress }.AsQueryable());
-
-        _mockContext.Setup(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(1);
-
-        // Act
-        var result = await _service.SaveOtherAddress(CancellationToken.None, claimantOtherAddressDto);
-
-        // Assert
-        Assert.Equal(1, result);
-    }
-
-    [Fact]
-    public async Task SaveOtherAddress_ShouldReturnMinusOne_WhenExceptionIsThrown()
-    {
-        // Arrange
-        var claimantOtherAddressDto = new AddClaimantOtherAddressDto
-        {
-            ClaimantOtherAddress_ID = null,
-            ClaimantId = 1,
-            StartDate = DateTime.Now,
-            EndDate = DateTime.Now.AddYears(1),
-            UserName = "testuser"
-        };
-
-        _mockContext.Setup(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new Exception());
-
-        // Act
-        var result = await _service.SaveOtherAddress(CancellationToken.None, claimantOtherAddressDto);
-
-        // Assert
-        Assert.Equal(-1, result);
-    }
-}
-
-
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Xunit;
-
-public class RemoveClaimantOtherMappingTests
-{
-    private readonly Mock<DbContext> _mockContext;
-    private readonly Mock<ILogger<YourServiceClass>> _mockLogger;
-    private readonly YourServiceClass _service;
-
-    public RemoveClaimantOtherMappingTests()
-    {
-        _mockContext = new Mock<DbContext>();
-        _mockLogger = new Mock<ILogger<YourServiceClass>>();
-        _service = new YourServiceClass(_mockContext.Object, _mockLogger.Object);
-    }
-
-    [Fact]
-    public async Task RemoveClaimantOtherMapping_ShouldReturnTrue_WhenMappingExists()
-    {
-        // Arrange
-        var claimantOtherAddressId = 1;
-        var userId = "testuser";
-
-        var existingMapping = new ClaimantOtherAddress
-        {
-            Claimant_Other_Address_ID = claimantOtherAddressId,
-            IsDeleted = 0
-        };
-
-        _mockContext.Setup(m => m.ClaimantOtherAddresses.FirstOrDefaultAsync(It.IsAny<Expression<Func<ClaimantOtherAddress, bool>>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existingMapping);
-
-        _mockContext.Setup(m => m.SaveChangesAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(1);
-
-        // Act
-        var result = await _service.RemoveClaimantOtherMapping(CancellationToken.None, claimantOtherAddressId, userId);
-
-        // Assert
-        Assert.True(result);
-        Assert.Equal(1, existingMapping.IsDeleted);
-        Assert.Equal(userId.ToUpper(), existingMapping.Modified_User);
-    }
-
-    [Fact]
-    public async Task RemoveClaimantOtherMapping_ShouldReturnFalse_WhenMappingDoesNotExist()
-    {
-        // Arrange
-        var claimantOtherAddressId = 1;
-        var userId = "testuser";
-
-        _mockContext.Setup(m => m.ClaimantOtherAddresses.FirstOrDefaultAsync(It.IsAny<Expression<Func<ClaimantOtherAddress, bool>>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ClaimantOtherAddress)null);
-
-        // Act
-        var result = await _service.RemoveClaimantOtherMapping(CancellationToken.None, claimantOtherAddressId, userId);
-
-        // Assert
-        Assert.False(result);
-    }
-
-    [Fact]
-    public async Task RemoveClaimantOtherMapping_ShouldReturnFalse_WhenExceptionIsThrown()
-    {
-        // Arrange
-        var claimantOtherAddressId = 1;
-        var userId = "testuser";
-
-        _mockContext.Setup(m => m.ClaimantOtherAddresses.FirstOrDefaultAsync(It.IsAny<Expression<Func<ClaimantOtherAddress, bool>>>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new Exception());
-
-        // Act
-        var result = await _service.RemoveClaimantOtherMapping(CancellationToken.None, claimantOtherAddressId, userId);
-
-        // Assert
-        Assert.False(result);
-    }
-}
+    
+        fileReader.readAsArrayBuffer(file);
+    });
+    </script>
+</body>
+</html>
