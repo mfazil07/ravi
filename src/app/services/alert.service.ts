@@ -1,62 +1,40 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject, timer } from 'rxjs';
+function processPage(pdf, pageNum) {
+    var defer = $.Deferred();
 
-export interface IAlertConfig {
-  clrAlertType: string; // Add your own types
-  message: string;
-  clrAlertAppLevel?: boolean;
-  clrAlertClosable?: boolean;
-}
-@Injectable({
-  providedIn: 'root',
-})
-export class AlertService {
-  private messageQueue: IAlertConfig[] = [];
-  private alertListSubject = new BehaviorSubject<IAlertConfig[]>([]);
-  close = new Subject<any>();
+    pdf.getPage(pageNum).then(function (page) {
+        var scale = 1.5; // Adjust scale if needed
+        var viewport = page.getViewport({ scale: scale });
 
-  constructor() {}
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
 
-  /**
-   * Push a new message to the queue.
-   */
-  pushMessage(config: IAlertConfig): void {
-    this.messageQueue.push(config);
-    this.emitAlertList();
-    this.autoClose(config);
-  }
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
 
-  /**
-   * Remove a message from the queue.
-   */
-  removeMessage(message: IAlertConfig): void {
-    const index = this.messageQueue.indexOf(message);
-    if (index > -1) {
-      this.messageQueue.splice(index, 1);
-      this.emitAlertList();
-    }
-  }
+        var renderContext = {
+            canvasContext: context,
+            viewport: viewport
+        };
 
-  /**
-   * Get observable for the current alert list.
-   */
-  getAlerts$() {
-    return this.alertListSubject.asObservable();
-  }
+        var renderTask = page.render(renderContext);
 
-  /**
-   * Emit the current alert list.
-   */
-  private emitAlertList(): void {
-    this.alertListSubject.next([...this.messageQueue]);
-  }
+        renderTask.promise.then(function () {
+            var imageDataUrl = canvas.toDataURL();
 
-  /**
-   * Auto-close a message after 7 seconds.
-   */
-  private autoClose(config: IAlertConfig): void {
-    timer(7000).subscribe(() => {
-      this.removeMessage(config);
+            Tesseract.recognize(imageDataUrl, 'eng')
+                .then(function (result) {
+                    defer.resolve(result.data.text);
+                })
+                .catch(function (err) {
+                    defer.reject(err);
+                });
+        }).catch(function (err) {
+            defer.reject(err);
+        });
+
+    }).catch(function (error) {
+        defer.reject(error);
     });
-  }
+
+    return defer.promise();
 }
