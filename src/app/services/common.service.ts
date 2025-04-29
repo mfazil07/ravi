@@ -1,3 +1,9 @@
+Tesseract.recognize(imageDataUrl, 'eng', {
+    langPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/lang/',
+    corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@2.1.0/tesseract-core.wasm.js',
+    workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/worker.min.js'
+})
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
