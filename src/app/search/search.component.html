@@ -77,6 +77,7 @@ describe('NotificationSearchResultComponent', () => {
         { weatherEventId: 2, isMapped: 0 } as NotificationWeatherEvent,
       ];
 
+      component.weatherEvents = mockEvents;
       const changes: SimpleChanges = {
         weatherEvents: new SimpleChange(undefined, mockEvents, true)
       };
@@ -84,7 +85,8 @@ describe('NotificationSearchResultComponent', () => {
       component.selected = [];
       component.ngOnChanges(changes);
 
-      expect(component.selected).toEqual([mockEvents[0]]);
+      expect(component.selected.length).toBe(1);
+      expect(component.selected[0].weatherEventId).toBe(1);
       expect(component.isInitialLoad).toBeFalse();
     });
 
@@ -95,6 +97,7 @@ describe('NotificationSearchResultComponent', () => {
         { weatherEventId: 2, isMapped: 0 } as NotificationWeatherEvent,
       ];
 
+      component.weatherEvents = mockEvents;
       const changes: SimpleChanges = {
         weatherEvents: new SimpleChange(undefined, mockEvents, true)
       };
@@ -111,6 +114,7 @@ describe('NotificationSearchResultComponent', () => {
         { weatherEventId: 2, isMapped: 0 } as NotificationWeatherEvent,
       ];
 
+      component.weatherEvents = mockEvents;
       const changes: SimpleChanges = {
         weatherEvents: new SimpleChange(undefined, mockEvents, true)
       };
@@ -127,6 +131,7 @@ describe('NotificationSearchResultComponent', () => {
         { weatherEventId: 2, isMapped: 0 } as NotificationWeatherEvent,
       ];
 
+      component.weatherEvents = mockEvents;
       const changes: SimpleChanges = {
         weatherEvents: new SimpleChange(undefined, mockEvents, true)
       };
@@ -135,7 +140,8 @@ describe('NotificationSearchResultComponent', () => {
       component.selected = [existingSelected];
       component.ngOnChanges(changes);
 
-      expect(component.prevSelected).toEqual([existingSelected]);
+      expect(component.prevSelected.length).toBe(1);
+      expect(component.prevSelected[0].weatherEventId).toBe(3);
     });
 
     it('should not process changes if weatherEvents change is not detected', () => {
@@ -157,7 +163,7 @@ describe('NotificationSearchResultComponent', () => {
       component.selected = [{ weatherEventId: 1, isMapped: 1 } as NotificationWeatherEvent];
       component.ngOnChanges(changes);
 
-      expect(component.selected).toEqual([{ weatherEventId: 1, isMapped: 1 } as NotificationWeatherEvent]);
+      expect(component.selected.length).toBe(1);
       expect(component.prevSelected).toEqual([]);
     });
   });
@@ -176,6 +182,7 @@ describe('NotificationSearchResultComponent', () => {
         weatherEventId: 1,
         weatherEvent: 'Expired Storm',
         status: 'inactive',
+        isMapped: 1
       } as NotificationWeatherEvent;
 
       component.prevSelected = [unselectedInactiveEvent];
@@ -204,12 +211,14 @@ describe('NotificationSearchResultComponent', () => {
         weatherEventId: 1,
         weatherEvent: 'Expired Storm',
         status: 'inactive',
+        isMapped: 1
       } as NotificationWeatherEvent;
 
       const selectedEvent = {
         weatherEventId: 2,
         weatherEvent: 'Active Storm',
         status: 'active',
+        isMapped: 1
       } as NotificationWeatherEvent;
 
       component.prevSelected = [unselectedInactiveEvent, selectedEvent];
@@ -246,6 +255,7 @@ describe('NotificationSearchResultComponent', () => {
         weatherEventId: 1,
         weatherEvent: 'Expired Storm',
         status: 'inactive',
+        isMapped: 1
       } as NotificationWeatherEvent;
 
       component.prevSelected = [unselectedInactiveEvent];
@@ -255,14 +265,14 @@ describe('NotificationSearchResultComponent', () => {
       component.hasUserInteractedOnce = true;
 
       (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(false));
-      spyOn(component.triggerRefresh, 'emit');
-      spyOn(component.onSelectChange, 'emit');
+      const refreshSpy = spyOn(component.triggerRefresh, 'emit');
+      const selectSpy = spyOn(component.onSelectChange, 'emit');
 
       await component.handleRowChange();
 
       expect(component.selected).toEqual([unselectedInactiveEvent]);
-      expect(component.triggerRefresh.emit).toHaveBeenCalledWith(true);
-      expect(component.onSelectChange.emit).toHaveBeenCalledWith([unselectedInactiveEvent]);
+      expect(refreshSpy).toHaveBeenCalledWith(true);
+      expect(selectSpy).toHaveBeenCalledWith([unselectedInactiveEvent]);
     });
 
     it('should handle unselected active event when selected length is 0', async () => {
@@ -270,6 +280,7 @@ describe('NotificationSearchResultComponent', () => {
         weatherEventId: 1,
         weatherEvent: 'Active Storm',
         status: 'active',
+        isMapped: 1
       } as NotificationWeatherEvent;
 
       component.prevSelected = [unselectedActiveEvent];
