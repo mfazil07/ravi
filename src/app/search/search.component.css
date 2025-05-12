@@ -1,45 +1,31 @@
-NotificationSearchResultComponent > should handle unselected inactive event when selected length > 0
-Expected spy confirm to have been called with:
-  [ 'This expired <b>Expired Storm</b> will no longer be visible once unchecked. Do you wish to proceed?', 'Ok', 'Cancel' ]
-but actual calls were:
-  [ 'You selected <b>Active Storm</b>, are you sure you want to continue?', 'Ok', 'Cancel' ],
-  [ 'Be aware that this expired <b>Expired Storm</b> will no longer be visible once unchecked. Do you wish to proceed?', 'Ok', 'Cancel' ].
-
-Call 0:
-  Expected $[0] = 'You selected <b>Active Storm</b>, are you sure you want to continue?' to equal 'This expired <b>Expired Storm</b> will no longer be visible once unchecked. Do you wish to proceed?'.
-Call 1:
-  Expected $[0] = 'Be aware that this expired <b>Expired Storm</b> will no longer be visible once unchecked. Do you wish to proceed?' to equal 'This expired <b>Expired Storm</b> will no longer be visible once unchecked. Do you wish to proceed?'.
-Error: Expected spy confirm to have been called with:
-  [ 'This expired <b>Expired Storm</b> will no longer be visible once unchecked. Do you wish to proceed?', 'Ok', 'Cancel' ]
-but actual calls were:
-  [ 'You selected <b>Active Storm</b>, are you sure you want to continue?', 'Ok', 'Cancel' ],
-  [ 'Be aware that this expired <b>Expired Storm</b> will no longer be visible once unchecked. Do you wish to proceed?', 'Ok', 'Cancel' ].
-Call 0:
-  Expected $[0] = 'You selected <b>Active Storm</b>, are you sure you want to continue?' to equal 'This expired <b>Expired Storm</b> will no longer be visible once unchecked. Do you wish to proceed?'.
-Call 1:
-  Expected $[0] = 'Be aware that this expired <b>Expired Storm</b> will no longer be visible once unchecked. Do you wish to proceed?' to equal 'This expired <b>Expired Storm</b> will no longer be visible once unchecked. Do you wish to proceed?'.
+NotificationSearchResultComponent > handleRowChange > should trigger refresh and revert selection when confirmation is false and isRefresh is 1
+Expected spy emit to have been called with:
+  [ true ]
+but it was never called.
     at <Jasmine>
-    at UserContext.<anonymous> (http://localhost:9877/_karma_webpack_/webpack:/src/app/notification-search/notification-search-result/notification-search-result.component.spec.ts:106:42)
+    at UserContext.<anonymous> (http://localhost:9877/_karma_webpack_/webpack:/src/app/notification-search/notification-search-result/notification-search-result.component.spec.ts:264:45)
     at Generator.next (<anonymous>)
     at asyncGeneratorStep (http://localhost:9877/_karma_webpack_/webpack:/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:1)
     at _next (http://localhost:9877/_karma_webpack_/webpack:/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:22:1)
-NotificationSearchResultComponent > should handle unselected inactive event when selected length is 0
-Expected spy confirm to have been called with:
-  [ 'Please select at least one Weather Alert to continue. Be aware that this expired <b>Expired Storm</b> will no longer visible once unchecked. Do you wish to proceed?', 'Ok', 'Cancel' ]
-but actual calls were:
-  [ 'Be aware that this expired <b>Expired Storm</b> will no longer visible once unchecked. Do you wish to proceed?', 'Ok', 'Cancel' ].
-
-Call 0:
-  Expected $[0] = 'Be aware that this expired <b>Expired Storm</b> will no longer visible once unchecked. Do you wish to proceed?' to equal 'Please select at least one Weather Alert to continue. Be aware that this expired <b>Expired Storm</b> will no longer visible once unchecked. Do you wish to proceed?'.
-Error: Expected spy confirm to have been called with:
-  [ 'Please select at least one Weather Alert to continue. Be aware that this expired <b>Expired Storm</b> will no longer visible once unchecked. Do you wish to proceed?', 'Ok', 'Cancel' ]
-but actual calls were:
-  [ 'Be aware that this expired <b>Expired Storm</b> will no longer visible once unchecked. Do you wish to proceed?', 'Ok', 'Cancel' ].
-Call 0:
-  Expected $[0] = 'Be aware that this expired <b>Expired Storm</b> will no longer visible once unchecked. Do you wish to proceed?' to equal 'Please select at least one Weather Alert to continue. Be aware that this expired <b>Expired Storm</b> will no longer visible once unchecked. Do you wish to proceed?'.
+NotificationSearchResultComponent > ngOnChanges > should update selected events when weatherEvents changes and selected is empty
+Expected $.length = 0 to equal 1.
+Expected $[0] = undefined to equal Object({ weatherEventId: 1, isMapped: 1 }).
     at <Jasmine>
-    at UserContext.<anonymous> (http://localhost:9877/_karma_webpack_/webpack:/src/app/notification-search/notification-search-result/notification-search-result.component.spec.ts:69:42)
-    at Generator.next (<anonymous>)
-    at asyncGeneratorStep (http://localhost:9877/_karma_webpack_/webpack:/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:1)
-    at _next (http://localhost:9877/_karma_webpack_/webpack:/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:22:1)
-AddeventComponent > should handle year change corr
+    at UserContext.apply (http://localhost:9877/_karma_webpack_/webpack:/src/app/notification-search/notification-search-result/notification-search-result.component.spec.ts:87:34)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+Expected true to be false.
+    at <Jasmine>
+    at UserContext.apply (http://localhost:9877/_karma_webpack_/webpack:/src/app/notification-search/notification-search-result/notification-search-result.component.spec.ts:88:39)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+NotificationSearchResultComponent > ngOnChanges > should update prevSelected to current selected when mapped events exist
+Expected $.length = 0 to equal 1.
+Expected $[0] = undefined to equal Object({ weatherEventId: 3, isMapped: 1 }).
+    at <Jasmine>
+    at UserContext.apply (http://localhost:9877/_karma_webpack_/webpack:/src/app/notification-search/notification-search-result/notification-search-result.component.spec.ts:138:38)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
