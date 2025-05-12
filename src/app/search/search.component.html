@@ -103,7 +103,6 @@ describe('NotificationSearchResultComponent', () => {
         'Cancel'
       );
       expect(component.onUnSelectChange.emit).toHaveBeenCalledWith([]);
-      expect(component.isRefresh).toBe(1);
     });
 
     it('should handle unselected inactive event when selected length > 0', async () => {
@@ -129,7 +128,6 @@ describe('NotificationSearchResultComponent', () => {
 
       (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(true));
       spyOn(component.onSelectChange, 'emit');
-      spyOn(component.triggerRefresh, 'emit');
 
       await component.handleRowChange();
 
@@ -140,7 +138,6 @@ describe('NotificationSearchResultComponent', () => {
       );
       expect(component.onSelectChange.emit).toHaveBeenCalledWith([selectedEvent]);
       expect(component.prevSelected).toEqual([selectedEvent]);
-      expect(component.triggerRefresh.emit).not.toHaveBeenCalled();
     });
 
     it('should revert selection when unselecting inactive event and confirmation is false', async () => {
@@ -160,18 +157,15 @@ describe('NotificationSearchResultComponent', () => {
 
       component.prevSelected = [unselectedInactiveEvent, selectedEvent];
       component.selected = [selectedEvent];
-      component.isRefresh = 1;
       component.isInitialLoad = false;
       component.hasUserInteractedOnce = true;
 
       (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(false));
-      const refreshSpy = spyOn(component.triggerRefresh, 'emit');
       const selectSpy = spyOn(component.onSelectChange, 'emit');
 
       await component.handleRowChange();
 
       expect(component.selected).toEqual([unselectedInactiveEvent, selectedEvent]);
-      expect(refreshSpy).toHaveBeenCalledWith(true);
       expect(selectSpy).toHaveBeenCalledWith([unselectedInactiveEvent, selectedEvent]);
     });
 
@@ -185,7 +179,6 @@ describe('NotificationSearchResultComponent', () => {
 
       component.prevSelected = [unselectedActiveEvent];
       component.selected = [];
-      component.isRefresh = 0;
       component.isInitialLoad = false;
       component.hasUserInteractedOnce = true;
 
@@ -212,18 +205,15 @@ describe('NotificationSearchResultComponent', () => {
 
       component.prevSelected = [unselectedActiveEvent];
       component.selected = [];
-      component.isRefresh = 1;
       component.isInitialLoad = false;
       component.hasUserInteractedOnce = true;
 
       (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(false));
-      const refreshSpy = spyOn(component.triggerRefresh, 'emit');
       const selectSpy = spyOn(component.onSelectChange, 'emit');
 
       await component.handleRowChange();
 
       expect(component.selected).toEqual([unselectedActiveEvent]);
-      expect(refreshSpy).toHaveBeenCalledWith(true);
       expect(selectSpy).toHaveBeenCalledWith([unselectedActiveEvent]);
     });
 
