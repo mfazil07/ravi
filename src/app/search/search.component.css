@@ -1,18 +1,27 @@
-NotificationSearchResultComponent > handleRowChange > should revert selection when unselecting active event and confirmation is false
-Expected spy emit to have been called with:
-  [ true ]
-but it was never called.
+AddeventComponent > should return "disabled" if country is already selected in getCountryClass
+TypeError: Cannot read properties of undefined (reading 'returnValue')
+    at UserContext.apply (http://localhost:9877/_karma_webpack_/webpack:/src/app/addevent/addevent.component.spec.ts:423:12)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+    at ZoneImpl.run (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:111:43)
+    at runInTestZone (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:216:38)
+    at UserContext.<anonymous> (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:234:32)
     at <Jasmine>
-    at UserContext.<anonymous> (http://localhost:9877/_karma_webpack_/webpack:/src/app/notification-search/notification-search-result/notification-search-result.component.spec.ts:226:26)
-    at Generator.next (<anonymous>)
-    at asyncGeneratorStep (http://localhost:9877/_karma_webpack_/webpack:/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:1)
-    at _next (http://localhost:9877/_karma_webpack_/webpack:/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:22:1)
-NotificationSearchResultComponent > handleRowChange > should revert selection when unselecting inactive event and confirmation is false
-Expected spy emit to have been called with:
-  [ true ]
-but it was never called.
+AddeventComponent > should return "disabled" if state is already selected in getClass
+TypeError: Cannot read properties of undefined (reading 'nativeElement')
+    at UserContext.apply (http://localhost:9877/_karma_webpack_/webpack:/src/app/addevent/addevent.component.spec.ts:447:41)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+    at ZoneImpl.run (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:111:43)
+    at runInTestZone (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:216:38)
+    at UserContext.<anonymous> (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:234:32)
     at <Jasmine>
-    at UserContext.<anonymous> (http://localhost:9877/_karma_webpack_/webpack:/src/app/notification-search/notification-search-result/notification-search-result.component.spec.ts:174:26)
-    at Generator.next (<anonymous>)
-    at asyncGeneratorStep (http://localhost:9877/_karma_webpack_/webpack:/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:3:1)
-    at _next (http://localhost:9877/_karma_webpack_/webpack:/node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js:22:1)
+AddeventComponent > should handle year change correctly
+Expected '12/01/2023' to be '12/02/2023'.
+    at <Jasmine>
+    at UserContext.apply (http://localhost:9877/_karma_webpack_/webpack:/src/app/addevent/addevent.component.spec.ts:602:20)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
