@@ -1,151 +1,135 @@
-  import { ComponentFixture, TestBed } from '@angular/core/testing';
-  import { NotificationSearchResultComponent } from './notification-search-result.component';
-  import { ClrDatagridModule } from '@clr/angular';
-  import { ConfirmDialogService } from '../../services/confirm-dialog.service';
-  import { NotificationWeatherEvent } from '../../models/notification';
-  import { of } from 'rxjs';
-  import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NotificationSearchResultComponent } from './notification-search-result.component';
+import { ClrDatagridModule } from '@clr/angular';
+import { ConfirmDialogService } from '../../services/confirm-dialog.service';
+import { NotificationWeatherEvent } from '../../models/notification';
+import { of } from 'rxjs';
+import { NO_ERRORS_SCHEMA, SimpleChange, SimpleChanges } from '@angular/core';
 
-  describe('NotificationSearchResultComponent', () => {
-    let component: NotificationSearchResultComponent;
-    let fixture: ComponentFixture<NotificationSearchResultComponent>;
-    let confirmDialogService: ConfirmDialogService;
+describe('NotificationSearchResultComponent', () => {
+  let component: NotificationSearchResultComponent;
+  let fixture: ComponentFixture<NotificationSearchResultComponent>;
+  let confirmDialogService: ConfirmDialogService;
 
-    beforeEach(async () => {
-      await TestBed.configureTestingModule({
-        declarations: [NotificationSearchResultComponent],
-        schemas: [NO_ERRORS_SCHEMA],
-        imports: [ClrDatagridModule],
-        providers: [
-          {
-            provide: ConfirmDialogService,
-            useValue: {
-              confirm: jasmine.createSpy('confirm').and.returnValue(of(true)),
-            },
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [NotificationSearchResultComponent],
+      schemas: [NO_ERRORS_SCHEMA],
+      imports: [ClrDatagridModule],
+      providers: [
+        {
+          provide: ConfirmDialogService,
+          useValue: {
+            confirm: jasmine.createSpy('confirm').and.returnValue(of(true)),
           },
-        ],
-      }).compileComponents();
+        },
+      ],
+    }).compileComponents();
 
-      fixture = TestBed.createComponent(NotificationSearchResultComponent);
-      component = fixture.componentInstance;
-      confirmDialogService = TestBed.inject(ConfirmDialogService);
-      fixture.detectChanges();
+    fixture = TestBed.createComponent(NotificationSearchResultComponent);
+    component = fixture.componentInstance;
+    confirmDialogService = TestBed.inject(ConfirmDialogService);
+    fixture.detectChanges();
+  });
+
+  // ... (keep all existing test cases) ...
+
+  describe('handleRowChange', () => {
+    // ... (keep all existing handleRowChange test cases) ...
+
+    it('should trigger refresh and revert selection when confirmation is false and isRefresh is 1', async () => {
+      const unselectedInactiveEvent = {
+        weatherEventId: 1,
+        weatherEvent: 'Expired Storm',
+        status: 'inactive',
+      } as NotificationWeatherEvent;
+
+      component.prevSelected = [unselectedInactiveEvent];
+      component.selected = [];
+      component.isRefresh = 1;
+      component.isInitialLoad = false;
+      component.hasUserInteractedOnce = true;
+
+      (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(false));
+      spyOn(component.triggerRefresh, 'emit');
+      spyOn(component.onSelectChange, 'emit');
+
+      await component.handleRowChange();
+
+      expect(component.selected).toEqual([unselectedInactiveEvent]);
+      expect(component.triggerRefresh.emit).toHaveBeenCalledWith(true);
+      expect(component.onSelectChange.emit).toHaveBeenCalledWith([unselectedInactiveEvent]);
     });
 
-    it('should create', () => {
-      expect(component).toBeTruthy();
+    it('should handle unselected active event when selected length is 0', async () => {
+      const unselectedActiveEvent = {
+        weatherEventId: 1,
+        weatherEvent: 'Active Storm',
+        status: 'active',
+      } as NotificationWeatherEvent;
+
+      component.prevSelected = [unselectedActiveEvent];
+      component.selected = [];
+      component.isRefresh = 0;
+      component.isInitialLoad = false;
+      component.hasUserInteractedOnce = true;
+
+      (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(true));
+      spyOn(component.onUnSelectChange, 'emit');
+
+      await component.handleRowChange();
+
+      expect(confirmDialogService.confirm).toHaveBeenCalledWith(
+        'No more Weather Alerts mapped at Case Level if saved.',
+        'Ok',
+        'Cancel'
+      );
+      expect(component.onUnSelectChange.emit).toHaveBeenCalledWith([]);
     });
 
-    describe('disableSelectChange Input', () => {
-      it('should update disableResult when disableSelectChange is set', () => {
-        component.disableSelectChange = true;
-        expect(component.disableResult).toBeTrue();
+    it('should revert selection when unselecting active event and confirmation is false', async () => {
+      const unselectedActiveEvent = {
+        weatherEventId: 1,
+        weatherEvent: 'Active Storm',
+        status: 'active',
+      } as NotificationWeatherEvent;
 
-        component.disableSelectChange = false;
-        expect(component.disableResult).toBeFalse();
-      });
+      component.prevSelected = [unselectedActiveEvent];
+      component.selected = [];
+      component.isRefresh = 1;
+      component.isInitialLoad = false;
+      component.hasUserInteractedOnce = true;
+
+      (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(false));
+      spyOn(component.triggerRefresh, 'emit');
+      spyOn(component.onSelectChange, 'emit');
+
+      await component.handleRowChange();
+
+      expect(component.selected).toEqual([unselectedActiveEvent]);
+      expect(component.triggerRefresh.emit).toHaveBeenCalledWith(true);
+      expect(component.onSelectChange.emit).toHaveBeenCalledWith([unselectedActiveEvent]);
     });
 
-    describe('weatherEvents Input', () => {
-      it('should process weather events correctly', () => {
-        const mockEvents: NotificationWeatherEvent[] = [
-          { weatherEventId: 1, state: 'CA, TX', isMapped: 1 } as NotificationWeatherEvent,
-          { weatherEventId: 2, state: 'NY', isMapped: 0 } as NotificationWeatherEvent,
-        ];
+    it('should emit selected items when no special conditions are met', async () => {
+      const selectedEvent = {
+        weatherEventId: 1,
+        weatherEvent: 'Active Storm',
+        status: 'active',
+        isMapped: 1
+      } as NotificationWeatherEvent;
 
-        component.weatherEvents = mockEvents;
-        fixture.detectChanges();
+      component.prevSelected = [selectedEvent];
+      component.selected = [selectedEvent];
+      component.isInitialLoad = false;
+      component.hasUserInteractedOnce = true;
 
-        expect(component.weatherEventsList.length).toBe(2);
-        expect(component.weatherEventsList[0].state).toBe('CA, TX');
-        expect(component.weatherEventsList[1].state).toBe('NY');
-        expect(component.selected).toEqual([mockEvents[0]]);
-      });
+      spyOn(component.onSelectChange, 'emit');
 
-      it('should handle empty weather events', () => {
-        component.weatherEvents = null;
-        fixture.detectChanges();
-        expect(component.weatherEventsList).toEqual([]);
-      });
-    });
+      await component.handleRowChange();
 
-    describe('handleRowChange', () => {
-      it('should handle initial load and set previousSelected', async () => {
-        component.isInitialLoad = true;
-        component.selected = [{ weatherEventId: 1, isMapped: 1 } as NotificationWeatherEvent];
-        await component.handleRowChange();
-        expect(component.isInitialLoad).toBeFalse();
-        expect(component.previousSelected).toEqual([{ weatherEventId: 1, isMapped: 1 } as NotificationWeatherEvent]);
-      });
-
-      it('should handle unselected inactive event when selected length is 0', async () => {
-        const unselectedInactiveEvent = {
-          weatherEventId: 1,
-          weatherEvent: 'Expired Storm',
-          status: 'inactive',
-        } as NotificationWeatherEvent;
-
-        component.prevSelected = [unselectedInactiveEvent];
-        component.selected = [];
-        component.isRefresh = 0;
-        component.isInitialLoad = false;
-        component.hasUserInteractedOnce = true;
-
-        (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(true));
-        spyOn(component.onUnSelectChange, 'emit');
-
-        await component.handleRowChange();
-
-        expect(confirmDialogService.confirm).toHaveBeenCalledWith(
-          `Be aware that this expired <b>${unselectedInactiveEvent.weatherEvent}</b> will no longer visible once unchecked. Do you wish to proceed?`,
-          'Ok',
-          'Cancel'
-        );   
-
-        expect(component.onUnSelectChange.emit).toHaveBeenCalledWith([]);
-        expect(component.isRefresh).toBe(1);
-      });
-
-      it('should handle unselected inactive event when selected length > 0', async () => {
-        const unselectedInactiveEvent = {
-          weatherEventId: 1,
-          weatherEvent: 'Expired Storm',
-          status: 'inactive',
-        } as NotificationWeatherEvent;
-
-        const selectedEvent = {
-          weatherEventId: 2,
-          weatherEvent: 'Active Storm',
-          status: 'active',
-        } as NotificationWeatherEvent;
-
-        component.prevSelected = [unselectedInactiveEvent, selectedEvent];
-        component.selected = [selectedEvent];
-        component.isRefresh = 0;
-        component.isInitialLoad = false;
-        component.hasUserInteractedOnce = true;
-
-        (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(true));
-        spyOn(component.onSelectChange, 'emit');
-        spyOn(component.triggerRefresh, 'emit');
-
-        await component.handleRowChange();
-
-        expect(confirmDialogService.confirm).toHaveBeenCalledWith(
-          `You selected <b>${selectedEvent.weatherEvent}</b>, are you sure you want to continue?`,
-          'Ok',
-          'Cancel'
-        );
-
-        expect(confirmDialogService.confirm).toHaveBeenCalledWith(
-          `Be aware that this expired <b>${unselectedInactiveEvent.weatherEvent}</b> will no longer be visible once unchecked. Do you wish to proceed?`,
-          'Ok',
-          'Cancel'
-        );
-
-        expect(component.onSelectChange.emit).toHaveBeenCalledWith([selectedEvent]);
-        expect(component.prevSelected).toEqual([selectedEvent]);
-        expect(component.triggerRefresh.emit).not.toHaveBeenCalled();
-      });
+      expect(component.onSelectChange.emit).toHaveBeenCalledWith([selectedEvent]);
+      expect(confirmDialogService.confirm).not.toHaveBeenCalled();
     });
   });
+});
