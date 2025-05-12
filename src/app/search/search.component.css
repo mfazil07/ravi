@@ -1,197 +1,44 @@
-<div *ngIf="!loading; else loadingSpinner">
-  <!-- Existing content remains the same -->
-</div>
-
-<ng-template #loadingSpinner>
-  <div class="loading-spinner">
-    <clr-spinner clrMedium>Loading data...</clr-spinner>
-  </div>
-</ng-template>
-
-
-.loading-spinner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 300px;
-}
-
-
-
-// Add this property to your component class
-searchInProgress: boolean = false;
-
-// Update your searchSubmit method
-searchSubmit(countryCode: KeyValueObject[] = [], reasonCode = '', startDate = formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'), endDate = formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'), location = '', status = true, states: KeyValueObject[] = []) {
-  this.searchInProgress = true;
-  this.commonService.getallWeatherEvents(countryCode, reasonCode, startDate, endDate, location, status, states).subscribe({
-    next: (result: WeatherEvent[]) => {
-      this.weatherEvents = result;
-      this.filterEnabled = true;
-      this.searchInProgress = false;
-    },
-    error: (error: HttpErrorResponse) => {
-      this.weatherEvents = [];
-      this.searchInProgress = false;
-      this.handleError(error);
-    }
-  });
-}
-
-// Update your reset method
-reset(_form: any): void {
-  this.searchInProgress = true;
-  this.weathersearch = { ...this.initialFormValue };
-  this.weathersearch.frmSrchCountry = [];
-  this.weathersearch.frmSrchCountry = [{ key: 'USA', value: 'UNITED STATES OF AMERICA' }]
-  this.countryChanged();
-  this.startDateError = false;
-  this.endDateError = false;
-  this.enableSearch = true;
-  _form.form.markAsPristine();
-  _form.form.markAsUntouched();
-  _form.form.updateValueAndValidity();
-  
-  this.searchSubmit([{ key: 'USA', value: 'United States of America', }], '', formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'), formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'), '', true, []);
-}
-
-// Update your ngOnInit to handle initial loading
-ngOnInit() {
-  this.loading = true;
-  
-  this.route.queryParams.subscribe((params: any) => {
-    // Existing code remains the same
-  });
-
-  // Add this to your existing initialization
-  this.loading = false;
-}
-
-
-/////   update 2
-<button type="button" class="btn btn-primary button-float-right" (click)="reset(weathersearchform)" [disabled]="searchInProgress">
-  <cds-icon *ngIf="!searchInProgress" shape="sync"></cds-icon>
-  <clr-spinner *ngIf="searchInProgress" clrSmall></clr-spinner>
-  Reset
-</button>
-<button type="submit" class="btn btn-primary button-float-right" [disabled]="!enableSearch ? !enableSearch : !weathersearchform.valid || searchInProgress">
-  <cds-icon *ngIf="!searchInProgress" shape="search"></cds-icon>
-  <clr-spinner *ngIf="searchInProgress" clrSmall></clr-spinner>
-  Search
-</button>
-
-<!-- Reset Button -->
-<button type="button" class="btn btn-primary button-float-right" 
-        (click)="reset(weathersearchform)" 
-        [disabled]="resetInProgress || searchInProgress">
-  <span *ngIf="!resetInProgress">
-    <cds-icon shape="sync"></cds-icon> Reset
-  </span>
-  <span *ngIf="resetInProgress">
-    <clr-spinner clrSmall></clr-spinner> Resetting...
-  </span>
-</button>
-
-<!-- Search Button -->
-<button type="submit" class="btn btn-primary button-float-right" 
-        [disabled]="!enableSearch || !weathersearchform.valid || searchInProgress || resetInProgress">
-  <span *ngIf="!searchInProgress">
-    <cds-icon shape="search"></cds-icon> Search
-  </span>
-  <span *ngIf="searchInProgress">
-    <clr-spinner clrSmall></clr-spinner> Searching...
-  </span>
-</button>
-
-///////update 3
-
-
-// Use a single loading state with a purpose flag
-loadingState: { isLoading: boolean, purpose?: 'reset' | 'search' } = { isLoading: false };
-
-reset(_form: any): void {
-  this.loadingState = { isLoading: true, purpose: 'reset' };
-  
-  // Reset form values
-  this.weathersearch = { ...this.initialFormValue };
-  this.weathersearch.frmSrchCountry = [{ key: 'USA', value: 'UNITED STATES OF AMERICA' }];
-  this.countryChanged();
-  
-  // Reset validation states
-  this.startDateError = false;
-  this.endDateError = false;
-  this.enableSearch = true;
-  
-  // Reset form control states
-  _form.form.markAsPristine();
-  _form.form.markAsUntouched();
-  _form.form.updateValueAndValidity();
-
-  // Trigger search without showing search spinner
-  this.searchSubmit(
-    [{ key: 'USA', value: 'United States of America' }], 
-    '', 
-    formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'), 
-    formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'), 
-    '', 
-    true, 
-    [],
-    false // Don't show spinner for this search
-  );
-}
-
-searchSubmit(
-  countryCode: KeyValueObject[] = [],
-  reasonCode = '',
-  startDate = formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'),
-  endDate = formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'),
-  location = '',
-  status = true,
-  states: KeyValueObject[] = [],
-  showSpinner: boolean = true
-) {
-  if (showSpinner) {
-    this.loadingState = { isLoading: true, purpose: 'search' };
-  }
-
-  this.commonService.getallWeatherEvents(countryCode, reasonCode, startDate, endDate, location, status, states).subscribe({
-    next: (result: WeatherEvent[]) => {
-      this.weatherEvents = result;
-      this.loadingState = { isLoading: false };
-    },
-    error: (error: HttpErrorResponse) => {
-      this.weatherEvents = [];
-      this.loadingState = { isLoading: false };
-      this.handleError(error);
-    }
-  });
-}
-
-
-<!-- Reset Button -->
-<button type="button" class="btn btn-primary button-float-right" 
-        (click)="reset(weathersearchform)" 
-        [disabled]="loadingState.isLoading">
-  <span *ngIf="loadingState.purpose !== 'reset'">
-    <cds-icon shape="sync"></cds-icon> Reset
-  </span>
-  <span *ngIf="loadingState.purpose === 'reset'">
-    <clr-spinner clrSmall></clr-spinner> Resetting...
-  </span>
-</button>
-
-<!-- Search Button -->
-<button type="submit" class="btn btn-primary button-float-right" 
-        [disabled]="!enableSearch || !weathersearchform.valid || loadingState.isLoading">
-  <span *ngIf="loadingState.purpose !== 'search'">
-    <cds-icon shape="search"></cds-icon> Search
-  </span>
-  <span *ngIf="loadingState.purpose === 'search'">
-    <clr-spinner clrSmall></clr-spinner> Searching...
-  </span>
-</button>
-
-<!-- Datagrid -->
-<clr-datagrid [clrDgLoading]="loadingState.isLoading && loadingState.purpose === 'search'">
-  <!-- datagrid content -->
-</clr-datagrid>
+ClaimantsWeatherAlertsService > GetUnmappedWeatherEvents > should make a POST request without optional params if not provided
+Expected $.startDate = Date(Wed Dec 31 1969 18:00:00 GMT-0600 (Central Standard Time)) to equal null.
+Expected $.endDate = Date(Wed Dec 31 1969 18:00:00 GMT-0600 (Central Standard Time)) to equal null.
+    at <Jasmine>
+    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/services/claimants-weather-alerts.service.spec.ts:103:32)
+    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+ClaimantsWeatherAlertsService > GetUnmappedWeatherEvents > should include optional parameters in the request when provided
+Expected $[0] = undefined to equal 'USA'.
+    at <Jasmine>
+    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/services/claimants-weather-alerts.service.spec.ts:134:76)
+    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+Expected $[0] = undefined to equal 'CA'.
+Expected $[1] = undefined to equal 'TX'.
+    at <Jasmine>
+    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/services/claimants-weather-alerts.service.spec.ts:135:73)
+    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+ClaimantsWeatherAlertsService > getHeaders > should use token from sessionStorage when available
+Error: <spyOn> : getItem has already been spied upon
+Usage: spyOn(<object>, <methodName>)
+    at <Jasmine>
+    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/services/claimants-weather-alerts.service.spec.ts:31:7)
+    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+    at ZoneImpl.run (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:111:43)
+    at runInTestZone (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:216:38)
+    at UserContext.<anonymous> (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:234:32)
+ClaimantsWeatherAlertsService > getHeaders > should fall back to service token when sessionStorage is empty
+Error: <spyOn> : getItem has already been spied upon
+Usage: spyOn(<object>, <methodName>)
+    at <Jasmine>
+    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/services/claimants-weather-alerts.service.spec.ts:38:7)
+    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+    at ZoneImpl.run (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:111:43)
+    at runInTestZone (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:216:38)
+    at UserContext.<anonymous> (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:234:32)
