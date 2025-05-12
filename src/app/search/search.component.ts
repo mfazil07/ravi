@@ -1,429 +1,199 @@
-import { Component, OnInit } from '@angular/core';
-import { CaseDetails, ImpactedAlerts, KeyValueObject, SaveImpactedAlertsRequest } from '../dtos/dtos';
-import { SearchForm, NotificationWeatherEvent } from '../models/notification';
-import { HttpErrorResponse } from '@angular/common/http';
-import { AlertService, IAlertType } from '../services/alert.service';
-import { ClaimantsWeatherAlertsService } from '../services/claimants-weather-alerts.service';
-import { CommonService } from '../services/common.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { formatDate, Location } from '@angular/common';
+import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { NotificationWeatherEvent } from '../../models/notification';
+import { ClrDatagridSortOrder } from '@clr/angular';
+import { ConfirmDialogService } from '../../services/confirm-dialog.service';
 
 @Component({
-  selector: 'notification-search',
-  templateUrl: './notification-search.component.html',
-  styleUrl: './notification-search.component.css'
+  selector: 'notification-search-result',
+  templateUrl: './notification-search-result.component.html',
+  styleUrl: './notification-search-result.component.css'
 })
-export class NotificationSearchComponent implements OnInit {
+export class NotificationSearchResultComponent {
+  descSort = ClrDatagridSortOrder.DESC;
+  @Output() onSelectChange = new EventEmitter();
+  @Output() onUnSelectChange = new EventEmitter();
+  @Output() triggerRefresh = new EventEmitter();
+  selected: Array<NotificationWeatherEvent> = [];
+  weatherEventsList: NotificationWeatherEvent[] = [];
+  @Input() data: any[] = [];
+  disableResult: boolean = false;
+  previousSelected: NotificationWeatherEvent[] = [];
+  prevSelected: NotificationWeatherEvent[] = [];
+  isInitialLoad: boolean = true; // Track initial load state
+  hasUserInteractedOnce: boolean = false; // Track if the user has interacted with the grid at least once
+  isRefresh: number = 0
 
-  constructor(private readonly claimantsWeatherAlertsService: ClaimantsWeatherAlertsService,
-    private readonly commonService: CommonService,
-    private readonly alertService: AlertService,
-    private readonly route: ActivatedRoute,
-    private readonly router: Router,
-    private readonly location: Location
-  ) { }
-  claimantId: number = 1;
-  caseDetails: CaseDetails = {};
-  caseId: number = 1;
-  userName: string = '';
-  userAccess: string[] = [];
-  loading = true;
-  isUserAuthorized = true;
-  saveImpactedAlertsRequest = {} as SaveImpactedAlertsRequest;
-  impactedAlerts: ImpactedAlerts[] = [];
-  apiResponse: any;
-  selectedEvents: NotificationWeatherEvent[] = [];
-  buttonStatus: boolean = false;
-  datagridStateChangeCounter: number = 0;
-  redirected = false; // Flag to track redirection
-  enableMapping: boolean = false;
-  mappingSelected: boolean = false;
-  disableSelectChange: boolean = false;
-  weatherEventsMapped: Array<NotificationWeatherEvent> = []
-  triggerRefresh = false;
-  claimantCountry:KeyValueObject[] =[];
-  claimantState:KeyValueObject[] =[]; 
-  countries: KeyValueObject[] =[]; 
 
-  ngOnInit(): void {  
-    this.route.queryParams.subscribe((params: any) => {
-
-      let _username = params["userName"] ?? params["UserName"];
-      if (params && _username !== null && _username !== undefined) {
-        sessionStorage.setItem("userName", _username);
-        this.userName = _username;
+  @Input() set disableSelectChange(isDisabled: boolean) {
+    this.disableResult = isDisabled;
+  }
+  @Input() set weatherEvents(_events: NotificationWeatherEvent[] | null) {
+    this.isRefresh = 0;
+    if (_events?.length) {
+      this.weatherEventsList = _events.map(event => {
+        event.state = event.state
+        .split(',')
+        .map(state => state.trim()) 
+        .filter(state => state.length > 0)
+        .join(', ');
+        return event;
+      }).sort((eventA: NotificationWeatherEvent, eventB: NotificationWeatherEvent) => {
+        return eventB.isMapped - eventA.isMapped;
+      });
+      const selectedEvents = _events.filter((eventItem: NotificationWeatherEvent) => eventItem.isMapped === 1);
+      if (selectedEvents.length) {
+        this.selected = selectedEvents;
       }
-      else if (!params || _username === null || _username === undefined) {
-        this.userName = sessionStorage.getItem("userName") ?? "";
+    } else {
+      this.weatherEventsList = [];
+    }
+  }
+
+
+
+  constructor(private readonly confirmDialogService: ConfirmDialogService) { }
+  ngOnInit() {   
+    // Initially, we assume the load is fresh
+    this.isInitialLoad = true;
+  }
+
+  // ngOnChanges function to handle weatherEvents population and skipping popups for preselected events
+  ngOnChanges(changes: SimpleChanges) {   
+
+    if (changes['weatherEvents'] && this.weatherEventsList.length) {
+
+      // Update the `selected` array based on the new weatherEvents data
+      const selectedEvents = this.weatherEventsList.filter((eventItem: NotificationWeatherEvent) => eventItem.isMapped === 1);
+
+      // If `selected` is empty, update it with the newly selected events
+      if (selectedEvents.length && this.selected.length === 0) {
+        this.selected = selectedEvents;
+      }
+
+      //Handling mapped events uncheck for deselection confirmation dialog
+      if (selectedEvents.length === 0) {
+        this.prevSelected = selectedEvents;
       }
       else {
-        this.commonService.changeFlag(false);
-        this.commonService.changeAppointmentsFlag(false);
-        this.router.navigate(['notAuthorized']);        
+        this.prevSelected = this.selected;
       }
 
-      // token access from url
-      if (params && params['token'] !== null && params['token'] !== undefined) {
-        sessionStorage.setItem("token", params['token'].toString());
-        this.commonService.token = params['token'].toString();
-      }
-
-      if (!params || params['token'] === null || params['token'] === undefined) {
-        this.claimantId = Number(sessionStorage.getItem("claimantId"));
-        this.caseId = Number(sessionStorage.getItem("caseId"));
-        this.claimantsWeatherAlertsService.token = sessionStorage.getItem("token") ?? "";
-        this.userName = sessionStorage.getItem("userName") ?? "";
-      }
- 
-      this.commonService.getUserAuthorization(this.userName).subscribe({
-        next: (data) => {
-          this.userAccess = data
-          if (!(this.userAccess.includes('READ'))) {
-            this.commonService.changeFlag(false);
-            this.commonService.changeAppointmentsFlag(false);
-            this.router.navigate(['notAuthorized']);               
-            this.loading = false;
-            this.isUserAuthorized = false;
-          }
-          this.loading = false;
-        },
-        error: (error: HttpErrorResponse) => {
-          this.commonService.changeFlag(false);
-          this.commonService.changeAppointmentsFlag(false);
-          this.router.navigate(['notAuthorized']);     
-          this.loading = false;
-          this.isUserAuthorized = false;
-        }
-      });
-    });
-
-    this.route.queryParams.subscribe((params: any) => {
-
-      let _claimantId = params["claimantid"] ?? params["claimantId"];
-
-      if (params && _claimantId !== null && _claimantId !== undefined) {
-        sessionStorage.setItem("claimantId", _claimantId);
-        this.claimantId = _claimantId;
-      }
-      else if (!params || _claimantId === null || _claimantId === undefined) {
-        this.claimantId = Number(sessionStorage.getItem("claimantId"));
-      }
-
-      let _caseId = params["caseid"] ?? params["caseId"];
-
-      if (params && _caseId !== null && _caseId !== undefined) {
-        sessionStorage.setItem("caseId", _caseId);
-        this.caseId = _caseId;
-      }
-      else if (!params || _caseId === null || _caseId === undefined) {
-        this.caseId = Number(sessionStorage.getItem("caseId"));
-      }      
-
-      if(this.caseId > 0  && this.claimantId > 0)
-        this.commonService.changeFlag(true);
-    });
-
-    //for getting claimant info
-    this.claimantsWeatherAlertsService.getClaimantInfo(this.claimantId, this.caseId, false).subscribe({
-      next: (result: any) => {
-        this.caseDetails = result;
-        this.caseDetails.claimant_name = this.caseDetails.lastName + ', ' + this.caseDetails.firstName;
-        this.caseDetails.claimantCaseId = this.caseDetails.claimantId + '.' + this.caseDetails.caseId;    
-      
-        if(this.caseDetails.country != null || this.caseDetails.country != undefined)
-          this.claimantCountry.push({key:this.caseDetails.country, value:this.caseDetails.country});
-
-        this.caseDetails.mappedCountries?.forEach((country: string) => {
-          const exists = this.claimantCountry.some((item: KeyValueObject) => item.key === country);
-          if (!exists) {
-            this.claimantCountry.push({ key: country, value: country });
-          }
-        });
-
-        if( this.claimantCountry?.findIndex(x => x.key.trim() === 'USA') >= 0)
-        {
-          if((this.caseDetails.state != null || this.caseDetails.state != undefined) && this.caseDetails.country == 'USA' )
-            this.claimantState.push({key:this.caseDetails.state, value:this.caseDetails.state});
-
-          this.caseDetails.mappedStates?.forEach((state: string) => {
-            const sExists = this.claimantState.some((item: KeyValueObject) => item.key === state);
-            if (!sExists) {
-              this.claimantState.push({ key: state, value: state });
-            }
-          });          
-        }
-        //set changeAppointmentsFlag  to true 
-        if (this.caseDetails.hasAppointment && this.isUserAuthorized ) {
-          this.commonService.changeAppointmentsFlag(true);    
-        }
-         
-          this.defaultSearch();
-
-      },
-      error: (error: HttpErrorResponse) => {
-        this.handleError(error);
-      }
-    }
-    );
-
-    this.location.replaceState('search?claimantId=' + this.claimantId + '&caseId=' + this.caseId);    
-  }
-    
-  defaultSearch() {
-    this.claimantsWeatherAlertsService.GetUnmappedWeatherEvents(this.claimantId, this.caseId, formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'), formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'), null,this.claimantCountry,this.claimantState, false).subscribe({
-      next: (result: any) => {
-        this.weatherEvents = result;
-        this.handleEnableMapping(false);
-      },
-      error: (error: HttpErrorResponse) => {
-        this.handleError(error);
-      }
-    });
-  }
-  weatherEvents: Array<NotificationWeatherEvent> = []
-
-  notifficationDetails = this.caseDetails;
-
-  searchForm: SearchForm | null = null;
-
-  startDateError = false;
-  endDateError = false;
-
-  onSearch(_form: { form: SearchForm, type: string }) {    
-    this.disableSelectChange = _form.form.mappedEvents === true;
-    switch (_form.type) {
-      case 'search':       
-        this.handleSearch(_form.form)
-        break;
-      case 'save':
-        this.handleSave(_form.form)
-        break;
-      case 'reset':
-        this.handleReset(_form.form)
-        break;
-    }
-    this.triggerRefresh=false;
-  }
-
-  handleUnSelect(unSelectedRow:NotificationWeatherEvent[]) { 
-    let selectedItems = unSelectedRow;   
-    if (selectedItems === undefined) {      
-      this.buttonStatus =false;       
-    }else
-    {     
-      this.buttonStatus =true;
+      // Make sure the initial load flag is set correctly
+      this.isInitialLoad = false;
     }
   }
 
-  /**
-   *    Triggers when a row is selected in the grid table
-   */
-  handleSelectionChange(selectedRow: NotificationWeatherEvent[]) {
-    
-    let weatherEventsState = [];
-    weatherEventsState = this.weatherEvents.filter(element => (element.isMapped == 1))
-
-    if (weatherEventsState.length == 0) {
-      this.datagridStateChangeCounter++
-    }
-
-    this.selectedEvents = selectedRow;
-
-
-    if (this.selectedEvents.length > 0) {
-      this.datagridStateChangeCounter++;
-    }
-
-    if (this.selectedEvents.length > 0 && this.datagridStateChangeCounter < 2) {
-      this.buttonStatus = false;
+  async handleRowChange() {
+    // Skip dialog for preselected items during initial load (if isMapped === 1)
+    if (this.isInitialLoad) {
+      this.isInitialLoad = false;
+      this.previousSelected = [...this.selected];
       return;
     }
+    // Check if this is the user's first interaction and no events are preselected
+    if (!this.hasUserInteractedOnce) {
+      this.hasUserInteractedOnce = true;
 
-    let weatherEventsStateCheck = [];
-    weatherEventsStateCheck = this.weatherEvents;
-
-    this.saveImpactedAlertsRequest.userName = this.userName;
-    this.saveImpactedAlertsRequest.claimantId = this.claimantId;
-    this.saveImpactedAlertsRequest.caseId = this.caseId;
-    this.saveImpactedAlertsRequest.userName = this.userName;
-
-    this.impactedAlerts = [];
-    selectedRow.forEach(mappingEventInformation => {
-
-      this.impactedAlerts.push({ weatherMappingId: mappingEventInformation.weatherEventId, isMapped: true });
-    });
-
-    for (let item of this.impactedAlerts) {
-      const filteredArray = weatherEventsState.filter(element => element.weatherEventId !== item.weatherMappingId)
-      weatherEventsState.length = 0;
-      weatherEventsState.push(...filteredArray);
-    }
-
-    for (let element of weatherEventsState) {
-      this.impactedAlerts.push({ weatherMappingId: element.weatherEventId, isMapped: false });
-    }
-
-    let eventStatusStateCheck: ImpactedAlerts[] = [];
-
-    for (let item of weatherEventsStateCheck) {
-
-      const isMappedWeatherEventStateCheck: boolean = item.isMapped > 0;
-      const filteredArray = this.impactedAlerts.filter(element => element.weatherMappingId === item.weatherEventId && (isMappedWeatherEventStateCheck !== element.isMapped))
-      eventStatusStateCheck.push(...filteredArray);
-    }
-
-    if (eventStatusStateCheck.length > 0) {
-      this.buttonStatus = true;
-    }
-    else {
-
-      this.buttonStatus = false;
-    }
-
-    this.saveImpactedAlertsRequest.impactedAlerts = this.impactedAlerts;
-  }
-
-  /**
-   *    handle save form event
-   */
-  handleSave(payload: SearchForm) {
-
-    if (this.saveImpactedAlertsRequest.impactedAlerts?.length > 0) { 
-
-      this.claimantsWeatherAlertsService.addCaseWeatherEvent(this.saveImpactedAlertsRequest).subscribe({
-        next: (data) => {
-          this.apiResponse = data;
-              this.alertService.show({ message: 'Weather event details for the case updated successfully!', clrAlertType: IAlertType.SUCCESS });
-              this.buttonStatus = false;
-              if (this.saveImpactedAlertsRequest.impactedAlerts.filter(imp => imp.isMapped == true).length === 0) {
-                  payload.mappedEvents = false;
-                  this.handleReset(payload);
-                  window.location.reload();
-                  return;
-              }
-              this.handleSearch(payload);
-              window.location.reload();
-        },
-        error: (error: HttpErrorResponse) => {
-          this.handleError(error);
-        },
+      // Show dialog only for the newly selected event (if it's not preselected)
+      const newlySelectedRows = this.getNewlySelectedRows();
+      newlySelectedRows.forEach((row) => {
+        if (row.isMapped !== 1) {  // Check if the event is not preselected
+          this.showConfirmationDialog(row);
+        }
       });
     }
     else {
-      this.alertService.show({ message: 'No changes detected in weather alerts regarding this case.Please check atleast one weather alert!', clrAlertType: IAlertType.WARNING });
-    }
-  }
-
-  /**
-   *    Handle form search event
-   */
-  handleSearch(payload: any) {
-    // Call the api to search the data
-    if (payload.mappedEvents) {
-      payload.startDatepickrnm = null;
-      payload.endDatepickrnm = null;
-      payload.location = null;
-      payload.frmSrchCountry =[];
-      payload.frmSrchState =[];
-    }
-    
-    let countryCode: [KeyValueObject] = payload.frmSrchCountry ?? [];
-    let states: [KeyValueObject] =  payload.frmSrchState ?? [];
-    let startDate = payload.startDatepickrnm;
-    let endDate = payload.endDatepickrnm;
-    let location = payload.location;
-    let mappedEvents = payload.mappedEvents;
-
-    this.claimantsWeatherAlertsService.GetUnmappedWeatherEvents(this.claimantId, this.caseId, startDate, endDate, location, countryCode,states ,mappedEvents).subscribe({
-      next: (result: any) => {
-        this.weatherEvents = result;
-        this.handleEnableMapping(payload.mappedEvents);
-      },
-      error: (error: HttpErrorResponse) => {
-        if (error.status === 404) {
-          this.weatherEvents = []
+      // For subsequent selections, show the dialog for newly selected rows (if not preselected)
+      const newlySelectedRows = this.getNewlySelectedRows();
+      newlySelectedRows.forEach((row) => {
+        if (row.isMapped !== 1) {  // Check if the event is not preselected
+          this.showConfirmationDialog(row);
         }
-        this.handleError(error);
-      }
-    });
-  }
-
-  handleEnableMapping(ismappedEvents: boolean): void {    
-    let claimantCountry = this.claimantCountry;
-    let claimantState = this.claimantState;
-    if(ismappedEvents)
-    {
-      claimantCountry =[];
-      claimantState =[];
+      });
     }
 
-    this.claimantsWeatherAlertsService.GetUnmappedWeatherEvents(this.claimantId, this.caseId, null, null,null,null, null, true).subscribe({
-      next: (result: any) => {
-        this.weatherEventsMapped = result;
-        const mappedEventList = this.weatherEventsMapped;
-        this.enableMapping = mappedEventList.length > 0;
-        if (ismappedEvents && this.enableMapping) {
-          this.weatherEvents = mappedEventList;
-          this.mappingSelected = true;
+    // Emit the updated selection
+    this.onSelectChange.emit([...this.selected]);
+
+    // Update `previousSelected` after handling the selection logic
+    this.previousSelected = [...this.selected]; 
+
+    if (this.prevSelected.length > this.selected.length) {
+      this.isRefresh++
+      let unselectedWeatherEvent: NotificationWeatherEvent[] = [];
+      unselectedWeatherEvent = this.prevSelected.filter(o => !this.selected.some(i => i.weatherEventId === o.weatherEventId))
+
+      if (this.selected.length === 0 && unselectedWeatherEvent[0].status.toLowerCase() === 'inactive') {       
+        const confirmation = await this.confirmDialogService.confirm(`Be aware that this expired <b>${unselectedWeatherEvent[0].weatherEvent}</b> will no longer visible once unchecked. Do you wish to proceed?`, 'Ok', 'Cancel');
+
+        if (confirmation) {             
+          this.onUnSelectChange.emit([...this.selected]);
+          return;
         }
-      },
-      error: (error: HttpErrorResponse) => {
-        if (error.status === 404) {
-          this.weatherEventsMapped = []
-          const mappedEventList = this.weatherEventsMapped;
-          this.enableMapping = mappedEventList.length > 0;
-          if (ismappedEvents && this.enableMapping) {
-            this.weatherEvents = mappedEventList;
-            this.mappingSelected = true;
+        else {
+          this.selected = [...this.prevSelected]
+          if (this.isRefresh === 1) {
+            this.triggerRefresh.emit(true);
           }
-        }         
-      }
-    });
 
-  }
-
-  handleReset(payload: SearchForm) {
-    payload.mappedEvents = false;
-    let countryCode: KeyValueObject[] = payload.frmSrchCountry ?? [];
-    let states: KeyValueObject[] =  payload.frmSrchState ?? [];
-    this.claimantsWeatherAlertsService.GetUnmappedWeatherEvents(this.claimantId, this.caseId, formatDate(new Date(), 'MM/dd/YYYY', 'EN-US'), formatDate(new Date(), 'MM/dd/YYYY', 'EN-US'), '',this.claimantCountry, this.claimantState, false).subscribe({
-      next: (result: any) => {
-        this.weatherEvents = result;
-        this.handleEnableMapping(payload.mappedEvents);
-      },
-      error: (error: HttpErrorResponse) => {
-        if (error.status === 404) {
-          this.weatherEvents = []
-          this.handleEnableMapping(payload.mappedEvents);
         }
-        this.handleError(error);
       }
-    });
 
+      else if (this.selected.length > 0 && unselectedWeatherEvent[0].status.toLowerCase() === 'inactive') {        
+        const confirmation = await this.confirmDialogService.confirm(`Be aware that this expired <b>${unselectedWeatherEvent[0].weatherEvent}</b> will no longer be visible once unchecked. Do you wish to proceed?`, 'Ok', 'Cancel');
+
+        if (confirmation) {
+          this.onSelectChange.emit(this.selected)
+          this.prevSelected = [...this.selected]          
+        }
+        else {
+          if (this.isRefresh === 1) {
+            this.triggerRefresh.emit(true);
+          }
+          this.selected = [...this.prevSelected]
+          this.onSelectChange.emit(this.prevSelected)
+        }
+      }
+
+      else if (this.selected.length == 0 && unselectedWeatherEvent[0].status.toLowerCase() === 'active') {        
+        const confirmation = await this.confirmDialogService.confirm(`No more Weather Alerts mapped at Case Level if saved.`, 'Ok', 'Cancel');
+        if (confirmation) {
+          this.onUnSelectChange.emit([...this.selected]);
+          return;
+        }
+        else {
+          this.selected = [...this.prevSelected]
+          if (this.isRefresh === 1) {
+            this.triggerRefresh.emit(true);
+          }
+        }
+      }
+
+    }
+    else {
+      this.onSelectChange.emit([...this.selected]);
+    }
+    this.onSelectChange.emit([...this.selected]);
+    this.prevSelected = Array.from(this.selected);
   }
 
-  handleError(err: HttpErrorResponse) {
+  // Helper function to get newly selected rows
+  private getNewlySelectedRows(): NotificationWeatherEvent[] {
+    return this.selected.filter((event) => !this.previousSelected.includes(event));
+  }   
 
-    let errMessage = ""
+  async showConfirmationDialog(weather: NotificationWeatherEvent) {
+    const confirmation = await this.confirmDialogService.confirm(`You selected <b>${weather.weatherEvent}</b>, are you sure you want to continue?`, 'Ok', 'Cancel');
+    if (confirmation) {
+      // If confirmed, emit the updated selected items
+      this.onSelectChange.emit(this.selected);
+    } else {
+      // If canceled, remove the selected event and update the previous selection
+      this.selected = this.selected.filter((event) => event !== weather);
+      this.previousSelected = [...this.selected];
 
-    switch (err.status) {
-      case 500:
-      case 503:
-        errMessage = ' Failed to fetch data from server : contact administrator';
-        break;
-
-      case 401:
-        errMessage = 'Unauthorized : You are not authorized to perform this action.';
-        break;
-
-      case 404:
-        errMessage = 'No records found.';
-        break;
-
-      default:
-        errMessage = err.error;
+      // Emit the updated selection after removal
+      this.onSelectChange.emit(this.selected);
     }
-
-    this.alertService.show({ message: errMessage, clrAlertType: IAlertType.DANGER });
   }
 }
