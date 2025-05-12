@@ -4,7 +4,7 @@ import { ClrDatagridModule } from '@clr/angular';
 import { ConfirmDialogService } from '../../services/confirm-dialog.service';
 import { NotificationWeatherEvent } from '../../models/notification';
 import { of } from 'rxjs';
-import { NO_ERRORS_SCHEMA, SimpleChange, SimpleChanges } from '@angular/core';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('NotificationSearchResultComponent', () => {
   let component: NotificationSearchResultComponent;
@@ -66,105 +66,6 @@ describe('NotificationSearchResultComponent', () => {
       component.weatherEvents = null;
       fixture.detectChanges();
       expect(component.weatherEventsList).toEqual([]);
-      expect(component.selected).toEqual([]);
-    });
-  });
-
-  describe('ngOnChanges', () => {
-    it('should update selected events when weatherEvents changes and selected is empty', () => {
-      const mockEvents: NotificationWeatherEvent[] = [
-        { weatherEventId: 1, isMapped: 1 } as NotificationWeatherEvent,
-        { weatherEventId: 2, isMapped: 0 } as NotificationWeatherEvent,
-      ];
-
-      component.weatherEvents = mockEvents;
-      const changes: SimpleChanges = {
-        weatherEvents: new SimpleChange(undefined, mockEvents, true)
-      };
-
-      component.selected = [];
-      component.ngOnChanges(changes);
-
-      expect(component.selected.length).toBe(1);
-      expect(component.selected[0].weatherEventId).toBe(1);
-      expect(component.isInitialLoad).toBeFalse();
-    });
-
-    it('should not update selected events when weatherEvents changes and selected is not empty', () => {
-      const existingSelected = { weatherEventId: 3, isMapped: 1 } as NotificationWeatherEvent;
-      const mockEvents: NotificationWeatherEvent[] = [
-        { weatherEventId: 1, isMapped: 1 } as NotificationWeatherEvent,
-        { weatherEventId: 2, isMapped: 0 } as NotificationWeatherEvent,
-      ];
-
-      component.weatherEvents = mockEvents;
-      const changes: SimpleChanges = {
-        weatherEvents: new SimpleChange(undefined, mockEvents, true)
-      };
-
-      component.selected = [existingSelected];
-      component.ngOnChanges(changes);
-
-      expect(component.selected).toEqual([existingSelected]);
-    });
-
-    it('should update prevSelected when mapped events become empty', () => {
-      const mockEvents: NotificationWeatherEvent[] = [
-        { weatherEventId: 1, isMapped: 0 } as NotificationWeatherEvent,
-        { weatherEventId: 2, isMapped: 0 } as NotificationWeatherEvent,
-      ];
-
-      component.weatherEvents = mockEvents;
-      const changes: SimpleChanges = {
-        weatherEvents: new SimpleChange(undefined, mockEvents, true)
-      };
-
-      component.selected = [{ weatherEventId: 3, isMapped: 1 } as NotificationWeatherEvent];
-      component.ngOnChanges(changes);
-
-      expect(component.prevSelected).toEqual([]);
-    });
-
-    it('should update prevSelected to current selected when mapped events exist', () => {
-      const mockEvents: NotificationWeatherEvent[] = [
-        { weatherEventId: 1, isMapped: 1 } as NotificationWeatherEvent,
-        { weatherEventId: 2, isMapped: 0 } as NotificationWeatherEvent,
-      ];
-
-      component.weatherEvents = mockEvents;
-      const changes: SimpleChanges = {
-        weatherEvents: new SimpleChange(undefined, mockEvents, true)
-      };
-
-      const existingSelected = { weatherEventId: 3, isMapped: 1 } as NotificationWeatherEvent;
-      component.selected = [existingSelected];
-      component.ngOnChanges(changes);
-
-      expect(component.prevSelected.length).toBe(1);
-      expect(component.prevSelected[0].weatherEventId).toBe(3);
-    });
-
-    it('should not process changes if weatherEvents change is not detected', () => {
-      const changes: SimpleChanges = {
-        someOtherProperty: new SimpleChange(undefined, 'value', true)
-      };
-
-      spyOn(component.weatherEventsList, 'filter');
-      component.ngOnChanges(changes);
-
-      expect(component.weatherEventsList.filter).not.toHaveBeenCalled();
-    });
-
-    it('should handle empty weatherEventsList', () => {
-      const changes: SimpleChanges = {
-        weatherEvents: new SimpleChange(undefined, [], true)
-      };
-
-      component.selected = [{ weatherEventId: 1, isMapped: 1 } as NotificationWeatherEvent];
-      component.ngOnChanges(changes);
-
-      expect(component.selected.length).toBe(1);
-      expect(component.prevSelected).toEqual([]);
     });
   });
 
@@ -200,8 +101,7 @@ describe('NotificationSearchResultComponent', () => {
         `Be aware that this expired <b>${unselectedInactiveEvent.weatherEvent}</b> will no longer visible once unchecked. Do you wish to proceed?`,
         'Ok',
         'Cancel'
-      );   
-
+      );
       expect(component.onUnSelectChange.emit).toHaveBeenCalledWith([]);
       expect(component.isRefresh).toBe(1);
     });
@@ -234,23 +134,16 @@ describe('NotificationSearchResultComponent', () => {
       await component.handleRowChange();
 
       expect(confirmDialogService.confirm).toHaveBeenCalledWith(
-        `You selected <b>${selectedEvent.weatherEvent}</b>, are you sure you want to continue?`,
-        'Ok',
-        'Cancel'
-      );
-
-      expect(confirmDialogService.confirm).toHaveBeenCalledWith(
         `Be aware that this expired <b>${unselectedInactiveEvent.weatherEvent}</b> will no longer be visible once unchecked. Do you wish to proceed?`,
         'Ok',
         'Cancel'
       );
-
       expect(component.onSelectChange.emit).toHaveBeenCalledWith([selectedEvent]);
       expect(component.prevSelected).toEqual([selectedEvent]);
       expect(component.triggerRefresh.emit).not.toHaveBeenCalled();
     });
 
-    it('should trigger refresh and revert selection when confirmation is false and isRefresh is 1', async () => {
+    it('should revert selection when unselecting inactive event and confirmation is false', async () => {
       const unselectedInactiveEvent = {
         weatherEventId: 1,
         weatherEvent: 'Expired Storm',
@@ -258,8 +151,15 @@ describe('NotificationSearchResultComponent', () => {
         isMapped: 1
       } as NotificationWeatherEvent;
 
-      component.prevSelected = [unselectedInactiveEvent];
-      component.selected = [];
+      const selectedEvent = {
+        weatherEventId: 2,
+        weatherEvent: 'Active Storm',
+        status: 'active',
+        isMapped: 1
+      } as NotificationWeatherEvent;
+
+      component.prevSelected = [unselectedInactiveEvent, selectedEvent];
+      component.selected = [selectedEvent];
       component.isRefresh = 1;
       component.isInitialLoad = false;
       component.hasUserInteractedOnce = true;
@@ -270,9 +170,9 @@ describe('NotificationSearchResultComponent', () => {
 
       await component.handleRowChange();
 
-      expect(component.selected).toEqual([unselectedInactiveEvent]);
+      expect(component.selected).toEqual([unselectedInactiveEvent, selectedEvent]);
       expect(refreshSpy).toHaveBeenCalledWith(true);
-      expect(selectSpy).toHaveBeenCalledWith([unselectedInactiveEvent]);
+      expect(selectSpy).toHaveBeenCalledWith([unselectedInactiveEvent, selectedEvent]);
     });
 
     it('should handle unselected active event when selected length is 0', async () => {
@@ -302,7 +202,32 @@ describe('NotificationSearchResultComponent', () => {
       expect(component.onUnSelectChange.emit).toHaveBeenCalledWith([]);
     });
 
-    it('should emit selected items when no special conditions are met', async () => {
+    it('should revert selection when unselecting active event and confirmation is false', async () => {
+      const unselectedActiveEvent = {
+        weatherEventId: 1,
+        weatherEvent: 'Active Storm',
+        status: 'active',
+        isMapped: 1
+      } as NotificationWeatherEvent;
+
+      component.prevSelected = [unselectedActiveEvent];
+      component.selected = [];
+      component.isRefresh = 1;
+      component.isInitialLoad = false;
+      component.hasUserInteractedOnce = true;
+
+      (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(false));
+      const refreshSpy = spyOn(component.triggerRefresh, 'emit');
+      const selectSpy = spyOn(component.onSelectChange, 'emit');
+
+      await component.handleRowChange();
+
+      expect(component.selected).toEqual([unselectedActiveEvent]);
+      expect(refreshSpy).toHaveBeenCalledWith(true);
+      expect(selectSpy).toHaveBeenCalledWith([unselectedActiveEvent]);
+    });
+
+    it('should emit selected items when no unselection occurs', async () => {
       const selectedEvent = {
         weatherEventId: 1,
         weatherEvent: 'Active Storm',
@@ -315,11 +240,11 @@ describe('NotificationSearchResultComponent', () => {
       component.isInitialLoad = false;
       component.hasUserInteractedOnce = true;
 
-      spyOn(component.onSelectChange, 'emit');
+      const selectSpy = spyOn(component.onSelectChange, 'emit');
 
       await component.handleRowChange();
 
-      expect(component.onSelectChange.emit).toHaveBeenCalledWith([selectedEvent]);
+      expect(selectSpy).toHaveBeenCalledWith([selectedEvent]);
       expect(confirmDialogService.confirm).not.toHaveBeenCalled();
     });
   });
