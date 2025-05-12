@@ -21,7 +21,172 @@ describe('ClaimantsWeatherAlertsService', () => {
     httpMock.verify();
   });
 
+  it('should be created', () => {import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { ClaimantsWeatherAlertsService } from './claimants-weather-alerts.service';
+import { CaseWithAppointment, CaseDetails, KeyValueObject, SaveImpactedAlertsRequest } from '../dtos/dtos';
+
+describe('ClaimantsWeatherAlertsService', () => {
+  let service: ClaimantsWeatherAlertsService;
+  let httpMock: HttpTestingController;
+  let sessionStorageSpy: jasmine.Spy;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [ClaimantsWeatherAlertsService]
+    });
+
+    service = TestBed.inject(ClaimantsWeatherAlertsService);
+    httpMock = TestBed.inject(HttpTestingController);
+    sessionStorageSpy = spyOn(sessionStorage, 'getItem').and.returnValue('mock-token');
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
   it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  describe('getHeaders', () => {
+    it('should use token from sessionStorage when available', () => {
+      sessionStorageSpy.and.returnValue('session-token');
+      const headers = service.getHeaders();
+      expect(headers.get('X-Api-Key')).toBe('session-token');
+      expect(headers.get('Content-Type')).toBe('application/json');
+    });
+
+    it('should fall back to service token when sessionStorage is empty', () => {
+      sessionStorageSpy.and.returnValue(null);
+      service.token = 'service-token';
+      const headers = service.getHeaders();
+      expect(headers.get('X-Api-Key')).toBe('service-token');
+    });
+  });
+
+  describe('getClaimantInfo', () => {
+    it('should fetch claimant info with correct headers and params', () => {
+      const mockClaimantId = 123, mockCaseId = 456, mockIsMapped = false;
+      const mockResponse: CaseDetails[] = [];
+
+      service.getClaimantInfo(mockClaimantId, mockCaseId, mockIsMapped).subscribe(response => {
+        expect(response).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne(`/api/CaseAlerts/AccountInfo?claimantid=${mockClaimantId}&caseid=${mockCaseId}&ismapped=${mockIsMapped}`);
+      expect(req.request.method).toBe('GET');
+      expect(req.request.headers.get('X-Api-Key')).toBe('mock-token');
+      expect(req.request.headers.get('Content-Type')).toBe('application/json');
+      req.flush(mockResponse);
+    });
+  });
+
+  describe('GetCaseWithAppointments', () => {
+    it('should fetch case appointments with correct headers and params', () => {
+      const mockClaimantId = 123, mockCaseId = 456;
+      const mockResponse: CaseDetails[] = [];
+
+      service.GetCaseWithAppointments(mockClaimantId, mockCaseId).subscribe(response => {
+        expect(response).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne(`/api/CaseAlerts/ImpactedAppts?claimantId=${mockClaimantId}&caseId=${mockCaseId}`);
+      expect(req.request.method).toBe('GET');
+      expect(req.request.headers.get('X-Api-Key')).toBe('mock-token');
+      expect(req.request.headers.get('Content-Type')).toBe('application/json');
+      req.flush(mockResponse);
+    });
+  });
+
+  describe('GetUnmappedWeatherEvents', () => {
+    it('should make a POST request without optional params if not provided', () => {
+      const mockClaimantId = 123, mockCaseId = 456;
+      const mockResponse: CaseDetails[] = [];
+
+      service.GetUnmappedWeatherEvents(mockClaimantId, mockCaseId).subscribe(response => {
+        expect(response).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne('/api/CaseAlerts/Search');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.headers.get('X-Api-Key')).toBe('mock-token');
+      expect(req.request.headers.get('Content-Type')).toBe('application/json');
+
+      const expectedBody = {
+        claimantId: mockClaimantId,
+        caseId: mockCaseId,
+        countries: [],
+        states: [],
+        location: null,
+        mappedEventsOnly: false
+      };
+      // Don't check exact date values since they'll be converted to Date objects
+      expect(req.request.body.claimantId).toEqual(expectedBody.claimantId);
+      expect(req.request.body.caseId).toEqual(expectedBody.caseId);
+      expect(req.request.body.countries).toEqual(expectedBody.countries);
+      expect(req.request.body.states).toEqual(expectedBody.states);
+      expect(req.request.body.location).toEqual(expectedBody.location);
+      expect(req.request.body.mappedEventsOnly).toEqual(expectedBody.mappedEventsOnly);
+      expect(req.request.body.startDate instanceof Date).toBeTruthy();
+      expect(req.request.body.endDate instanceof Date).toBeTruthy();
+      
+      req.flush(mockResponse);
+    });
+
+    it('should include optional parameters in the request when provided', () => {
+      const mockClaimantId = 123, mockCaseId = 456;
+      const mockStartDate = new Date('2023-10-01');
+      const mockEndDate = new Date('2023-10-10');
+      const mockLocation = 'Florida';
+      const mockMappedEventsOnly = true;
+      const mockCountries: KeyValueObject[] = [{ key: 'USA', value: 'United States' }];
+      const mockStates: KeyValueObject[] = [{ key: 'CA', value: 'California' }, { key: 'TX', value: 'Texas' }];
+      const mockResponse: CaseDetails[] = [];
+
+      service.GetUnmappedWeatherEvents(
+        mockClaimantId, mockCaseId, mockStartDate, mockEndDate, mockLocation, mockCountries, mockStates, mockMappedEventsOnly
+      ).subscribe(response => {
+        expect(response).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne('/api/CaseAlerts/Search');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.headers.get('X-Api-Key')).toBe('mock-token');
+      expect(req.request.headers.get('Content-Type')).toBe('application/json');
+
+      expect(req.request.body.claimantId).toBe(mockClaimantId);
+      expect(req.request.body.caseId).toBe(mockCaseId);
+      expect(new Date(req.request.body.startDate).toEqual(mockStartDate);
+      expect(new Date(req.request.body.endDate).toEqual(mockEndDate);
+      expect(req.request.body.location).toBe(mockLocation);
+      expect(req.request.body.mappedEventsOnly).toBe(mockMappedEventsOnly);
+      expect(req.request.body.countries).toEqual(['USA']); // Expecting array of keys
+      expect(req.request.body.states).toEqual(['CA', 'TX']); // Expecting array of keys
+
+      req.flush(mockResponse);
+    });
+  });
+
+  describe('addCaseWeatherEvent', () => {
+    it('should save impacted alerts with correct headers and body', () => {
+      const mockRequest: SaveImpactedAlertsRequest = { claimantId: 123, caseId: 456, impactedAlerts: [], userName: 'ittest' };
+      const mockResponse = { success: true };
+
+      service.addCaseWeatherEvent(mockRequest).subscribe(response => {
+        expect(response).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne('/api/CaseAlerts/SaveImpactedAlerts');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.headers.get('X-Api-Key')).toBe('mock-token');
+      expect(req.request.headers.get('Content-Type')).toBe('application/json');
+      expect(req.request.body).toEqual(mockRequest);
+      req.flush(mockResponse);
+    });
+  });
+});
     expect(service).toBeTruthy();
   });
 
