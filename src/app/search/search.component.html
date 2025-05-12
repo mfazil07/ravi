@@ -1,192 +1,181 @@
-<div *ngIf="!loading" >
-  <div class="title flex m-t">
-    <div cds-text="subsection"><cds-icon shape="folder-open" solid="true"></cds-icon> Weather Notification Search</div>
-  </div>
-  
-  <form clrForm clrLayout="horizontal" #weathersearchform="ngForm" (ngSubmit)="onSubmit(weathersearchform)">
-      <div class="clr-row">
-          <!-- Location field -->
-          <div class="clr-col-12 clr-col-md-3">
-            <clr-input-container>
-              <label for="location" class="clr-col-12 clr-col-md-2"><div>Location</div></label>
-              <input class="clr-col-12 clr-col-md-8 narrow-select" clrInput type="text" id="location"  name="location" #frmSrchLocation="ngModel" [(ngModel)]="weathersearch.frmSrchLocation" />
-            </clr-input-container>     
-          </div>
-  
-          <!-- Weather Type field -->
-          <div  class="clr-col-12 clr-col-md-3">
-              <clr-select-container>
-                <label for="weatherType" class="clr-col-12 clr-col-md-4">Weather&nbsp;Type</label>
-                    <select class="clr-col-12 clr-col-md-8 narrow-select2" clrSelect id="weatherType" name="weatherTypenm"[(ngModel)]="weathersearch.weatherTypenm" #weatherTypenm="ngModel">
-                      <option value="">ALL</option>
-                      <option *ngFor="let item of weatherTypes" [value]="item.key">{{ item.value }}</option>
-                    </select>
-              </clr-select-container>
-          </div>
-         
-         <!-- Start Date field -->        
-         <div class="clr-col-12 clr-col-md-3 ">
-          <clr-date-container [ngClass]="{'clr-error': startDateError && frmSrchStDt.touched}">
-              <label for="startDatepickrnm" class="clr-col-12 clr-col-md-3">Start&nbsp;Date</label>
-              <input class="clr-col-12 clr-col-md-9" type="date" required  clrDate id="startDatepickrnm" name="startDatepickrnm"#frmSrchStDt="ngModel" 
-                [(ngModel)]="weathersearch.frmSrchStDt"
-                (ngModelChange)="checkDates()">                
-          </clr-date-container>
-          <clr-control-error *ngIf="startDateError">
-            {{startDateErrorMsgs}}
-          </clr-control-error>
-        </div>
-  
-        <!-- End Date field -->
-        <div class="clr-col-12 clr-col-md-3">
-          <clr-date-container [ngClass]="{'clr-error': endDateError  && frmSrchEndDt.touched}">
-              <label for="endDatepickrnm" class="clr-col-12 clr-col-md-3">End&nbsp;Date</label>
-              <input class="clr-col-12 clr-col-md-9" type="date" required clrDate id="endDatepickrnm" name="endDatepickrnm" #frmSrchEndDt="ngModel" 
-                [(ngModel)]="weathersearch.frmSrchEndDt"
-                (ngModelChange)="checkDates()">           
-          </clr-date-container>
-          <clr-control-error *ngIf="endDateError">
-           {{endDateErrorMsgs}}
-          </clr-control-error>
-        </div>
-      </div>
-  
-      <div class="clr-row">
-        <!-- Country field -->
-        <div class="clr-col-12 clr-col-md-3">
-          <clr-combobox-container>
-            <label for="frmSrchCountry" class="clr-col-12 clr-col-md-2">Country</label>
-            <clr-combobox class="clr-col-12 clr-col-md-8 narrow-select" [(ngModel)]="weathersearch.frmSrchCountry" clrMulti="true"
-              name="frmSrchCountry"  #frmSrchCountry="ngModel" (ngModelChange)="countryChanged()">
-              <ng-container *clrOptionSelected="let selected">
-                {{ selected?.value }}
-              </ng-container>
-              <clr-options>
-                <clr-option *clrOptionItems="let country of getAvailableCountries(); field: 'value'" [clrValue]="country">
-                  {{ country.value }}
-                </clr-option>
-              </clr-options>
-            </clr-combobox>              
-          </clr-combobox-container>               
-        </div>
-  
-      <!-- State Dropdown (Visible if USA is selected for Country) -->
-      <div  class="clr-col-12 clr-col-md-3" *ngIf="isUSAExist">           
-          <clr-combobox-container>
-            <label for="frmState" class="clr-col-12 clr-col-md-4">States <span class="us-state-text-font">(US only)</span></label>
-            <clr-combobox class="clr-col-12 clr-col-md-3 narrow-select2"  [(ngModel)]="weathersearch.frmSrchState" (clrSelectionChange)="clearSearch($event)" 
-            [placeholder]="weathersearch?.frmSrchState?.length > 0 ?'' :'ALL'" 
-            clrMulti="true" name="frmSrchState" #frmSrchState="ngModel">
-              <ng-container *clrOptionSelected="let selected">
-                {{ selected?.value }}
-              </ng-container>
-              <clr-options>
-                <clr-option *clrOptionItems="let state of states; field:'value'" [clrValue]="state">
-                  {{ state.key }}
-                </clr-option>
-              </clr-options>
-            </clr-combobox>                
-          </clr-combobox-container>    
-      </div>
-  
-          <!-- Check box field -->
-          <div class="clr-col-12 clr-col-md-2">
-            <div class="checkbox-container">
-              <input type="checkbox" clrCheckbox id="activeBox" name="activeBox" [(ngModel)]="weathersearch.frmActiveBox" #frmActiveBox="ngModel">
-              <label for="frmActiveBox" class="activelabel">Active</label>
-            </div>
-          </div> 
-          <div class="clr-col-12 clr-col-md-3"></div>
-      </div>
-      <!-- Button section -->
-      <div class="clr-row">
-        <div class="clr-col-12 clr-col-md-9"></div>
-          <div class="clr-col-12 clr-col-md-3.5">
-            <button type="button" class="btn btn-primary button-float-right" (click)="reset(weathersearchform)">
-                <cds-icon shape="sync"></cds-icon>Reset</button>
-            <button type="submit" class="btn btn-primary button-float-right" [disabled]="!enableSearch ? !enableSearch : !weathersearchform.valid">
-                <cds-icon shape="search"></cds-icon>Search</button>
-            <button type="button" class="btn btn-primary button-float-right" (click)="openModal('add')">
-                <cds-icon shape="plus"></cds-icon>Add New Event</button>            
-          </div>
-        </div>
-   </form>
-  
-  <!-- Grid Section -->
-  <div  class="clr-row">
-    <div class="clr-col-12">
-      <clr-datagrid> 
-        <clr-dg-column [clrDgField]="'alertName'">
-          <ng-container *clrDgHideableColumn>Weather Event</ng-container>
-        </clr-dg-column>
-        <clr-dg-column [clrDgField]="'alertType'">
-          <ng-container *clrDgHideableColumn>Weather Type</ng-container>
-        </clr-dg-column>
-        <clr-dg-column [clrDgField]="'description'" >
-          <ng-container *clrDgHideableColumn>Description</ng-container>
-        </clr-dg-column>
-        <clr-dg-column [clrDgField]="'location'">
-          <ng-container *clrDgHideableColumn>Location</ng-container>
-        </clr-dg-column> 
-        <clr-dg-column [clrDgField]="'countryCode'">
-          <ng-container *clrDgHideableColumn>Country</ng-container>
-        </clr-dg-column>
-        <clr-dg-column [clrDgField]="'stateList'">
-          <ng-container *clrDgHideableColumn>States (US only)</ng-container>
-        </clr-dg-column>
-        <clr-dg-column [clrDgField]="'startDate'">
-          <ng-container *clrDgHideableColumn>Event Start Date</ng-container>
-        </clr-dg-column>
-        <clr-dg-column [clrDgField]="'endDate'">
-          <ng-container *clrDgHideableColumn>Event End Date</ng-container>
-        </clr-dg-column>        
-        <clr-dg-column [clrDgField]="'activeStatus'" >
-          <ng-container *clrDgHideableColumn>Event Expiry Status</ng-container>
-        </clr-dg-column>
-        <clr-dg-column>Action</clr-dg-column>      
-        
-        <!-- placeholder if there is no weather events-->
-        <clr-dg-placeholder *ngIf="!weatherEvents || weatherEvents.length === 0">
-               No Weather Events found!
-        </clr-dg-placeholder>
-  
-        <clr-dg-row *clrDgItems="let weather of weatherEvents">              
-          <clr-dg-cell>
-            <span class="break-word">{{ weather?.alertName }}</span>
-          </clr-dg-cell>
-          <clr-dg-cell>{{ weather?.alertType}}</clr-dg-cell>
-          <clr-dg-cell><div class="break-word">{{ weather?.description}}</div></clr-dg-cell>
-          <clr-dg-cell>
-            <span class="break-word">{{ weather?.location }}</span>
-          </clr-dg-cell>
-          <clr-dg-cell>{{ weather?.countryCode }}</clr-dg-cell>
-          <clr-dg-cell>
-            <span class="break-word">{{ weather?.stateList }}</span>
-          </clr-dg-cell>
-          <clr-dg-cell>{{ weather?.startDate | date: 'MM/dd/yyyy' }}</clr-dg-cell>
-          <clr-dg-cell>{{ weather?.endDate | date: 'MM/dd/yyyy' }}</clr-dg-cell>          
-          <clr-dg-cell>{{ weather?.activeStatus }}</clr-dg-cell>
-          <clr-dg-cell>
-            <div class="button-wrapper">
-              <span class="cellContainer" (click)="editEntry(weather)">
-                 <cds-icon shape="pencil" solid="true"></cds-icon>
-              </span>
-              <span class="cellContainer" (click)="onDelete(weather)" [class.disabled]="checkIsActiveWeatherEvent(weather)">
-                  <cds-icon shape="trash" solid="true" class="cur-ptr trash-color"></cds-icon>
-              </span>                  
-            </div>
-          </clr-dg-cell>
-        </clr-dg-row>
-  
-        <!-- footer section-->
-        <clr-dg-footer>
-          <clr-dg-pagination #pagination>
-            <clr-dg-page-size [clrPageSizeOptions]="[10, 20, 50, 100]">weather alerts per page</clr-dg-page-size>
-              {{ pagination.firstItem + 1 }} - {{ pagination.lastItem + 1 }} of {{ pagination.totalItems }} weather alerts
-          </clr-dg-pagination>
-        </clr-dg-footer>
-      </clr-datagrid>
-    </div>
-  </div>
-  <app-addevent [formData]="gridData" (closeEvent)="handleFormClose($event)" />
-  </div>
+import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { ClaimantsWeatherAlertsService } from './claimants-weather-alerts.service';
+import { CaseWithAppointment, CaseDetails, KeyValueObject, SaveImpactedAlertsRequest } from '../dtos/dtos';
+
+describe('ClaimantsWeatherAlertsService', () => {
+  let service: ClaimantsWeatherAlertsService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [ClaimantsWeatherAlertsService]
+    });
+
+    service = TestBed.inject(ClaimantsWeatherAlertsService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  describe('getHeaders', () => {
+    it('should use token from sessionStorage when available', () => {
+      spyOn(sessionStorage, 'getItem').and.returnValue('session-token');
+      const headers = service.getHeaders();
+      expect(headers.get('X-Api-Key')).toBe('session-token');
+      expect(headers.get('Content-Type')).toBe('application/json');
+    });
+
+    it('should fall back to service token when sessionStorage is empty', () => {
+      spyOn(sessionStorage, 'getItem').and.returnValue(null);
+      service.token = 'service-token';
+      const headers = service.getHeaders();
+      expect(headers.get('X-Api-Key')).toBe('service-token');
+    });
+  });
+
+  describe('getClaimantInfo', () => {
+    it('should fetch claimant info with correct headers and params', () => {
+      spyOn(sessionStorage, 'getItem').and.returnValue('mock-token');
+      const mockClaimantId = 123, mockCaseId = 456, mockIsMapped = false;
+      const mockResponse: CaseDetails[] = [];
+
+      service.getClaimantInfo(mockClaimantId, mockCaseId, mockIsMapped).subscribe(response => {
+        expect(response).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne(
+        `/api/CaseAlerts/AccountInfo?claimantid=${mockClaimantId}&caseid=${mockCaseId}&ismapped=${mockIsMapped}`
+      );
+      expect(req.request.method).toBe('GET');
+      expect(req.request.headers.get('X-Api-Key')).toBe('mock-token');
+      expect(req.request.headers.get('Content-Type')).toBe('application/json');
+      req.flush(mockResponse);
+    });
+  });
+
+  describe('GetCaseWithAppointments', () => {
+    it('should fetch case appointments with correct headers and params', () => {
+      spyOn(sessionStorage, 'getItem').and.returnValue('mock-token');
+      const mockClaimantId = 123, mockCaseId = 456;
+      const mockResponse: CaseDetails[] = [];
+
+      service.GetCaseWithAppointments(mockClaimantId, mockCaseId).subscribe(response => {
+        expect(response).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne(
+        `/api/CaseAlerts/ImpactedAppts?claimantId=${mockClaimantId}&caseId=${mockCaseId}`
+      );
+      expect(req.request.method).toBe('GET');
+      expect(req.request.headers.get('X-Api-Key')).toBe('mock-token');
+      expect(req.request.headers.get('Content-Type')).toBe('application/json');
+      req.flush(mockResponse);
+    });
+  });
+
+  describe('GetUnmappedWeatherEvents', () => {
+    it('should make a POST request without optional params if not provided', () => {
+      spyOn(sessionStorage, 'getItem').and.returnValue('mock-token');
+      const mockClaimantId = 123, mockCaseId = 456;
+      const mockResponse: CaseDetails[] = [];
+    
+      service.GetUnmappedWeatherEvents(mockClaimantId, mockCaseId).subscribe(response => {
+        expect(response).toEqual(mockResponse);
+      });
+    
+      const req = httpMock.expectOne('/api/CaseAlerts/Search');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.headers.get('X-Api-Key')).toBe('mock-token');
+      expect(req.request.headers.get('Content-Type')).toBe('application/json');
+      
+      const expectedBody = {
+        claimantId: mockClaimantId,
+        caseId: mockCaseId,
+        countries: [],
+        states: [],
+        location: null,
+        startDate: null,
+        endDate: null,
+        mappedEventsOnly: false
+      };
+      expect(req.request.body).toEqual(jasmine.objectContaining(expectedBody));
+      req.flush(mockResponse);
+    });
+
+    it('should include optional parameters in the request when provided', () => {
+      spyOn(sessionStorage, 'getItem').and.returnValue('mock-token');
+      const mockClaimantId = 123, mockCaseId = 456;
+      const mockStartDate = new Date('2023-10-01');
+      const mockEndDate = new Date('2023-10-10');
+      const mockLocation = 'Florida';
+      const mockMappedEventsOnly = true;
+      const mockCountries: KeyValueObject[] = [{ key: 'USA', value: 'United States' }];
+      const mockStates: KeyValueObject[] = [
+        { key: 'CA', value: 'California' }, 
+        { key: 'TX', value: 'Texas' }
+      ];
+      const mockResponse: CaseDetails[] = [];
+
+      service.GetUnmappedWeatherEvents(
+        mockClaimantId, 
+        mockCaseId, 
+        mockStartDate, 
+        mockEndDate, 
+        mockLocation, 
+        mockCountries, 
+        mockStates, 
+        mockMappedEventsOnly
+      ).subscribe(response => {
+        expect(response).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne('/api/CaseAlerts/Search');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.headers.get('X-Api-Key')).toBe('mock-token');
+      expect(req.request.headers.get('Content-Type')).toBe('application/json');
+      
+      expect(req.request.body.claimantId).toBe(mockClaimantId);
+      expect(req.request.body.caseId).toBe(mockCaseId);
+      expect(new Date(req.request.body.startDate).toEqual(mockStartDate);
+      expect(new Date(req.request.body.endDate).toEqual(mockEndDate);
+      expect(req.request.body.location).toBe(mockLocation);
+      expect(req.request.body.mappedEventsOnly).toBe(mockMappedEventsOnly);
+      expect(req.request.body.countries).toEqual(['USA']);
+      expect(req.request.body.states).toEqual(['CA', 'TX']);
+      
+      req.flush(mockResponse);
+    });
+  });
+
+  describe('addCaseWeatherEvent', () => {
+    it('should save impacted alerts with correct headers and body', () => {
+      spyOn(sessionStorage, 'getItem').and.returnValue('mock-token');
+      const mockRequest: SaveImpactedAlertsRequest = { 
+        claimantId: 123, 
+        caseId: 456, 
+        impactedAlerts: [], 
+        userName: 'ittest' 
+      };
+      const mockResponse = { success: true };
+
+      service.addCaseWeatherEvent(mockRequest).subscribe(response => {
+        expect(response).toEqual(mockResponse);
+      });
+
+      const req = httpMock.expectOne('/api/CaseAlerts/SaveImpactedAlerts');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.headers.get('X-Api-Key')).toBe('mock-token');
+      expect(req.request.headers.get('Content-Type')).toBe('application/json');
+      expect(req.request.body).toEqual(mockRequest);
+      req.flush(mockResponse);
+    });
+  });
+});
