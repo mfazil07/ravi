@@ -1,166 +1,147 @@
-import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { ClaimantsWeatherAlertsService } from './claimants-weather-alerts.service';
-import { CaseWithAppointment, CaseDetails, KeyValueObject, SaveImpactedAlertsRequest } from '../dtos/dtos';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { QtcHeaderComponent } from './qtc-header.component';
+import { CommonService } from '../services/common.service';
+import { Router, NavigationEnd } from '@angular/router';
+import { of, Subject } from 'rxjs';
+import { By } from '@angular/platform-browser';
+import { ClarityModule } from '@clr/angular';
 
-describe('ClaimantsWeatherAlertsService', () => {
-  let service: ClaimantsWeatherAlertsService;
-  let httpMock: HttpTestingController;
+class MockRouter {
+  public events = new Subject<any>();
+  navigate() {}
+  serializeUrl() {
+    return '/withAppointment';
+  }
+  createUrlTree() {
+    return {};
+  }
+}
+
+describe('QtcHeaderComponent', () => {
+  let component: QtcHeaderComponent;
+  let fixture: ComponentFixture<QtcHeaderComponent>;
+  let mockCommonService: jasmine.SpyObj<CommonService>;
+  let mockRouter: MockRouter;
   let sessionStorageSpy: jasmine.Spy;
 
+  beforeEach(async () => {
+    // Create a mock for the CommonService
+    mockCommonService = jasmine.createSpyObj('CommonService', ['getReferrerUrl'], {
+      userName$: of('TestUser'),
+      currentFlag: of(true),
+      currentAppointmentsFlag: of(false),
+      claimantIdSubject$: of(123),
+      caseIdSubject$: of(456)
+    });
+
+    // Mock sessionStorage
+    let store: { [key: string]: string } = {};
+    sessionStorageSpy = spyOn(sessionStorage, 'getItem').and.callFake((key: string) => {
+      return store[key] || null;
+    });
+    spyOn(sessionStorage, 'setItem').and.callFake((key: string, value: string) => {
+      store[key] = value;
+    });
+    spyOn(sessionStorage, 'removeItem').and.callFake((key: string) => {
+      delete store[key];
+    });
+    spyOn(sessionStorage, 'clear').and.callFake(() => {
+      store = {};
+    });
+
+    // Set the referrer URL
+    mockCommonService.getReferrerUrl.and.returnValue('http://example.com/');
+
+    // Create a mock for the Router
+    mockRouter = new MockRouter();
+
+    await TestBed.configureTestingModule({
+      declarations: [QtcHeaderComponent],
+      imports: [ClarityModule],
+      providers: [
+        { provide: CommonService, useValue: mockCommonService },
+        { provide: Router, useValue: mockRouter }
+      ],
+    }).compileComponents();
+  });
+
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [ClaimantsWeatherAlertsService]
-    });
-
-    service = TestBed.inject(ClaimantsWeatherAlertsService);
-    httpMock = TestBed.inject(HttpTestingController);
-    sessionStorageSpy = spyOn(sessionStorage, 'getItem').and.returnValue('mock-token');
+    fixture = TestBed.createComponent(QtcHeaderComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
-  afterEach(() => {
-    httpMock.verify();
+  it('should create', () => {
+    expect(component).toBeTruthy();
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  it('should display the userName initially from the CommonService', () => {
+    expect(component.userName).toBe('TESTUSER');
+    const userNameElement = fixture.debugElement.query(By.css('.user-icon-text'));
+    expect(userNameElement.nativeElement.textContent).toContain('TESTUSER');
   });
 
-  describe('getHeaders', () => {
-    it('should use token from sessionStorage when available', () => {
-      sessionStorageSpy.and.returnValue('session-token');
-      const headers = service.getHeaders();
-      expect(headers.get('X-Api-Key')).toBe('session-token');
-      expect(headers.get('Content-Type')).toBe('application/json');
-    });
-
-    it('should fall back to service token when sessionStorage is empty', () => {
-      sessionStorageSpy.and.returnValue(null);
-      service.token = 'service-token';
-      const headers = service.getHeaders();
-      expect(headers.get('X-Api-Key')).toBe('service-token');
-    });
+  it('should update notesRequired from the CommonService', () => {
+    expect(component.notesRequired).toBeTrue();
   });
 
-  describe('getClaimantInfo', () => {
-    it('should fetch claimant info with correct headers and params', () => {
-      const mockClaimantId = 123, mockCaseId = 456, mockIsMapped = false;
-      const mockResponse: CaseDetails[] = [];
-
-      service.getClaimantInfo(mockClaimantId, mockCaseId, mockIsMapped).subscribe(response => {
-        expect(response).toEqual(mockResponse);
-      });
-
-      const req = httpMock.expectOne(`/api/CaseAlerts/AccountInfo?claimantid=${mockClaimantId}&caseid=${mockCaseId}&ismapped=${mockIsMapped}`);
-      expect(req.request.method).toBe('GET');
-      expect(req.request.headers.get('X-Api-Key')).toBe('mock-token');
-      expect(req.request.headers.get('Content-Type')).toBe('application/json');
-      req.flush(mockResponse);
-    });
+  it('should update appointmentsIconRequired from the CommonService', () => {
+    expect(component.appointmentsIconRequired).toBeFalse();
   });
 
-  describe('GetCaseWithAppointments', () => {
-    it('should fetch case appointments with correct headers and params', () => {
-      const mockClaimantId = 123, mockCaseId = 456;
-      const mockResponse: CaseDetails[] = [];
-
-      service.GetCaseWithAppointments(mockClaimantId, mockCaseId).subscribe(response => {
-        expect(response).toEqual(mockResponse);
-      });
-
-      const req = httpMock.expectOne(`/api/CaseAlerts/ImpactedAppts?claimantId=${mockClaimantId}&caseId=${mockCaseId}`);
-      expect(req.request.method).toBe('GET');
-      expect(req.request.headers.get('X-Api-Key')).toBe('mock-token');
-      expect(req.request.headers.get('Content-Type')).toBe('application/json');
-      req.flush(mockResponse);
-    });
+  it('should update claimantId and caseId from the CommonService', () => {
+    expect(component.claimantId).toBe(123);
+    expect(component.caseId).toBe(456);
   });
 
-  describe('GetUnmappedWeatherEvents', () => {
-    it('should make a POST request without optional params if not provided', () => {
-      const mockClaimantId = 123, mockCaseId = 456;
-      const mockResponse: CaseDetails[] = [];
-
-      service.GetUnmappedWeatherEvents(mockClaimantId, mockCaseId).subscribe(response => {
-        expect(response).toEqual(mockResponse);
-      });
-
-      const req = httpMock.expectOne('/api/CaseAlerts/Search');
-      expect(req.request.method).toBe('POST');
-      expect(req.request.headers.get('X-Api-Key')).toBe('mock-token');
-      expect(req.request.headers.get('Content-Type')).toBe('application/json');
-
-      const expectedBody = {
-        claimantId: mockClaimantId,
-        caseId: mockCaseId,
-        countries: [],
-        states: [],
-        location: null,
-        mappedEventsOnly: false
-      };
-      // Don't check exact date values since they'll be converted to Date objects
-      expect(req.request.body.claimantId).toEqual(expectedBody.claimantId);
-      expect(req.request.body.caseId).toEqual(expectedBody.caseId);
-      expect(req.request.body.countries).toEqual(expectedBody.countries);
-      expect(req.request.body.states).toEqual(expectedBody.states);
-      expect(req.request.body.location).toEqual(expectedBody.location);
-      expect(req.request.body.mappedEventsOnly).toEqual(expectedBody.mappedEventsOnly);
-      expect(req.request.body.startDate instanceof Date).toBeTruthy();
-      expect(req.request.body.endDate instanceof Date).toBeTruthy();
-      
-      req.flush(mockResponse);
-    });
-
-    it('should include optional parameters in the request when provided', () => {
-      const mockClaimantId = 123, mockCaseId = 456;
-      const mockStartDate = new Date('2023-10-01');
-      const mockEndDate = new Date('2023-10-10');
-      const mockLocation = 'Florida';
-      const mockMappedEventsOnly = true;
-      const mockCountries: KeyValueObject[] = [{ key: 'USA', value: 'United States' }];
-      const mockStates: KeyValueObject[] = [{ key: 'CA', value: 'California' }, { key: 'TX', value: 'Texas' }];
-      const mockResponse: CaseDetails[] = [];
-
-      service.GetUnmappedWeatherEvents(
-        mockClaimantId, mockCaseId, mockStartDate, mockEndDate, mockLocation, mockCountries, mockStates, mockMappedEventsOnly
-      ).subscribe(response => {
-        expect(response).toEqual(mockResponse);
-      });
-
-      const req = httpMock.expectOne('/api/CaseAlerts/Search');
-      expect(req.request.method).toBe('POST');
-      expect(req.request.headers.get('X-Api-Key')).toBe('mock-token');
-      expect(req.request.headers.get('Content-Type')).toBe('application/json');
-
-      expect(req.request.body.claimantId).toBe(mockClaimantId);
-      expect(req.request.body.caseId).toBe(mockCaseId);
-      expect(new Date(req.request.body.startDate).toEqual(mockStartDate);
-      expect(new Date(req.request.body.endDate).toEqual(mockEndDate);
-      expect(req.request.body.location).toBe(mockLocation);
-      expect(req.request.body.mappedEventsOnly).toBe(mockMappedEventsOnly);
-      expect(req.request.body.countries).toEqual(['USA']); // Expecting array of keys
-      expect(req.request.body.states).toEqual(['CA', 'TX']); // Expecting array of keys
-
-      req.flush(mockResponse);
-    });
+  it('should set externalUrl and sessionStorage on initialization', () => {
+    // Verify the externalUrl was set correctly
+    expect(component.externalUrl).toBe('http://example.com/');
+    
+    // Verify sessionStorage was set correctly
+    expect(sessionStorage.setItem).toHaveBeenCalledWith(
+      'notesDocumentReferrer', 
+      'http://example.com/'
+    );
+    
+    // Verify getReferrerUrl was called
+    expect(mockCommonService.getReferrerUrl).toHaveBeenCalled();
   });
 
-  describe('addCaseWeatherEvent', () => {
-    it('should save impacted alerts with correct headers and body', () => {
-      const mockRequest: SaveImpactedAlertsRequest = { claimantId: 123, caseId: 456, impactedAlerts: [], userName: 'ittest' };
-      const mockResponse = { success: true };
+  it('should update claimantLevel on navigation events', fakeAsync(() => {
+    mockRouter.events.next(new NavigationEnd(0, '/withAppointment', '/withAppointment'));
+    tick();
+    fixture.detectChanges();
+    expect(component.claimantLevel).toBe(' - APPOINTMENT LEVEL');
 
-      service.addCaseWeatherEvent(mockRequest).subscribe(response => {
-        expect(response).toEqual(mockResponse);
-      });
+    mockRouter.events.next(new NavigationEnd(0, '/search', '/search'));
+    tick();
+    fixture.detectChanges();
+    expect(component.claimantLevel).toBe(' - CASE LEVEL');
 
-      const req = httpMock.expectOne('/api/CaseAlerts/SaveImpactedAlerts');
-      expect(req.request.method).toBe('POST');
-      expect(req.request.headers.get('X-Api-Key')).toBe('mock-token');
-      expect(req.request.headers.get('Content-Type')).toBe('application/json');
-      expect(req.request.body).toEqual(mockRequest);
-      req.flush(mockResponse);
-    });
+    mockRouter.events.next(new NavigationEnd(0, '/notAuthorized', '/notAuthorized'));
+    tick();
+    fixture.detectChanges();
+    expect(component.claimantLevel).toBe('');
+  }));
+
+  it('should open notes window with correct URL', () => {
+    spyOn(window, 'open');
+    component.openNotesWindow();
+    expect(window.open).toHaveBeenCalledWith(
+      'http://example.com/notes/Q_NOTES_01.asp?claimant_Id=123&case_Id=456',
+      'Notes',
+      'toolbar=no, scrollbars=yes, resizable=yes, top=100, left=100, width=900, height=800'
+    );
+  });
+
+  it('should open appointments window with correct URL', () => {
+    spyOn(window, 'open');
+    component.openAppointmentsWindow();
+    expect(window.open).toHaveBeenCalledWith(
+      `${window.location.origin}/withAppointment`,
+      'AppointmentLevel',
+      'toolbar=no, scrollbars=yes, resizable=yes, top=100, left=100, width=1200, height=800'
+    );
   });
 });
