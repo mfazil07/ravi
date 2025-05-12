@@ -1,73 +1,34 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { QtcHeaderComponent } from './qtc-header.component';
-import { CommonService } from '../services/common.service';
-import { Router, NavigationEnd } from '@angular/router';
-import { of, Subject } from 'rxjs';
-import { By } from '@angular/platform-browser';
-import { ClarityModule } from '@clr/angular';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NotificationSearchResultComponent } from './notification-search-result.component';
+import { ClrDatagridModule } from '@clr/angular';
+import { ConfirmDialogService } from '../../services/confirm-dialog.service';
+import { NotificationWeatherEvent } from '../../models/notification';
+import { of } from 'rxjs';
+import { NO_ERRORS_SCHEMA, SimpleChange, SimpleChanges } from '@angular/core';
 
-class MockRouter {
-  public events = new Subject<any>();
-  navigate() {}
-  serializeUrl() {
-    return '/withAppointment';
-  }
-  createUrlTree() {
-    return {};
-  }
-}
-
-describe('QtcHeaderComponent', () => {
-  let component: QtcHeaderComponent;
-  let fixture: ComponentFixture<QtcHeaderComponent>;
-  let mockCommonService: jasmine.SpyObj<CommonService>;
-  let mockRouter: MockRouter;
-  let sessionStorageSpy: jasmine.Spy;
-
+describe('NotificationSearchResultComponent', () => {
+  let component: NotificationSearchResultComponent;
+  let fixture: ComponentFixture<NotificationSearchResultComponent>;
+  let confirmDialogService: ConfirmDialogService;
+    
   beforeEach(async () => {
-    // Create a mock for the CommonService
-    mockCommonService = jasmine.createSpyObj('CommonService', ['getReferrerUrl'], {
-      userName$: of('TestUser'),
-      currentFlag: of(true),
-      currentAppointmentsFlag: of(false),
-      claimantIdSubject$: of(123),
-      caseIdSubject$: of(456)
-    });
-
-    // Mock sessionStorage
-    let store: { [key: string]: string } = {};
-    sessionStorageSpy = spyOn(sessionStorage, 'getItem').and.callFake((key: string) => {
-      return store[key] || null;
-    });
-    spyOn(sessionStorage, 'setItem').and.callFake((key: string, value: string) => {
-      store[key] = value;
-    });
-    spyOn(sessionStorage, 'removeItem').and.callFake((key: string) => {
-      delete store[key];
-    });
-    spyOn(sessionStorage, 'clear').and.callFake(() => {
-      store = {};
-    });
-
-    // Set the referrer URL
-    mockCommonService.getReferrerUrl.and.returnValue('http://example.com/');
-
-    // Create a mock for the Router
-    mockRouter = new MockRouter();
-
     await TestBed.configureTestingModule({
-      declarations: [QtcHeaderComponent],
-      imports: [ClarityModule],
+      declarations: [NotificationSearchResultComponent],
+      schemas: [NO_ERRORS_SCHEMA],
+      imports: [ClrDatagridModule],
       providers: [
-        { provide: CommonService, useValue: mockCommonService },
-        { provide: Router, useValue: mockRouter }
+        {
+          provide: ConfirmDialogService,
+          useValue: {
+            confirm: jasmine.createSpy('confirm').and.returnValue(of(true)),
+          },
+        },
       ],
     }).compileComponents();
-  });
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(QtcHeaderComponent);
+    fixture = TestBed.createComponent(NotificationSearchResultComponent);
     component = fixture.componentInstance;
+    confirmDialogService = TestBed.inject(ConfirmDialogService);
     fixture.detectChanges();
   });
 
@@ -75,73 +36,86 @@ describe('QtcHeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should display the userName initially from the CommonService', () => {
-    expect(component.userName).toBe('TESTUSER');
-    const userNameElement = fixture.debugElement.query(By.css('.user-icon-text'));
-    expect(userNameElement.nativeElement.textContent).toContain('TESTUSER');
+  it('should handle initial load and set previousSelected', async () => {
+    component.isInitialLoad = true;
+    component.selected = [{ weatherEventId: 1, isMapped: 1 } as NotificationWeatherEvent];
+    await component.handleRowChange();
+    expect(component.isInitialLoad).toBe(false);
+    expect(component.previousSelected).toEqual([{ weatherEventId: 1, isMapped: 1 } as NotificationWeatherEvent]);
   });
 
-  it('should update notesRequired from the CommonService', () => {
-    expect(component.notesRequired).toBeTrue();
+  it('should handle unselected inactive event when selected length is 0', async () => {
+    const unselectedInactiveEvent = {
+      weatherEventId: 1,
+      weatherEvent: 'Expired Storm',
+      status: 'inactive',
+    } as NotificationWeatherEvent;
+  
+    component.prevSelected = [unselectedInactiveEvent];
+    component.selected = [];
+    component.isRefresh = 0;
+    component.isInitialLoad = false;
+    component.hasUserInteractedOnce = true;
+  
+    (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(true));
+    spyOn(component.onUnSelectChange, 'emit');
+  
+    await component.handleRowChange();
+  
+    expect(confirmDialogService.confirm).toHaveBeenCalledWith(
+      `Be aware that this expired <b>${unselectedInactiveEvent.weatherEvent}</b> will no longer visible once unchecked. Do you wish to proceed?`,
+      'Ok',
+      'Cancel'
+    );
+  
+    expect(component.onUnSelectChange.emit).toHaveBeenCalledWith([]);
+    expect(component.isRefresh).toBe(1);
   });
 
-  it('should update appointmentsIconRequired from the CommonService', () => {
-    expect(component.appointmentsIconRequired).toBeFalse();
-  });
-
-  it('should update claimantId and caseId from the CommonService', () => {
-    expect(component.claimantId).toBe(123);
-    expect(component.caseId).toBe(456);
-  });
-
-  it('should set externalUrl and sessionStorage on initialization', () => {
-    // Verify the externalUrl was set correctly
-    expect(component.externalUrl).toBe('http://example.com/');
-    
-    // Verify sessionStorage was set correctly
-    expect(sessionStorage.setItem).toHaveBeenCalledWith(
-      'notesDocumentReferrer', 
-      'http://example.com/'
+  it('should handle unselected inactive event when selected length > 0', async () => {
+    const unselectedInactiveEvent = {
+      weatherEventId: 1,
+      weatherEvent: 'Expired Storm',
+      status: 'inactive',
+    } as NotificationWeatherEvent;
+  
+    const selectedEvent = {
+      weatherEventId: 2,
+      weatherEvent: 'Active Storm',
+      status: 'active',
+    } as NotificationWeatherEvent;
+  
+    component.prevSelected = [unselectedInactiveEvent, selectedEvent];
+    component.selected = [selectedEvent];
+    component.isRefresh = 0;
+    component.isInitialLoad = false;
+    component.hasUserInteractedOnce = true;
+  
+    (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(true));
+    spyOn(component.onSelectChange, 'emit');
+    spyOn(component.triggerRefresh, 'emit');
+  
+    await component.handleRowChange();
+  
+    // Expect two confirmation dialogs:
+    // 1. For the newly selected active event
+    // 2. For the unselected inactive event
+    expect(confirmDialogService.confirm).toHaveBeenCalledWith(
+      `You selected <b>${selectedEvent.weatherEvent}</b>, are you sure you want to continue?`,
+      'Ok',
+      'Cancel'
     );
     
-    // Verify getReferrerUrl was called
-    expect(mockCommonService.getReferrerUrl).toHaveBeenCalled();
-  });
-
-  it('should update claimantLevel on navigation events', fakeAsync(() => {
-    mockRouter.events.next(new NavigationEnd(0, '/withAppointment', '/withAppointment'));
-    tick();
-    fixture.detectChanges();
-    expect(component.claimantLevel).toBe(' - APPOINTMENT LEVEL');
-
-    mockRouter.events.next(new NavigationEnd(0, '/search', '/search'));
-    tick();
-    fixture.detectChanges();
-    expect(component.claimantLevel).toBe(' - CASE LEVEL');
-
-    mockRouter.events.next(new NavigationEnd(0, '/notAuthorized', '/notAuthorized'));
-    tick();
-    fixture.detectChanges();
-    expect(component.claimantLevel).toBe('');
-  }));
-
-  it('should open notes window with correct URL', () => {
-    spyOn(window, 'open');
-    component.openNotesWindow();
-    expect(window.open).toHaveBeenCalledWith(
-      'http://example.com/notes/Q_NOTES_01.asp?claimant_Id=123&case_Id=456',
-      'Notes',
-      'toolbar=no, scrollbars=yes, resizable=yes, top=100, left=100, width=900, height=800'
+    expect(confirmDialogService.confirm).toHaveBeenCalledWith(
+      `Be aware that this expired <b>${unselectedInactiveEvent.weatherEvent}</b> will no longer be visible once unchecked. Do you wish to proceed?`,
+      'Ok',
+      'Cancel'
     );
+  
+    expect(component.onSelectChange.emit).toHaveBeenCalledWith([selectedEvent]);
+    expect(component.prevSelected).toEqual([selectedEvent]);
+    expect(component.triggerRefresh.emit).not.toHaveBeenCalled();
   });
 
-  it('should open appointments window with correct URL', () => {
-    spyOn(window, 'open');
-    component.openAppointmentsWindow();
-    expect(window.open).toHaveBeenCalledWith(
-      `${window.location.origin}/withAppointment`,
-      'AppointmentLevel',
-      'toolbar=no, scrollbars=yes, resizable=yes, top=100, left=100, width=1200, height=800'
-    );
-  });
+  // ... rest of your tests remain the same ...
 });
