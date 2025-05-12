@@ -1,44 +1,7 @@
-ClaimantsWeatherAlertsService > GetUnmappedWeatherEvents > should make a POST request without optional params if not provided
-Expected $.startDate = Date(Wed Dec 31 1969 18:00:00 GMT-0600 (Central Standard Time)) to equal null.
-Expected $.endDate = Date(Wed Dec 31 1969 18:00:00 GMT-0600 (Central Standard Time)) to equal null.
+QtcHeaderComponent > should set externalUrl and sessionStorage on initialization
+Expected '' to be 'http://example.com/'.
     at <Jasmine>
-    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/services/claimants-weather-alerts.service.spec.ts:103:32)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-ClaimantsWeatherAlertsService > GetUnmappedWeatherEvents > should include optional parameters in the request when provided
-Expected $[0] = undefined to equal 'USA'.
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/services/claimants-weather-alerts.service.spec.ts:134:76)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-Expected $[0] = undefined to equal 'CA'.
-Expected $[1] = undefined to equal 'TX'.
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/services/claimants-weather-alerts.service.spec.ts:135:73)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-ClaimantsWeatherAlertsService > getHeaders > should use token from sessionStorage when available
-Error: <spyOn> : getItem has already been spied upon
-Usage: spyOn(<object>, <methodName>)
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/services/claimants-weather-alerts.service.spec.ts:31:7)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-    at ZoneImpl.run (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:111:43)
-    at runInTestZone (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:216:38)
-    at UserContext.<anonymous> (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:234:32)
-ClaimantsWeatherAlertsService > getHeaders > should fall back to service token when sessionStorage is empty
-Error: <spyOn> : getItem has already been spied upon
-Usage: spyOn(<object>, <methodName>)
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/services/claimants-weather-alerts.service.spec.ts:38:7)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-    at ZoneImpl.run (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:111:43)
-    at runInTestZone (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:216:38)
-    at UserContext.<anonymous> (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:234:32)
+    at UserContext.apply (http://localhost:9877/_karma_webpack_/webpack:/src/app/qtc-header/qtc-header.component.spec.ts:83:35)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
