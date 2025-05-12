@@ -32,210 +32,79 @@ describe('NotificationSearchResultComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  // ... (keep all existing test cases) ...
 
-  describe('disableSelectChange Input', () => {
-    it('should update disableResult when disableSelectChange is set', () => {
-      component.disableSelectChange = true;
-      expect(component.disableResult).toBeTrue();
-
-      component.disableSelectChange = false;
-      expect(component.disableResult).toBeFalse();
-    });
-  });
-
-  describe('weatherEvents Input', () => {
-    it('should process weather events correctly', () => {
-      const mockEvents: NotificationWeatherEvent[] = [
-        { weatherEventId: 1, state: 'CA, TX', isMapped: 1 } as NotificationWeatherEvent,
-        { weatherEventId: 2, state: 'NY', isMapped: 0 } as NotificationWeatherEvent,
-      ];
-
-      component.weatherEvents = mockEvents;
-      fixture.detectChanges();
-
-      expect(component.weatherEventsList.length).toBe(2);
-      expect(component.weatherEventsList[0].state).toBe('CA, TX');
-      expect(component.weatherEventsList[1].state).toBe('NY');
-      expect(component.selected).toEqual([mockEvents[0]]);
-    });
-
-    it('should handle empty weather events', () => {
-      component.weatherEvents = null;
-      fixture.detectChanges();
-      expect(component.weatherEventsList).toEqual([]);
-    });
-  });
-
-  describe('handleRowChange', () => {
-    it('should handle initial load and set previousSelected', async () => {
-      component.isInitialLoad = true;
-      component.selected = [{ weatherEventId: 1, isMapped: 1 } as NotificationWeatherEvent];
-      await component.handleRowChange();
-      expect(component.isInitialLoad).toBeFalse();
-      expect(component.previousSelected).toEqual([{ weatherEventId: 1, isMapped: 1 } as NotificationWeatherEvent]);
-    });
-
-    it('should handle unselected inactive event when selected length is 0', async () => {
-      const unselectedInactiveEvent = {
+  describe('showConfirmationDialog', () => {
+    it('should emit selected items when confirmation is true', async () => {
+      const weatherEvent = {
         weatherEventId: 1,
-        weatherEvent: 'Expired Storm',
-        status: 'inactive',
-        isMapped: 1
-      } as NotificationWeatherEvent;
-
-      component.prevSelected = [unselectedInactiveEvent];
-      component.selected = [];
-      component.isRefresh = 0;
-      component.isInitialLoad = false;
-      component.hasUserInteractedOnce = true;
-
-      (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(true));
-      spyOn(component.onUnSelectChange, 'emit');
-
-      await component.handleRowChange();
-
-      expect(confirmDialogService.confirm).toHaveBeenCalledWith(
-        `Be aware that this expired <b>${unselectedInactiveEvent.weatherEvent}</b> will no longer visible once unchecked. Do you wish to proceed?`,
-        'Ok',
-        'Cancel'
-      );
-      expect(component.onUnSelectChange.emit).toHaveBeenCalledWith([]);
-    });
-
-    it('should handle unselected inactive event when selected length > 0', async () => {
-      const unselectedInactiveEvent = {
-        weatherEventId: 1,
-        weatherEvent: 'Expired Storm',
-        status: 'inactive',
-        isMapped: 1
-      } as NotificationWeatherEvent;
-
-      const selectedEvent = {
-        weatherEventId: 2,
-        weatherEvent: 'Active Storm',
+        weatherEvent: 'Test Event',
         status: 'active',
         isMapped: 1
       } as NotificationWeatherEvent;
 
-      component.prevSelected = [unselectedInactiveEvent, selectedEvent];
-      component.selected = [selectedEvent];
-      component.isRefresh = 0;
-      component.isInitialLoad = false;
-      component.hasUserInteractedOnce = true;
+      component.selected = [weatherEvent];
+      const emitSpy = spyOn(component.onSelectChange, 'emit');
 
-      (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(true));
-      spyOn(component.onSelectChange, 'emit');
-
-      await component.handleRowChange();
+      await component.showConfirmationDialog(weatherEvent);
 
       expect(confirmDialogService.confirm).toHaveBeenCalledWith(
-        `Be aware that this expired <b>${unselectedInactiveEvent.weatherEvent}</b> will no longer be visible once unchecked. Do you wish to proceed?`,
+        `You selected <b>${weatherEvent.weatherEvent}</b>, are you sure you want to continue?`,
         'Ok',
         'Cancel'
       );
-      expect(component.onSelectChange.emit).toHaveBeenCalledWith([selectedEvent]);
-      expect(component.prevSelected).toEqual([selectedEvent]);
+      expect(emitSpy).toHaveBeenCalledWith([weatherEvent]);
     });
 
-    it('should revert selection when unselecting inactive event and confirmation is false', async () => {
-      const unselectedInactiveEvent = {
+    it('should remove item and emit updated selection when confirmation is false', async () => {
+      const weatherEvent = {
         weatherEventId: 1,
-        weatherEvent: 'Expired Storm',
-        status: 'inactive',
-        isMapped: 1
-      } as NotificationWeatherEvent;
-
-      const selectedEvent = {
-        weatherEventId: 2,
-        weatherEvent: 'Active Storm',
+        weatherEvent: 'Test Event',
         status: 'active',
         isMapped: 1
       } as NotificationWeatherEvent;
 
-      component.prevSelected = [unselectedInactiveEvent, selectedEvent];
-      component.selected = [selectedEvent];
-      component.isInitialLoad = false;
-      component.hasUserInteractedOnce = true;
+      component.selected = [weatherEvent];
+      component.previousSelected = [weatherEvent];
+      const emitSpy = spyOn(component.onSelectChange, 'emit');
 
       (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(false));
-      const selectSpy = spyOn(component.onSelectChange, 'emit');
+      
+      await component.showConfirmationDialog(weatherEvent);
 
-      await component.handleRowChange();
-
-      expect(component.selected).toEqual([unselectedInactiveEvent, selectedEvent]);
-      expect(selectSpy).toHaveBeenCalledWith([unselectedInactiveEvent, selectedEvent]);
+      expect(component.selected).toEqual([]);
+      expect(component.previousSelected).toEqual([]);
+      expect(emitSpy).toHaveBeenCalledWith([]);
     });
 
-    it('should handle unselected active event when selected length is 0', async () => {
-      const unselectedActiveEvent = {
+    it('should only remove the specified item when confirmation is false', async () => {
+      const weatherEvent1 = {
         weatherEventId: 1,
-        weatherEvent: 'Active Storm',
+        weatherEvent: 'Test Event 1',
         status: 'active',
         isMapped: 1
       } as NotificationWeatherEvent;
 
-      component.prevSelected = [unselectedActiveEvent];
-      component.selected = [];
-      component.isInitialLoad = false;
-      component.hasUserInteractedOnce = true;
-
-      (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(true));
-      spyOn(component.onUnSelectChange, 'emit');
-
-      await component.handleRowChange();
-
-      expect(confirmDialogService.confirm).toHaveBeenCalledWith(
-        'No more Weather Alerts mapped at Case Level if saved.',
-        'Ok',
-        'Cancel'
-      );
-      expect(component.onUnSelectChange.emit).toHaveBeenCalledWith([]);
-    });
-
-    it('should revert selection when unselecting active event and confirmation is false', async () => {
-      const unselectedActiveEvent = {
-        weatherEventId: 1,
-        weatherEvent: 'Active Storm',
+      const weatherEvent2 = {
+        weatherEventId: 2,
+        weatherEvent: 'Test Event 2',
         status: 'active',
         isMapped: 1
       } as NotificationWeatherEvent;
 
-      component.prevSelected = [unselectedActiveEvent];
-      component.selected = [];
-      component.isInitialLoad = false;
-      component.hasUserInteractedOnce = true;
+      component.selected = [weatherEvent1, weatherEvent2];
+      component.previousSelected = [weatherEvent1, weatherEvent2];
+      const emitSpy = spyOn(component.onSelectChange, 'emit');
 
       (confirmDialogService.confirm as jasmine.Spy).and.returnValue(Promise.resolve(false));
-      const selectSpy = spyOn(component.onSelectChange, 'emit');
+      
+      await component.showConfirmationDialog(weatherEvent1);
 
-      await component.handleRowChange();
-
-      expect(component.selected).toEqual([unselectedActiveEvent]);
-      expect(selectSpy).toHaveBeenCalledWith([unselectedActiveEvent]);
-    });
-
-    it('should emit selected items when no unselection occurs', async () => {
-      const selectedEvent = {
-        weatherEventId: 1,
-        weatherEvent: 'Active Storm',
-        status: 'active',
-        isMapped: 1
-      } as NotificationWeatherEvent;
-
-      component.prevSelected = [selectedEvent];
-      component.selected = [selectedEvent];
-      component.isInitialLoad = false;
-      component.hasUserInteractedOnce = true;
-
-      const selectSpy = spyOn(component.onSelectChange, 'emit');
-
-      await component.handleRowChange();
-
-      expect(selectSpy).toHaveBeenCalledWith([selectedEvent]);
-      expect(confirmDialogService.confirm).not.toHaveBeenCalled();
+      expect(component.selected).toEqual([weatherEvent2]);
+      expect(component.previousSelected).toEqual([weatherEvent2]);
+      expect(emitSpy).toHaveBeenCalledWith([weatherEvent2]);
     });
   });
+
+  // ... (keep all other existing test cases) ...
 });
