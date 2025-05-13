@@ -1,24 +1,12 @@
-/* Stack action buttons vertically on small screens */
-@media (max-width: 768px) {
-    .action-button .clr-col-12 {
-        margin-bottom: 10px;
-    }
+Error: ../src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:141:7 - error TS2345: Argument of type 'Observable<{ key: string; value: string; }[]>' is not assignable to parameter of type 'Observable<Country[]>'.
+  Type '{ key: string; value: string; }[]' is not assignable to type 'Country[]'.
+    Type '{ key: string; value: string; }' is missing the following properties from type 'Country': countryCode, countryName
 
-    .action-button .btn {
-        width: 100%;
-    }
-
-    /* Adjust spacing for form fields */
-    .clr-row .clr-col-12 {
-        margin-bottom: 15px;
-    }
-
-    /* Reduce font size for labels on small screens */
-    .search-title p {
-        font-size: 1.2rem;
-    }
-
-    .clr-form-control label {
-        font-size: 0.9rem;
-    }
-}
+141       of([
+          ~~~~
+142         { key: 'CA', value: 'California' },
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+143         { key: 'TX', value: 'Texas' },
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+144       ])
+    ~~~~~~~~
