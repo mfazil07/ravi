@@ -1,7 +1,6 @@
 // Test to ensure that countryChanged updates isUSAExist correctly
 import { of } from 'rxjs';
 import { fakeAsync, tick } from '@angular/core/testing';
-
 it('should fetch claimant info and update states and countries in countryStateChange', fakeAsync(() => {
   const mockResponse = {
     country: 'USA',
@@ -10,24 +9,21 @@ it('should fetch claimant info and update states and countries in countryStateCh
     mappedStates: ['TX', 'NY'],
   };
 
-  spyOn(component['claimantsWeatherAlertsService'], 'getClaimantInfo').and.returnValue(of(mockResponse));
+  spyOn(component['claimantsWeatherAlertsService'], 'getClaimantInfo').and.returnValue(of([mockResponse]));
 
-  // Setup required form model structure if not already in place
   component.notificationSearch = {
     frmSrchCountry: [],
     frmSrchState: []
   };
 
-  // Optional: clear fields that should be updated
   component.countriesComboboxData = [];
   component.states = [];
 
   component.countryStateChange();
-  tick(); // flush async observable
+  tick();
 
   expect(component.caseDetails).toEqual(mockResponse);
 
-  // Now expect the properly structured arrays (assuming actual keys/values are used)
   expect(component.countriesComboboxData).toEqual([
     { key: 'USA', value: 'USA' },
     { key: 'CAN', value: '' },
