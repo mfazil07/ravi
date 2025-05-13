@@ -1,21 +1,22 @@
 it('should update countries and states correctly when countryStateChange is called and response is successful', () => {
-  const mockClaimantInfo = {
-    country: 'USA',
-    mappedCountries: ['USA', 'Canada'],
-    state: 'California',
-    mappedStates: ['California', 'Texas'],
-  };
+  const mockClaimantInfo = [
+    {
+      country: 'USA',
+      mappedCountries: ['USA', 'Canada'],
+      state: 'California',
+      mappedStates: ['California', 'Texas'],
+    },
+  ];
 
   spyOn(component['claimantsWeatherAlertsService'], 'getClaimantInfo').and.returnValue(of(mockClaimantInfo));
 
   component.countryStateChange();
 
-  expect(component.caseDetails).toEqual(mockClaimantInfo);
+  expect(component.caseDetails).toEqual(mockClaimantInfo[0]);
   expect(component.claimantResidentCountry).toEqual([
     { key: 'USA', value: 'USA' },
     { key: 'Canada', value: 'Canada' },
   ]);
-
   expect(component.countriesComboboxData).toEqual([
     { key: 'USA', value: '' },
     { key: 'Canada', value: '' },
@@ -34,18 +35,20 @@ it('should update countries and states correctly when countryStateChange is call
 });
 
 it('should clear states when "USA" is not in countriesComboboxData', () => {
-  const mockClaimantInfo = {
-    country: 'Canada',
-    mappedCountries: ['Canada'],
-    state: null,
-    mappedStates: [],
-  };
+  const mockClaimantInfo = [
+    {
+      country: 'Canada',
+      mappedCountries: ['Canada'],
+      state: undefined,
+      mappedStates: [],
+    },
+  ];
 
   spyOn(component['claimantsWeatherAlertsService'], 'getClaimantInfo').and.returnValue(of(mockClaimantInfo));
 
   component.countryStateChange();
 
-  expect(component.caseDetails).toEqual(mockClaimantInfo);
+  expect(component.caseDetails).toEqual(mockClaimantInfo[0]);
   expect(component.claimantResidentCountry).toEqual([{ key: 'Canada', value: 'Canada' }]);
   expect(component.countriesComboboxData).toEqual([{ key: 'Canada', value: '' }]);
   expect(component.notificationSearch.frmSrchCountry).toEqual(component.countriesComboboxData);
