@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { SearchComponent } from '../search/search.component';
-import { FormsModule, NgModel } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { ClrComboboxModule, ClrDatagridModule, ClrDatalistModule, ClrDataModule, ClrDatepickerModule, ClrInputModule, ClrModalModule } from '@clr/angular';
 import { AddeventComponent } from '../addevent/addevent.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -9,7 +9,6 @@ import { CommonService } from '../services/common.service';
 import { of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { formatDate } from '@angular/common';
 import { AlertService, IAlertType } from '../services/alert.service';
 
 describe('AddeventComponent', () => {
@@ -40,7 +39,6 @@ describe('AddeventComponent', () => {
     ]);
 
     const alertServiceSpy = jasmine.createSpyObj('AlertService', ['show']);
-    const searchComponentSpy = jasmine.createSpyObj('SearchComponent', ['refreshWeatherEvents']);
     const formSpy = jasmine.createSpyObj('form', ['get', 'enable']);
 
     await TestBed.configureTestingModule({
@@ -61,7 +59,6 @@ describe('AddeventComponent', () => {
         { provide: CommonService, useValue: commonServiceSpy },
         { provide: AlertService, useValue: alertServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
-        { provide: SearchComponent, useValue: searchComponentSpy },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -164,3 +161,4 @@ describe('AddeventComponent', () => {
     const result = component.getClass('CA');
     expect(result).toBeNull();
   });
+});
