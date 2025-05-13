@@ -90,6 +90,7 @@ describe('AddeventComponent', () => {
     alertService = TestBed.inject(AlertService) as jasmine.SpyObj<AlertService>;
 
     // Mock service methods
+    commonService.getUserAuthorization.and.returnValue(of(true));
     commonService.getallCountries.and.returnValue(
       of([
         { countryCode: 'US', countryName: 'United States', key: 'USA', value: 'United States' },
@@ -123,16 +124,11 @@ describe('AddeventComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should handle ngOnInit without errors', () => {
-    spyOn(component, 'getUserAuthorization');
-    spyOn(component, 'getAllCountries');
-    spyOn(component, 'getAllWeatherTypes');
-
+  it('should call required services on init', () => {
     component.ngOnInit();
-    
-    expect(component.getUserAuthorization).toHaveBeenCalled();
-    expect(component.getAllCountries).toHaveBeenCalled();
-    expect(component.getAllWeatherTypes).toHaveBeenCalled();
+    expect(commonService.getUserAuthorization).toHaveBeenCalled();
+    expect(commonService.getallCountries).toHaveBeenCalled();
+    expect(commonService.getAllWeatherTypes).toHaveBeenCalled();
   });
 
   it('should initialize properties and reset form when mode is "add"', () => {
