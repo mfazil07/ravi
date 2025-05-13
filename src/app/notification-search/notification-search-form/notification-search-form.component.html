@@ -1,34 +1,31 @@
-// Test to ensure that countryChanged updates isUSAExist correctly
-import { of } from 'rxjs';
-import { fakeAsync, tick } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { fakeAsync, tick } from '@angular/core/testing';
 
 it('should fetch claimant info and update states and countries in countryStateChange', fakeAsync(() => {
-  const mockClaimant = {
+  const mockClaimantInfo = {
     country: 'USA',
     state: 'CA',
     mappedCountries: ['CAN', 'MEX'],
     mappedStates: ['TX', 'NY'],
   };
 
-  // This is the expected return type: an array of claimants
-  const mockResponse = [mockClaimant];
+  const mockResponse = [mockClaimantInfo];
 
+  // Ensure the method returns the correct type (array)
   spyOn(component['claimantsWeatherAlertsService'], 'getClaimantInfo').and.returnValue(of(mockResponse));
 
-  // Set up required structure on component
+  // Required mock setup for notificationSearch
   component.notificationSearch = {
     frmSrchCountry: [],
     frmSrchState: []
   };
 
+  // Run the method
   component.countryStateChange();
-  tick(); // Simulate async passage
+  tick(); // Let async code run
 
-  // ✅ EXPECTATIONS
-  // The component is using the first item in the array
-  expect(component.caseDetails).toEqual(mockClaimant);
+  // Assertions
+  expect(component.caseDetails).toEqual(mockClaimantInfo);
 
   expect(component.countriesComboboxData).toEqual([
     { key: 'USA', value: 'USA' },
