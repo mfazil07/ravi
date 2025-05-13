@@ -1,3 +1,1 @@
-Error: app/addevent/addevent.component.spec.ts:127:22 - error TS2345: Argument of type '"getUserAuthorization"' is not assignable to parameter of type 'keyof AddeventComponent'.
-
-127     spyOn(component, 'getUserAuthorization');
+Getting this error Error: app/addevent/addevent.component.spec.ts:93:56 - error TS2345: Argument of type 'Observable<boolean>' is not assignable to parameter of type 'Observable<string[]>'. Type 'boolean' is not assignable to type 'string[]'.
