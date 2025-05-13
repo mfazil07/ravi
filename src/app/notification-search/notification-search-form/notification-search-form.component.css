@@ -1,25 +1,2 @@
-NotificationSearchFormComponent > should fetch claimant info and update states and countries in countryStateChange
-Expected [ Object({ country: 'USA', state: 'CA', mappedCountries: [ 'CAN', 'MEX' ], mappedStates: [ 'TX', 'NY' ] }) ] to equal Object({ country: 'USA', state: 'CA', mappedCountries: [ 'CAN', 'MEX' ], mappedStates: [ 'TX', 'NY' ] }).
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:566:33)
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:1698:26)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-Expected [  ] to equal <jasmine.arrayContaining([ 'USA', 'CAN', 'MEX' ])>.
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:569:43)
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:1698:26)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-Expected [  ] to equal <jasmine.arrayContaining([ 'CA', 'TX', 'NY' ])>.
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:570:28)
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:1698:26)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-Expected [  ] to equal <jasmine.arrayContaining([ 'CA', 'TX', 'NY' ])>.
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:571:53)
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:1698:26)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+Argument of type 'Observable<{ country: string; state: string; mappedCountries: string[]; mappedStates: string[]; }>' is not assignable to parameter of type 'Observable<CaseWithAppointment[]>'.
+  Type '{ country: string; state: string; mappedCountries: string[]; mappedStates: string[]; }' is missing the following properties from type 'CaseWithAppointment[]': length, pop, push, concat, and 29 more.ts(2345)
