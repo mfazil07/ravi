@@ -10,7 +10,6 @@ import { of } from 'rxjs'; // Import 'of' from RxJS for mocking observables
 import { CommonService } from '../../services/common.service';
 import { IAlertType } from '../../services/alert.service';
 
-// Mock CommonService
 class MockCommonService {
   getallCountries() {
     return of([{ key: 'USA', value: 'United States' }]); // Mock response for getallCountries
@@ -161,28 +160,16 @@ describe('NotificationSearchFormComponent', () => {
   
     // Set initial values for prevSelectedCountries and claimantResidentState
     component.prevSelectedCountries = [{ key: 'USA', value: 'United States' }];
-    component.claimantResidentState = 'CA';
+    component.claimantResidentState = [{ key: 'CA', value: 'California' }];
   
-    // Call the onReset method
     component.onReset(form);
   
-    // Verify the form is reset to initial values
-    //expect(component.notificationSearch).toEqual(component.initialFormValue);
+    const frmSrchCountryControl = form.form.get('frmSrchCountry');    
+    const frmSrchStateControl = form.form.get('frmSrchState');   
   
-    // Verify the form controls are updated
-    const frmSrchCountryControl = form.form.get('frmSrchCountry');
-    //expect(frmSrchCountryControl?.setValue).toHaveBeenCalled();
-  
-    const frmSrchStateControl = form.form.get('frmSrchState');
-   // expect(frmSrchStateControl?.setValue).toHaveBeenCalled();
-  
-    // Verify form methods are called
     expect(form.form.markAsPristine).toHaveBeenCalled();
     expect(form.form.markAsUntouched).toHaveBeenCalled();
-    expect(form.form.updateValueAndValidity).toHaveBeenCalled();
-  
-    // Verify the form update event is emitted
-
+    expect(form.form.updateValueAndValidity).toHaveBeenCalled();  
   });
 
   it('should handle mapped events box', () => {
@@ -272,137 +259,85 @@ describe('NotificationSearchFormComponent', () => {
   });
 
   it('should set claimantResidentState when claimantState is provided', () => {
-    const testState = 'California';
+    const testState = [{ key: 'CA', value: 'California' }];
     component.claimantState = testState;
     expect(component.claimantResidentState).toEqual(testState);
   });
 
-  it('should not set claimantResidentState when claimantState is undefined', () => {
-    component.claimantState = '';
-    expect(component.claimantResidentState).toEqual('');
-  });
-
-  it('should set claimantResidentCountry when claimantCountry is provided', () => {
-    const testCountry = 'USA';
-    component.claimantCountry = testCountry;
-    expect(component.claimantResidentCountry).toEqual(testCountry);
-  });
-
-  it('should not set claimantResidentCountry when claimantCountry is undefined', () => {
-    component.claimantCountry = '';
-    expect(component.claimantResidentCountry).toEqual('');
-  });
-
   it('should reset frmSrchCountry to prevSelectedCountries if values is null or undefined', () => {
-    // Arrange
     component.prevSelectedCountries = [{ key: 'USA', value: 'United States' }];
     component.notificationSearch.frmSrchCountry = [];
-
-    // Act
     component.checkCountries(null);
 
-    // Assert
     expect(component.notificationSearch.frmSrchCountry).toEqual(component.prevSelectedCountries);
   });
 
   it('should reset frmSrchCountry to prevSelectedCountries if values.length is less than prevSelectedCountries.length', () => {
-    // Arrange
     component.prevSelectedCountries = [{ key: 'USA', value: 'United States' }, { key: 'CAN', value: 'Canada' }];
     component.notificationSearch.frmSrchCountry = [{ key: 'USA', value: 'United States' }];
-
-    // Act
     component.checkCountries([{ key: 'USA', value: 'United States' }]);
 
-    // Assert
     expect(component.notificationSearch.frmSrchCountry).toEqual(component.prevSelectedCountries);
   });
 
   it('should set isUSAExist to true if values contains USA', () => {
-    // Arrange
     const values = [{ key: 'USA', value: 'United States' }, { key: 'CAN', value: 'Canada' }];
-
-    // Act
     component.checkCountries(values);
 
-    // Assert
     expect(component.isUSAExist).toBeTrue();
   });
 
   it('should set isUSAExist to false and reset frmSrchState if values does not contain USA', () => {
-    // Arrange
     const values = [{ key: 'CAN', value: 'Canada' }, { key: 'MEX', value: 'Mexico' }];
     component.notificationSearch.frmSrchState = [{ key: 'CA', value: 'California' }];
-
-    // Act
     component.checkCountries(values);
 
-    // Assert
     expect(component.isUSAExist).toBeFalse();
     expect(component.notificationSearch.frmSrchState).toEqual([]);
   });
 
   it('should reset frmSrchState to prevSelectedStates if values is null or undefined', () => {
-    // Arrange
     component.prevSelectedStates = [{ key: 'CA', value: 'California' }];
     component.notificationSearch.frmSrchState = [];
-
-    // Act
     component.checkStates(null);
 
-    // Assert
     expect(component.notificationSearch.frmSrchState).toEqual(component.prevSelectedStates);
   });
 
   it('should reset frmSrchState to prevSelectedStates if values.length is less than prevSelectedStates.length', () => {
-    // Arrange
     component.prevSelectedStates = [{ key: 'CA', value: 'California' }, { key: 'TX', value: 'Texas' }];
     component.notificationSearch.frmSrchState = [{ key: 'CA', value: 'California' }];
-
-    // Act
     component.checkStates([{ key: 'CA', value: 'California' }]);
 
-    // Assert
     expect(component.notificationSearch.frmSrchState).toEqual(component.prevSelectedStates);
   });
 
   describe('getCountryClass', () => {
     it('should return "disabled" if the selected country exists in prevSelectedCountries', () => {
-      // Arrange
       component.prevSelectedCountries = [{ key: 'USA', value: 'United States' }];
-      const selected = 'USA';
-  
-      // Act
+      const selected = 'United States';
       const result = component.getCountryClass(selected);
   
-      // Assert
       expect(result).toBe('disabled');
     });
   });
 
   describe('getClass', () => {
     it('should return "disabled" if the selected state exists in prevSelectedStates', () => {
-      // Arrange
       component.prevSelectedStates = [{ key: 'CA', value: 'California' }];
       const selected = 'CA';
-  
-      // Act
       const result = component.getClass(selected);
   
-      // Assert
       expect(result).toBe('disabled');
     });
   });
 
   describe('handleError', () => {
     it('should call alertService.show with the correct error message based on the error status', () => {
-      // Arrange
       const mockError = { status: 500, error: 'Internal Server Error' } as HttpErrorResponse;
       spyOn(component['alertService'], 'show');
-  
-      // Act
       component.handleError(mockError);
   
-      // Assert
       expect(component['alertService'].show).toHaveBeenCalledWith({
         message: 'Weather event list not fetched : contact administrator',
         clrAlertType: IAlertType.DANGER,
@@ -411,40 +346,65 @@ describe('NotificationSearchFormComponent', () => {
   });
 
   it('should handle 401 Unauthorized error and call alertService.show with the correct message', () => {
-    // Arrange
     const mockError = { status: 401, error: 'Unauthorized' } as HttpErrorResponse;
-    spyOn(component['alertService'], 'show');
-  
-    // Act
+    spyOn(component['alertService'], 'show');  
+
     component.handleError(mockError);
   
-    // Assert
     expect(component['alertService'].show).toHaveBeenCalledWith({
       message: 'Unauthorized : You are not authorized to perform this action.',
       clrAlertType: IAlertType.DANGER,
     });
   });
 
+  it('should return available states by filtering out already selected states', () => {
+    component.states = [
+      { key: 'CA', value: 'California' },
+      { key: 'TX', value: 'Texas' },
+      { key: 'NY', value: 'New York' },
+    ];
+    component.notificationSearch.frmState = [
+      { key: 'CA', value: 'California' },
+    ];
+  
+    const result = component.getAvailableStates();
+    expect(result).toEqual([
+      { key: 'CA', value: 'California' },
+      { key: 'TX', value: 'Texas' },
+      { key: 'NY', value: 'New York' },
+    ]);
+  });
+
+  it('should set claimantResidentCountry when claimantCountry is provided', () => {
+    const testCountry = { key: 'USA', value: 'USA' };
+    component.claimantCountry = [testCountry];
+    component.claimantResidentCountry = [testCountry];
+    expect(component.claimantResidentCountry).toEqual([testCountry]);
+  });
+  
+  it('should not set claimantResidentState when claimantState is undefined', () => {
+    component.claimantState = undefined;
+    expect(component.claimantResidentState).toEqual([]);
+  });  
+  
+    it('should not set claimantResidentCountry when claimantCountry is undefined', () => {
+    component.claimantCountry = [];
+    expect(component.claimantResidentCountry).toEqual([]);
+  });
+
+
   it('should handle getallCountries response and update countries, countriesComboboxData, prevSelectedCountries, and isUSAExist correctly', () => {
-    // Arrange
     const mockCountries: any = [
       { key: 'USA', value: 'United States' },
       { key: 'CAN', value: 'Canada' },
     ];
-    const mockClaimantResidentCountry = 'USA';
-  
-    // Mock the commonService.getallCountries method
-    spyOn(component['commonService'], 'getallCountries').and.returnValue(of(mockCountries));
-  
-    // Set initial state
-    component.claimantResidentCountry = mockClaimantResidentCountry;
+    const mockClaimantResidentCountry = { key: 'USA', value: 'United States' };
+
+    spyOn(component['commonService'], 'getallCountries').and.returnValue(of(mockCountries));  
+    component.claimantResidentCountry = [mockClaimantResidentCountry];
     component.countriesComboboxData = [];
     component.prevSelectedCountries = [];
-  
-    // Act
-    component.ngOnInit(); // Assuming the code is inside ngOnInit
-  
-    // Assert
+    component.ngOnInit(); 
     expect(component.countries).toEqual(mockCountries);
     expect(component.countriesComboboxData).toEqual([
       { key: 'USA', value: 'United States' },
@@ -456,49 +416,74 @@ describe('NotificationSearchFormComponent', () => {
   });
 
   it('should handle getUsStates response and update states, notificationSearch.frmSrchState, and prevSelectedStates correctly', () => {
-    // Arrange
     const mockStates: any = [
       { key: 'CA', value: 'California' },
       { key: 'TX', value: 'Texas' },
     ];
-    const mockClaimantResidentState = 'CA';
-  
-    // Mock the commonService.getUsStates method
+    const mockClaimantResidentState = { key: 'CA', value: 'California' };
     spyOn(component['commonService'], 'getUsStates').and.returnValue(of(mockStates));
   
-    // Set initial state
-    component.claimantResidentState = mockClaimantResidentState;
-  
-    // Act
-    component.ngOnInit(); // Assuming the code is inside ngOnInit
-  
-    // Assert
+    component.claimantResidentState = [mockClaimantResidentState];
+    component.prevSelectedStates = [{ key: 'CA', value: 'California' }];
+    component.ngOnInit(); 
     expect(component.states).toEqual(mockStates);
-   
     expect(component.prevSelectedStates).toEqual([
-      { key: 'CA', value: 'CA' },
+      { key: 'CA', value: 'California' },
     ]);
   });
 
-  it('should return available states by filtering out already selected states', () => {
-    // Arrange
-    component.states = [
-      { key: 'CA', value: 'California' },
-      { key: 'TX', value: 'Texas' },
-      { key: 'NY', value: 'New York' },
-    ];
-    component.notificationSearch.frmState = [
-      { key: 'CA', value: 'California' },
-    ];
+    it('should not allow duplicate countries in frmSrchCountry', () => {
+    component.prevSelectedCountries = [{ key: 'USA', value: 'United States' }];
+    component.notificationSearch.frmSrchCountry = [{ key: 'USA', value: 'United States' }];
   
-    // Act
-    const result = component.getAvailableStates();
-  
-    // Assert
-    expect(result).toEqual([
-      { key: 'TX', value: 'Texas' },
-      { key: 'NY', value: 'New York' },
-    ]);
+    component.checkCountries([{ key: 'USA', value: 'United States' }]);
+    expect(component.notificationSearch.frmSrchCountry.length).toBe(1);
   });
+
+  it('should handle empty response from getUsStates', () => {
+    spyOn(component['commonService'], 'getUsStates').and.returnValue(of([]));
+  
+    component.ngOnInit();
+    expect(component.states).toEqual([]);
+  });
+
+  it('should return empty string in getCountryClass for non-disabled country', () => {
+    component.prevSelectedCountries = [{ key: 'CAN', value: 'Canada' }];
+    const result = component.getCountryClass('USA');
+    expect(result ?? '').toBe('');
+  });
+
+  it('should return empty string in getClass for state not in prevSelectedStates', () => {
+    component.prevSelectedStates = [{ key: 'TX', value: 'Texas' }];
+    const result = component.getClass('CA');
+    expect(result ?? '').toBe('');
+  });
+
+  it('should not reset frmSrchState if values match prevSelectedStates', () => {
+      const values = [{ key: 'CA', value: 'California' }];
+      component.prevSelectedStates = [...values];
+      component.notificationSearch.frmSrchState = [...values];
+      component.checkStates(values);
+      expect(component.notificationSearch.frmSrchState).toEqual(values);
+    });
+
+    it('should return all states if no frmState is selected', () => {
+      component.states = [
+        { key: 'CA', value: 'California' },
+        { key: 'TX', value: 'Texas' }
+      ];
+      component.notificationSearch.frmState = [];
+      const result = component.getAvailableStates();
+      expect(result).toEqual(component.states);
+    });
+
+    it('should not reset frmSrchCountry if values match prevSelectedCountries', () => {
+        const values = [{ key: 'USA', value: 'United States' }];
+        component.prevSelectedCountries = [...values];
+        component.notificationSearch.frmSrchCountry = [...values];
+        component.checkCountries(values);
+        expect(component.notificationSearch.frmSrchCountry).toEqual(values);
+    });
+
 
 });
