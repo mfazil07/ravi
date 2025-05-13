@@ -1,70 +1,37 @@
 NotificationSearchFormComponent > should update countries and states correctly when countryStateChange is called and response is successful
 Expected [ Object({ country: 'USA', mappedCountries: [ 'USA', 'Canada' ], state: 'California', mappedStates: [ 'California', 'Texas' ] }) ] to equal Object({ country: 'USA', mappedCountries: [ 'USA', 'Canada' ], state: 'California', mappedStates: [ 'California', 'Texas' ] }).
     at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:544:37)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+    at UserContext.apply (http://localhost:9880/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:529:37)
+    at _ZoneDelegate.invoke (http://localhost:9880/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9880/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9880/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
 Expected $.length = 0 to equal 2.
 Expected $[0] = undefined to equal Object({ key: 'USA', value: 'USA' }).
 Expected $[1] = undefined to equal Object({ key: 'Canada', value: 'Canada' }).
     at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:545:49)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+    at UserContext.apply (http://localhost:9880/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:530:49)
+    at _ZoneDelegate.invoke (http://localhost:9880/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9880/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9880/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
 Expected $.length = 0 to equal 2.
 Expected $[0] = undefined to equal Object({ key: 'USA', value: '' }).
 Expected $[1] = undefined to equal Object({ key: 'Canada', value: '' }).
     at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:550:47)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+    at UserContext.apply (http://localhost:9880/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:534:47)
+    at _ZoneDelegate.invoke (http://localhost:9880/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9880/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9880/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
 Expected $.length = 0 to equal 2.
 Expected $[0] = undefined to equal Object({ key: 'California', value: 'California' }).
 Expected $[1] = undefined to equal Object({ key: 'Texas', value: 'Texas' }).
     at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:557:32)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+    at UserContext.apply (http://localhost:9880/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:541:32)
+    at _ZoneDelegate.invoke (http://localhost:9880/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9880/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9880/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
 Expected false to be true.
     at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:564:36)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-NotificationSearchFormComponent > should clear states when "USA" is not in countriesComboboxData
-Expected [ Object({ country: 'Canada', mappedCountries: [ 'Canada' ], state: undefined, mappedStates: [  ] }) ] to equal Object({ country: 'Canada', mappedCountries: [ 'Canada' ], state: undefined, mappedStates: [  ] }).
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:580:37)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-Expected $.length = 0 to equal 1.
-Expected $[0] = undefined to equal Object({ key: 'Canada', value: 'Canada' }).
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:581:49)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-Expected $.length = 0 to equal 1.
-Expected $[0] = undefined to equal Object({ key: 'Canada', value: '' }).
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:582:47)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-NotificationSearchFormComponent > should handle getUsStates response correctly
-Expected $[0] not to have properties
-    countryCode: 'CA'
-    countryName: 'California'
-Expected $[1] not to have properties
-    countryCode: 'TX'
-    countryName: 'Texas'
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:147:30)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+    at UserContext.apply (http://localhost:9880/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:548:36)
+    at _ZoneDelegate.invoke (http://localhost:9880/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9880/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9880/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
