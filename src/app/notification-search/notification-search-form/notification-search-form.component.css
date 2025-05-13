@@ -1,7 +1,20 @@
-NotificationSearchFormComponent > should handle getUsStates response correctly
-Expected $[0] not to have properties
-    countryCode: 'CA'
-    countryName: 'California'
-Expected $[1] not to have properties
-    countryCode: 'TX'
-    countryName: 'Texas'
+NotificationSearchFormComponent > should set errors when start date is after end date in validateDates
+Expected spy setErrors to have been called with:
+  [ Object({ invalidDate: true }) ]
+but actual calls were:
+  [ null ].
+
+Call 0:
+  Expected $[0] = null to equal Object({ invalidDate: true }).
+Error: Expected spy setErrors to have been called with:
+  [ Object({ invalidDate: true }) ]
+but actual calls were:
+  [ null ].
+Call 0:
+  Expected $[0] = null to equal Object({ invalidDate: true }).
+    at <Jasmine>
+    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:511:59)
+    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+Expected '' to be 'Start Date must be less than End Date!'.
