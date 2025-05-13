@@ -9,37 +9,45 @@ it('should fetch claimant info and update states and countries in countryStateCh
     mappedStates: ['TX', 'NY'],
   };
 
-  spyOn(component['claimantsWeatherAlertsService'], 'getClaimantInfo').and.returnValue(of([mockResponse]));
+  // Match expected return type: Observable<CaseWithAppointment[]>
+  spyOn(component['claimantsWeatherAlertsService'], 'getClaimantInfo')
+    .and.returnValue(of([mockResponse]));
 
+  // Prepare any required state
   component.notificationSearch = {
     frmSrchCountry: [],
     frmSrchState: []
   };
 
-  component.countriesComboboxData = [];
-  component.states = [];
+  // Ensure any required lifecycle init is called
+  if (component.ngOnInit) component.ngOnInit();
 
+  // Call method and simulate async passage
   component.countryStateChange();
-  tick();
+  tick(); // Wait for async Observable
 
+  // Assert main object
   expect(component.caseDetails).toEqual(mockResponse);
 
+  // Assert country combo box
   expect(component.countriesComboboxData).toEqual([
     { key: 'USA', value: 'USA' },
     { key: 'CAN', value: '' },
-    { key: 'MEX', value: '' }
+    { key: 'MEX', value: '' },
   ]);
 
+  // Assert states
   expect(component.states).toEqual([
     { key: 'CA', value: 'CA' },
     { key: 'TX', value: 'TX' },
-    { key: 'NY', value: 'NY' }
+    { key: 'NY', value: 'NY' },
   ]);
 
+  // Assert form states
   expect(component.notificationSearch.frmSrchState).toEqual([
     { key: 'CA', value: 'CA' },
     { key: 'TX', value: 'TX' },
-    { key: 'NY', value: 'NY' }
+    { key: 'NY', value: 'NY' },
   ]);
 }));
 
