@@ -1,64 +1,86 @@
-describe('NotificationSearchFormComponent - countryStateChange', () => {
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NotificationSearchFormComponent } from './notification-search-form.component';
+import { ClarityModule } from '@clr/angular';
+import { FormsModule, NgForm } from '@angular/forms';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
+import { of, throwError } from 'rxjs';
+import { CommonService } from '../../services/common.service';
+import { ClaimantsWeatherAlertsService } from '../../services/claimants-weather-alerts.service';
+import { IAlertType } from '../../services/alert.service';
+
+class MockCommonService {
+  getallCountries() {
+    return of([{ key: 'USA', value: 'United States' }]);
+  }
+
+  getUsStates() {
+    return of([{ key: 'CA', value: 'California' }]);
+  }
+}
+
+class MockClaimantsWeatherAlertsService {
+  getClaimantInfo(claimantId: number, caseId: number, mappedEvents: boolean) {
+    return of({
+      country: 'USA',
+      state: 'CA',
+      mappedCountries: ['USA', 'CAN'],
+      mappedStates: ['CA', 'TX'],
+    });
+  }
+}
+
+describe('NotificationSearchFormComponent', () => {
   let component: NotificationSearchFormComponent;
   let fixture: ComponentFixture<NotificationSearchFormComponent>;
-  let mockClaimantsWeatherAlertsService: any;
+  let mockClaimantsWeatherAlertsService: MockClaimantsWeatherAlertsService;
 
   beforeEach(async () => {
-    mockClaimantsWeatherAlertsService = {
-      getClaimantInfo: jasmine.createSpy('getClaimantInfo').and.returnValue(
-        of({
-          country: 'USA',
-          state: 'CA',
-          mappedCountries: ['USA', 'CAN'],
-          mappedStates: ['CA', 'TX'],
-        })
-      ),
-    };
+    mockClaimantsWeatherAlertsService = new MockClaimantsWeatherAlertsService();
 
     await TestBed.configureTestingModule({
       declarations: [NotificationSearchFormComponent],
       imports: [ClarityModule, FormsModule, HttpClientModule],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
-        {
-          provide: 'ClaimantsWeatherAlertsService',
-          useValue: mockClaimantsWeatherAlertsService,
-        },
-        {
-          provide: CommonService,
-          useClass: MockCommonService, // Mock CommonService
-        },
+        { provide: CommonService, useClass: MockCommonService },
+        { provide: ClaimantsWeatherAlertsService, useValue: mockClaimantsWeatherAlertsService },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(NotificationSearchFormComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    // Set up initial state for the component
-    component.claimantId = 123;
-    component.caseId = 456;
-    component.notificationSearch = {
-      mappedEvents: false,
-      frmSrchCountry: [],
-      frmSrchState: [],
-    };
-    component.countries = [
-      { key: 'USA', value: 'United States' },
-      { key: 'CAN', value: 'Canada' },
-    ];
+  it('should create the component', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should initialize with default values', () => {
+    expect(component.notificationSearch.startDate).toBeTruthy();
+    expect(component.notificationSearch.endDate).toBeTruthy();
+    expect(component.notificationSearch.location).toEqual('');
+    expect(component.notificationSearch.mappedEvents).toBeFalse();
   });
 
   it('should call getClaimantInfo with correct parameters', () => {
+    const spy = spyOn(mockClaimantsWeatherAlertsService, 'getClaimantInfo').and.callThrough();
+    component.claimantId = 123;
+    component.caseId = 456;
+    component.notificationSearch.mappedEvents = false;
+
     component.countryStateChange();
-    expect(mockClaimantsWeatherAlertsService.getClaimantInfo).toHaveBeenCalledWith(
-      123,
-      456,
-      false
-    );
+
+    expect(spy).toHaveBeenCalledWith(123, 456, false);
   });
 
-  it('should update caseDetails with the response data', () => {
+  it('should update caseDetails with data from getClaimantInfo', () => {
+    component.claimantId = 123;
+    component.caseId = 456;
+
     component.countryStateChange();
+
     expect(component.caseDetails).toEqual({
       country: 'USA',
       state: 'CA',
@@ -67,20 +89,81 @@ describe('NotificationSearchFormComponent - countryStateChange', () => {
     });
   });
 
-  it('should handle error response', () => {
+  it('should handle error response from getClaimantInfo', () => {
     const errorResponse = new HttpErrorResponse({
       error: 'test 404 error',
       status: 404,
       statusText: 'Not Found',
     });
 
-    mockClaimantsWeatherAlertsService.getClaimantInfo.and.returnValue(
+    const spy = spyOn(mockClaimantsWeatherAlertsService, 'getClaimantInfo').and.returnValue(
       throwError(() => errorResponse)
     );
+    const handleErrorSpy = spyOn(component, 'handleError');
 
-    spyOn(component, 'handleError');
     component.countryStateChange();
 
-    expect(component.handleError).toHaveBeenCalledWith(errorResponse);
+    expect(spy).toHaveBeenCalled();
+    expect(handleErrorSpy).toHaveBeenCalledWith(errorResponse);
+  });
+
+  it('should validate dates and set errors when start date is after end date', () => {
+    const form = {
+      controls: {
+        startDatepickrnm: { setErrors: jasmine.createSpy('setErrors') },
+        endDatepickrnm: { setErrors: jasmine.createSpy('setErrors') },
+      },
+    } as unknown as NgForm;
+
+    component.notificationSearch.startDate = '12/31/2022';
+    component.notificationSearch.endDate = '01/01/2022';
+
+    component.validateDates(form, 'startDate');
+
+    expect(form.controls['startDatepickrnm'].setErrors).toHaveBeenCalledWith({ invalidDate: true });
+    expect(form.controls['endDatepickrnm'].setErrors).toHaveBeenCalledWith({ invalidDate: true });
+    expect(component.startDateErrorMsgs).toBe('Start Date must be less than End Date!');
+    expect(component.endDateErrorMsgs).toBe('End Date must be greater than Start Date!');
+  });
+
+  it('should handle invalid date formats in validateDates', () => {
+    const form = {
+      controls: {
+        startDatepickrnm: { setErrors: jasmine.createSpy('setErrors') },
+        endDatepickrnm: { setErrors: jasmine.createSpy('setErrors') },
+      },
+    } as unknown as NgForm;
+
+    component.notificationSearch.startDate = 'invalid-date';
+    component.notificationSearch.endDate = 'invalid-date';
+
+    component.validateDates(form, 'startDate');
+
+    expect(form.controls['startDatepickrnm'].setErrors).toHaveBeenCalledWith({ invalidDate: true });
+    expect(form.controls['endDatepickrnm'].setErrors).toHaveBeenCalledWith({ invalidDate: true });
+    expect(component.startDateErrorMsgs).toBe('Invalid date!');
+    expect(component.endDateErrorMsgs).toBe('Invalid date!');
+  });
+
+  it('should reset form and emit form update on reset', () => {
+    spyOn(component.onFormUpdate, 'emit');
+    const form = {
+      form: {
+        get: jasmine.createSpy('get').and.returnValue({ setValue: jasmine.createSpy('setValue') }),
+        markAsPristine: jasmine.createSpy('markAsPristine'),
+        markAsUntouched: jasmine.createSpy('markAsUntouched'),
+        updateValueAndValidity: jasmine.createSpy('updateValueAndValidity'),
+      },
+      value: component.notificationSearch,
+    } as unknown as NgForm;
+
+    component.prevSelectedCountries = [{ key: 'USA', value: 'United States' }];
+    component.claimantResidentState = [{ key: 'CA', value: 'California' }];
+
+    component.onReset(form);
+
+    expect(form.form.markAsPristine).toHaveBeenCalled();
+    expect(form.form.markAsUntouched).toHaveBeenCalled();
+    expect(form.form.updateValueAndValidity).toHaveBeenCalled();
   });
 });
