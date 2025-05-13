@@ -1,108 +1,51 @@
-<div class="search-title" *ngIf="showButton">
-  <cds-icon shape="folder-open" solid="true"></cds-icon>
-  <p cds-text="subsection">Weather Notification Search</p>
-</div>
-<form clrForm clrLayout="horizontal" #notificationSearchform="ngForm" (ngSubmit)="onSubmit(notificationSearchform)">
-  <div class="clr-row" *ngIf="showButton">
-    <div class="clr-col-12 clr-col-md-3">
-      <clr-date-container>
-        <label for="startDatepickrnm" class="clr-col-12 clr-col-md-3 space-text">Start Date</label>
-        <input class="clr-col-12 clr-col-md-9" type="date" required clrDate id="startDatepickrnm"
-          name="startDatepickrnm" #frmSrchStDt="ngModel" [disabled]="notificationSearch.mappedEvents"
-          [(ngModel)]="notificationSearch.startDate"
-          (ngModelChange)="validateDates(notificationSearchform,'startDate')">
-      </clr-date-container>
-      <clr-control-error *ngIf="frmSrchStDt.errors?.['invalidDate']" class="text-danger">
-        {{startDateErrorMsgs}}
-      </clr-control-error>
+ it('should handle getUsStates response correctly', () => {
+    component.claimantResidentState = [{ key: 'CA', value: 'California' }];
+    component.claimantResidentCountry = [{ key: 'USA', value: 'United States' }];
+    spyOn(component['commonService'], 'getUsStates').and.returnValue(
+      of([
+        { key: 'CA', value: 'California' },
+        { key: 'TX', value: 'Texas' },
+      ])
+    );
 
-    </div>
-    <div class="clr-col-12 clr-col-md-3">
-      <clr-date-container>
-        <label for="endDatepickrnm" class="clr-col-12 clr-col-md-3 space-text">End Date</label>
-        <input class="clr-col-12 clr-col-md-9" type="date" required clrDate id="endDatepickrnm" name="endDatepickrnm"
-          #frmSrchEndDt="ngModel" [disabled]="notificationSearch.mappedEvents" [(ngModel)]="notificationSearch.endDate"
-          (ngModelChange)="validateDates(notificationSearchform, 'endDate')">
-      </clr-date-container>
-      <clr-control-error *ngIf="frmSrchEndDt.errors?.['invalidDate']" class="text-danger">
-        {{endDateErrorMsgs}}
-      </clr-control-error>
+    component.ngOnInit();
 
-    </div>
-    <div class="clr-col-12 clr-col-md-3">
-      <clr-input-container>
-        <label for="location" class="clr-col-12 clr-col-md-2">
-          <div>Location</div>
-        </label>
-        <input class="clr-col-12 clr-col-md-8" clrInput type="text" id="location" name="location"
-          #frmSrchLocation="ngModel" [disabled]="notificationSearch.mappedEvents"
-          [(ngModel)]="notificationSearch.location" />
-      </clr-input-container>
-    </div>
-    <div class="clr-col-12 clr-col-md-2">
-      <div class="checkbox-container clr-form-control clr-row" [class.clr-checkbox-disable]="!enableMapEvent">
+    expect(component.states).toEqual([
+      { key: 'CA', value: 'California' },
+      { key: 'TX', value: 'Texas' },
+    ]);
+    expect(component.notificationSearch.frmSrchState).toEqual([
+      { key: 'CA', value: 'California' },
+    ]);
+    expect(component.prevSelectedStates).toEqual([
+      { key: 'CA', value: 'California' },
+    ]);
+  });
 
-        <input type="checkbox" class="clr-col-12 clr-col-md-2" clrCheckbox id="mappedEvents" name="mappedEvents"
-          [(ngModel)]="notificationSearch.mappedEvents" #mappedEvents="ngModel"
-          (change)="onmappedEventsBox(notificationSearchform)">
+  it('should handle error when getUsStates fails', () => {
+    spyOn(component['commonService'], 'getUsStates').and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 500 }))
+    );
+    spyOn(component, 'handleError');
 
-        <label for="mappedEvents" class="clr-col-12 clr-col-md-8">
-          <div>Mapped&nbsp;Events</div>
-        </label>
-      </div>
-    </div>
-  </div>
-    <!-- Country and State Dropdowns -->
-    <div class="clr-row responsive-row">
-      <!-- Country Dropdown -->
-      <div class="clr-col-12 clr-col-md-3">
-          <clr-combobox-container>
-              <label for="frmSrchCountry" class="clr-col-12 clr-col-md-12">Country</label>
-              <clr-combobox class="clr-col-12 clr-col-md-11" [(ngModel)]="notificationSearch.frmSrchCountry" clrMulti="true"
-              (ngModelChange)="checkCountries(notificationSearch.frmSrchCountry)" name="frmSrchCountry"  
-              [placeholder]="notificationSearch?.frmSrchCountry?.length > 0 ?'' :'ALL'"
-              #frmSrchCountry="ngModel" (ngModelChange)="countryChanged()" [disabled]="notificationSearch.mappedEvents">
-              <ng-container *clrOptionSelected="let selected">
-                  <span [ngClass]="getCountryClass(selected?.value)">{{ selected?.value }}</span>
-              </ng-container>
-              <clr-options>
-                  <clr-option *clrOptionItems="let country of getAvailableCountries(); field: 'value'" [clrValue]="country">
-                      {{ country.value }}
-                  </clr-option>
-              </clr-options>
-              </clr-combobox>              
-          </clr-combobox-container>               
-      </div>
+    component.ngOnInit();
 
-      <!-- State Dropdown (Visible if USA is selected for Country) -->
-      <div class="clr-col-12 clr-col-md-3" *ngIf="isUSAExist">           
-          <clr-combobox-container>
-              <label for="frmState" class="clr-col-12 clr-col-md-12">States <span class="us-state-text-font">(US only)</span></label>
-              <clr-combobox class="clr-col-12 clr-col-md-11" [(ngModel)]="notificationSearch.frmSrchState"
-              (ngModelChange)="checkStates(notificationSearch.frmSrchState)" [disabled]="notificationSearch.mappedEvents"
-              [placeholder]="notificationSearch?.frmSrchState?.length > 0 ?'' :'ALL'" 
-              clrMulti="true" name="frmSrchState" #frmSrchState="ngModel">
-              <ng-container *clrOptionSelected="let selected"> <span [ngClass]="getClass(selected?.key)">
-                  {{ selected?.key }}</span></ng-container>
-              <clr-options>
-                  <clr-option *clrOptionItems="let state of getAvailableStates(); field:'value'" [clrValue]="state">
-                      {{ state.value }}
-                  </clr-option>
-              </clr-options>
-              </clr-combobox>                
-          </clr-combobox-container>    
-      </div>
-  </div>
+    expect(component.handleError).toHaveBeenCalled();
+  });
 
+  it('should handle getallCountries response correctly', () => {
+    const mockCountries = [
+      { key: 'USA', value: 'United States' },
+      { key: 'CAN', value: 'Canada' },
+    ];
+    const mockClaimantResidentCountry = { key: 'USA', value: 'United States' };
 
+    spyOn(component['commonService'], 'getallCountries').and.returnValue(of(mockCountries));
+    component.claimantResidentCountry = [mockClaimantResidentCountry];
+    component.ngOnInit();
 
-  <div class="action-button">
-    <button type="submit" class="btn btn-primary" *ngIf="showButton" [disabled]="!enableSave">Save</button>
-    <button type="button" class="btn btn-primary" *ngIf="showButton"
-      [disabled]="notificationSearch.mappedEvents ? notificationSearch.mappedEvents : !notificationSearchform.valid"
-      (click)="onSearch(notificationSearchform)"><cds-icon shape="search"></cds-icon>Search</button>
-    <button type="button" class="btn btn-primary" *ngIf="showButton" (click)="onReset(notificationSearchform)"><cds-icon
-        shape="refresh"></cds-icon>Reset</button>
-    <button type="button" class="btn btn-primary" (click)="closeForm()">Close</button>
-  </div>
-</form>
+    expect(component.countries).toEqual(mockCountries);
+    expect(component.notificationSearch.frmSrchCountry).toEqual([mockClaimantResidentCountry]);
+    expect(component.prevSelectedCountries).toEqual([mockClaimantResidentCountry]);
+    expect(component.isUSAExist).toBeTrue();
+  });
