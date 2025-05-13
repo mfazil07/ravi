@@ -1,39 +1,50 @@
-describe('countryStateChange', () => {
+describe('NotificationSearchFormComponent - countryStateChange', () => {
+  let component: NotificationSearchFormComponent;
+  let fixture: ComponentFixture<NotificationSearchFormComponent>;
   let mockClaimantsWeatherAlertsService: any;
 
-  beforeEach(() => {
-    // Create a mock service
+  beforeEach(async () => {
     mockClaimantsWeatherAlertsService = {
       getClaimantInfo: jasmine.createSpy('getClaimantInfo').and.returnValue(
         of({
           country: 'USA',
           state: 'CA',
           mappedCountries: ['USA', 'CAN'],
-          mappedStates: ['CA', 'TX']
+          mappedStates: ['CA', 'TX'],
         })
-      )
+      ),
     };
 
-    // Override the provider for ClaimantsWeatherAlertsService
-    TestBed.overrideProvider('ClaimantsWeatherAlertsService', {
-      useValue: mockClaimantsWeatherAlertsService
-    });
+    await TestBed.configureTestingModule({
+      declarations: [NotificationSearchFormComponent],
+      imports: [ClarityModule, FormsModule, HttpClientModule],
+      schemas: [NO_ERRORS_SCHEMA],
+      providers: [
+        {
+          provide: 'ClaimantsWeatherAlertsService',
+          useValue: mockClaimantsWeatherAlertsService,
+        },
+        {
+          provide: CommonService,
+          useClass: MockCommonService, // Mock CommonService
+        },
+      ],
+    }).compileComponents();
 
-    // Reinitialize the component
     fixture = TestBed.createComponent(NotificationSearchFormComponent);
     component = fixture.componentInstance;
 
-    // Set up the required initial values
+    // Set up initial state for the component
     component.claimantId = 123;
-    component.caseId = 1;
+    component.caseId = 456;
     component.notificationSearch = {
       mappedEvents: false,
       frmSrchCountry: [],
-      frmSrchState: []
+      frmSrchState: [],
     };
     component.countries = [
       { key: 'USA', value: 'United States' },
-      { key: 'CAN', value: 'Canada' }
+      { key: 'CAN', value: 'Canada' },
     ];
   });
 
@@ -41,7 +52,7 @@ describe('countryStateChange', () => {
     component.countryStateChange();
     expect(mockClaimantsWeatherAlertsService.getClaimantInfo).toHaveBeenCalledWith(
       123,
-      1,
+      456,
       false
     );
   });
@@ -52,7 +63,7 @@ describe('countryStateChange', () => {
       country: 'USA',
       state: 'CA',
       mappedCountries: ['USA', 'CAN'],
-      mappedStates: ['CA', 'TX']
+      mappedStates: ['CA', 'TX'],
     });
   });
 
@@ -60,7 +71,7 @@ describe('countryStateChange', () => {
     const errorResponse = new HttpErrorResponse({
       error: 'test 404 error',
       status: 404,
-      statusText: 'Not Found'
+      statusText: 'Not Found',
     });
 
     mockClaimantsWeatherAlertsService.getClaimantInfo.and.returnValue(
@@ -72,6 +83,4 @@ describe('countryStateChange', () => {
 
     expect(component.handleError).toHaveBeenCalledWith(errorResponse);
   });
-
-  // Additional test cases...
 });
