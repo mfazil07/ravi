@@ -1,4 +1,4 @@
-Error: ../src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:156:7 - error TS2304: Cannot find name 'throwError'.
-
-156       throwError(() => new HttpErrorResponse({ status: 500 }))
-          ~~~~~~~~~~
+Error: ../../src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:579:45 - error TS2345: Argument of type '{ country: string; mappedCountries: string[]; state: null; mappedStates: never[]; }' is not assignable to parameter of type 'Expected<CaseDetails>'.
+  Type '{ country: string; mappedCountries: string[]; state: null; mappedStates: never[]; }' is not assignable to type '{ claimantCaseId?: ExpectedRecursive<string | undefined>; claimantId?: ExpectedRecursive<string | undefined>; caseId?: ExpectedRecursive<string | undefined>; ... 12 more ...; mappedStates?: ExpectedRecursive<...>; }'.
+    Types of property 'state' are incompatible.
+      Type 'null' is not assignable to type 'ExpectedRecursive<string | undefined>'.
