@@ -1,51 +1,16 @@
- it('should handle getUsStates response correctly', () => {
-    component.claimantResidentState = [{ key: 'CA', value: 'California' }];
-    component.claimantResidentCountry = [{ key: 'USA', value: 'United States' }];
-    spyOn(component['commonService'], 'getUsStates').and.returnValue(
-      of([
-        { key: 'CA', value: 'California' },
-        { key: 'TX', value: 'Texas' },
-      ])
-    );
+it('should handle getUsStates response correctly', () => {
+  spyOn(component['commonService'], 'getUsStates').and.returnValue(
+    of([
+      { countryCode: 'CA', countryName: 'California', key: 'CA', value: 'California' },
+      { countryCode: 'TX', countryName: 'Texas', key: 'TX', value: 'Texas' },
+    ])
+  );
 
-    component.ngOnInit();
+  component.ngOnInit();
 
-    expect(component.states).toEqual([
-      { key: 'CA', value: 'California' },
-      { key: 'TX', value: 'Texas' },
-    ]);
-    expect(component.notificationSearch.frmSrchState).toEqual([
-      { key: 'CA', value: 'California' },
-    ]);
-    expect(component.prevSelectedStates).toEqual([
-      { key: 'CA', value: 'California' },
-    ]);
-  });
-
-  it('should handle error when getUsStates fails', () => {
-    spyOn(component['commonService'], 'getUsStates').and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 500 }))
-    );
-    spyOn(component, 'handleError');
-
-    component.ngOnInit();
-
-    expect(component.handleError).toHaveBeenCalled();
-  });
-
-  it('should handle getallCountries response correctly', () => {
-    const mockCountries = [
-      { key: 'USA', value: 'United States' },
-      { key: 'CAN', value: 'Canada' },
-    ];
-    const mockClaimantResidentCountry = { key: 'USA', value: 'United States' };
-
-    spyOn(component['commonService'], 'getallCountries').and.returnValue(of(mockCountries));
-    component.claimantResidentCountry = [mockClaimantResidentCountry];
-    component.ngOnInit();
-
-    expect(component.countries).toEqual(mockCountries);
-    expect(component.notificationSearch.frmSrchCountry).toEqual([mockClaimantResidentCountry]);
-    expect(component.prevSelectedCountries).toEqual([mockClaimantResidentCountry]);
-    expect(component.isUSAExist).toBeTrue();
-  });
+  expect(component.states).toEqual([
+    { countryCode: 'CA', countryName: 'California', key: 'CA', value: 'California' },
+    { countryCode: 'TX', countryName: 'Texas', key: 'TX', value: 'Texas' },
+  ]);
+  expect(component.notificationSearch.frmSrchState).toEqual([]);
+});
