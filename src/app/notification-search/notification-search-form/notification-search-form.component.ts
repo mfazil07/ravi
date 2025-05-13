@@ -2,9 +2,10 @@ import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angu
 import { formatDate } from '@angular/common';
 import { FormControl, NgForm } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { KeyValueObject } from '../../dtos/dtos';
+import { CaseDetails, KeyValueObject } from '../../dtos/dtos';
 import { CommonService } from '../../services/common.service';
 import { AlertService, IAlertType } from '../../services/alert.service';
+import { ClaimantsWeatherAlertsService } from '../../services/claimants-weather-alerts.service';
 
 @Component({
   selector: 'notification-search-form',
@@ -22,23 +23,24 @@ export class NotificationSearchFormComponent implements OnInit {
   countries: KeyValueObject[] = [];
   states: KeyValueObject[] = [];
   isUSAExist = false;
-  claimantResidentState:string ='';
-  claimantResidentCountry:string ='';
+  claimantResidentState: KeyValueObject[] = [];
+  claimantResidentCountry: KeyValueObject[] = [];
   prevSelectedStates: KeyValueObject[] = [];
   prevSelectedCountries: KeyValueObject[] = [];
-  countriesComboboxData: KeyValueObject[] =[] 
+  countriesComboboxData: KeyValueObject[] = []; 
+  caseDetails: CaseDetails = {};
 
   @Input() set buttonStatus(val: boolean) {
     this.enableSave = val;
   }
 
-  @Input() set claimantState(val:string | undefined) {    
+  @Input() set claimantState(val: KeyValueObject[] | undefined) {    
     if (val) {
     this.claimantResidentState = val;    
     }
   }
 
-  @Input() set claimantCountry(val:string | undefined) {
+  @Input() set claimantCountry(val: KeyValueObject[] | undefined) {
     
     if (val) {
     this.claimantResidentCountry = val;    
@@ -53,8 +55,7 @@ export class NotificationSearchFormComponent implements OnInit {
     
   @Input() set enableMapping(mapWE: boolean) {
     this.enableMapEvent = mapWE;
-    if (!mapWE)
-    {
+    if (!mapWE) {
         this.notificationSearch = { ...this.initialFormValue };
         this.notificationSearch.mappedEvents = false;
     }
@@ -66,10 +67,15 @@ export class NotificationSearchFormComponent implements OnInit {
     }
   }
 
+  @Input() claimantId!: number;
+  @Input() caseId!: number;
+
+
   constructor(private readonly commonService: CommonService,
     private readonly alertService: AlertService,
+    private readonly claimantsWeatherAlertsService: ClaimantsWeatherAlertsService,
   ) { }
-
+ 
   initialFormValue: any = {
     startDate: formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'),
     endDate: formatDate(new Date(), 'MM/dd/yyyy', 'EN-US'),
@@ -85,22 +91,25 @@ export class NotificationSearchFormComponent implements OnInit {
  this.commonService.getallCountries().subscribe({
   next: (data) => {
     this.countries = [...data]
-    if(this.claimantResidentCountry.length > 0)
-     {
+    if (this.claimantResidentCountry.length > 0) {
        
+      this.claimantResidentCountry.forEach(country => {
+        const found = this.countries?.find(x => x?.key == country.key);
         this.countriesComboboxData.push({
-          key: this.claimantResidentCountry,
-          value: this.countries?.find(x => x?.key == this.claimantResidentCountry)?.value ?? '',
-        })         
-        this.notificationSearch.frmSrchCountry = this.countriesComboboxData;
-        if (this.prevSelectedCountries.length === 0) {
+          key: country.key,
+          value: found?.value ?? '',
+        });
+      });   
+      
+      this.notificationSearch.frmSrchCountry = this.countriesComboboxData;
+      if (this.prevSelectedCountries.length === 0) {
 
           this.prevSelectedCountries = this.countriesComboboxData?.map(x => Object.assign({}, x)).filter((y) => y !== undefined) ?? [];
-        }
       }
+    }
 
-      const indexUSA = this.countriesComboboxData?.findIndex(x => x.key.trim() === 'USA');
-      if (indexUSA > -1) {
+    const indexUSA = this.countriesComboboxData?.findIndex(x => x.key.trim() === 'USA');
+    if (indexUSA > -1) {
         this.isUSAExist = true;
       }
       else {
@@ -116,10 +125,9 @@ export class NotificationSearchFormComponent implements OnInit {
 this.commonService.getUsStates().subscribe({
   next: (data) => {
     this.states = [...data]
-    if(this.claimantResidentState.length > 0 && this.claimantResidentCountry ==='USA')
-      {
-        this.notificationSearch.frmSrchState =[{ key: this.claimantResidentState, value: this.claimantResidentState }]
-        this.prevSelectedStates = [{ key: this.claimantResidentState, value: this.claimantResidentState }]
+    if (this.claimantResidentState.length > 0 && this.claimantResidentCountry.findIndex(x => x.key.trim() === 'USA') > -1) {
+        this.notificationSearch.frmSrchState =[...this.claimantResidentState.map(state => ({ key: state.key, value: state.value }))]
+        this.prevSelectedStates = [...this.claimantResidentState.map(state => ({ key: state.key, value: state.value }))];
       }
   },
   error: (error: HttpErrorResponse) => {
@@ -131,9 +139,8 @@ this.commonService.getUsStates().subscribe({
       this.notificationSearch.mappedEvents = true;
     }
 
-    if(this.claimantResidentState.length > 0)
-    {
-      this.notificationSearch.frmSrchState =[{ key: this.claimantResidentState, value: this.claimantResidentState }]
+    if (this.claimantResidentState.length > 0) {
+      this.notificationSearch.frmSrchState = [...this.claimantResidentState.map(state => ({ key: state.key, value: state.value }))]
     }    
       this.countryChanged();
   }
@@ -174,7 +181,7 @@ this.commonService.getUsStates().subscribe({
     if (!values || (values && values.length < this.prevSelectedCountries.length)) {
       const selectedcountries = JSON.parse(JSON.stringify(this.prevSelectedCountries));
       this.notificationSearch.frmSrchCountry = selectedcountries;
-      values =selectedcountries
+      values = selectedcountries
     }
     this.isUSAExist = false;
     if (values && values.length) {
@@ -201,8 +208,7 @@ this.commonService.getUsStates().subscribe({
       if (isExist) {
         const ariaLabel = `[aria-label="Delete selected option ${selected}"]`
         let element = document.querySelector(ariaLabel);
-        if (element)
-        {
+        if (element) {
           (element as any).hidden = true;
         }
 
@@ -217,8 +223,7 @@ this.commonService.getUsStates().subscribe({
       if (isExist) {
         const ariaLabel = `[aria-label="Delete selected option ${selected}"]`
         let element = document.querySelector(ariaLabel);
-        if (element)
-          {
+        if (element) {
             (element as any).hidden = true;
           }
   
@@ -229,7 +234,7 @@ this.commonService.getUsStates().subscribe({
 
   // Handle form submit
   onSubmit(_form: any) {
-    this.onFormUpdate.emit({ form: _form.value, type: 'save' })
+    this.onFormUpdate.emit({ form: _form.value, type: 'save' }) 
   }
 
   //  search form 
@@ -246,15 +251,15 @@ this.commonService.getUsStates().subscribe({
     this.notificationSearch = { ...this.initialFormValue };
    
     this.notificationSearch.frmSrchState = [];
-    this.notificationSearch.frmSrchState = [{ key: this.claimantResidentState, value: this.claimantResidentState }]
-    const frmSrchCountryControl:FormControl = _form.form.get('frmSrchCountry') as FormControl;
+    this.notificationSearch.frmSrchState = [...this.claimantResidentState.map(state => ({ key: state.key, value: state.value }))]
+    const frmSrchCountryControl: FormControl = _form.form.get('frmSrchCountry') as FormControl;
     frmSrchCountryControl.setValue([...this.prevSelectedCountries]);
 
     
     const isExist = this.prevSelectedCountries.find(it => it.key.trim() === 'USA');
-    if (isExist){
-    const frmSrchStateControl:FormControl = _form.form.get('frmSrchState') as FormControl;
-    frmSrchStateControl.setValue([{ key: this.claimantResidentState, value: this.claimantResidentState }]);
+    if (isExist) {
+    const frmSrchStateControl: FormControl = _form.form.get('frmSrchState') as FormControl;
+    frmSrchStateControl.setValue([...this.claimantResidentState.map(state => ({ key: state.key, value: state.value }))]);
   }
 
     _form.form.markAsPristine();
@@ -263,20 +268,70 @@ this.commonService.getUsStates().subscribe({
     this.onFormUpdate.emit({ form: _form.value, type: 'reset' })
   }
 
-  onmappedEventsBox(_form: any) {   
+  onmappedEventsBox(_form: any) {
+    this.countryStateChange();
     if (this.notificationSearch.mappedEvents) {
       this.notificationSearch.startDate = '';
       this.notificationSearch.endDate = '';
       this.notificationSearch.location = '';
-      this.notificationSearch.frmSrchCountry =[];
-      this.notificationSearch.frmSrchState =[];
-      this.onFormUpdate.emit({ form: _form.value, type: 'search' })
-    }
-    else {
+      this.onFormUpdate.emit({ form: _form.value, type: 'search' });
+    } else {
       this.onReset(_form);
     }
-  }
-
+  }  
+  
+  countryStateChange(){
+    this.claimantsWeatherAlertsService.getClaimantInfo(this.claimantId, this.caseId, this.notificationSearch.mappedEvents).subscribe({
+      next: (result: any) => {
+        this.caseDetails = result;
+        this.countriesComboboxData = [];
+        this.states = [];
+        this.claimantResidentCountry = [];
+  
+        if (this.caseDetails.country) {
+          this.claimantResidentCountry.push({ key: this.caseDetails.country, value: this.caseDetails.country });
+        }
+  
+        this.caseDetails.mappedCountries?.forEach((country: string) => {
+          if (!this.claimantResidentCountry.some(c => c.key === country)) {
+            this.claimantResidentCountry.push({ key: country, value: country });
+          }
+        });
+  
+        this.claimantResidentCountry.forEach(country => {
+          const found = this.countries?.find(x => x?.key == country.key);
+          this.countriesComboboxData.push({
+            key: country.key,
+            value: found?.value ?? '',
+          });
+        });                   
+        this.notificationSearch.frmSrchCountry = [...this.countriesComboboxData];
+        this.prevSelectedCountries = [...this.countriesComboboxData];
+  
+        if (this.countriesComboboxData.find(c => c.key === 'USA')) {
+          if (this.caseDetails.country === 'USA' && this.caseDetails.state) {
+            this.states.push({ key: this.caseDetails.state, value: this.caseDetails.state });
+          }
+  
+          this.caseDetails.mappedStates?.forEach((state: string) => {
+            if (!this.states.some(s => s.key === state)) {
+              this.states.push({ key: state, value: state });
+            }
+          });
+  
+          this.notificationSearch.frmSrchState = [...this.states];
+          this.prevSelectedStates = [...this.states];
+        } else {
+          this.notificationSearch.frmSrchState = [];
+        }
+  
+        this.isUSAExist = this.countriesComboboxData.some(c => c.key.trim() === 'USA');          
+      },
+      error: (error: HttpErrorResponse) => {
+        this.handleError(error);
+      }
+    });
+}
   // Trigger the close event, it can be redirect also
 
   closeForm() {
