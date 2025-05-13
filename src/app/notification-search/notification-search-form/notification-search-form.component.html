@@ -1,190 +1,196 @@
-import { of } from 'rxjs';
-import { fakeAsync, tick } from '@angular/core/testing';
-
-it('should fetch claimant info and update states and countries in countryStateChange', fakeAsync(() => {
-  const mockClaimantInfo = {
-    country: 'USA',
-    state: 'CA',
-    mappedCountries: ['CAN', 'MEX'],
-    mappedStates: ['TX', 'NY'],
-  };
-
-  const mockResponse = [mockClaimantInfo];
-
-  // Ensure the method returns the correct type (array)
-  spyOn(component['claimantsWeatherAlertsService'], 'getClaimantInfo').and.returnValue(of(mockResponse));
-
-  // Required mock setup for notificationSearch
-  component.notificationSearch = {
-    frmSrchCountry: [],
-    frmSrchState: []
-  };
-
-  // Run the method
-  component.countryStateChange();
-  tick(); // Let async code run
-
-  // Assertions
-  expect(component.caseDetails).toEqual(mockClaimantInfo);
-
-  expect(component.countriesComboboxData).toEqual([
-    { key: 'USA', value: 'USA' },
-    { key: 'CAN', value: '' },
-    { key: 'MEX', value: '' },
-  ]);
-
-  expect(component.states).toEqual([
-    { key: 'CA', value: 'CA' },
-    { key: 'TX', value: 'TX' },
-    { key: 'NY', value: 'NY' },
-  ]);
-
-  expect(component.notificationSearch.frmSrchState).toEqual([
-    { key: 'CA', value: 'CA' },
-    { key: 'TX', value: 'TX' },
-    { key: 'NY', value: 'NY' },
-  ]);
-}));
-
-
-it('should set errors when start date is after end date in validateDates', () => {
-  const form = {
-    controls: {
-      startDatepickrnm: { setErrors: jasmine.createSpy('setErrors') },
-      endDatepickrnm: { setErrors: jasmine.createSpy('setErrors') },
-    },
-  } as unknown as NgForm;
-
-  // Set start date and end date where start date is after end date
-  component.notificationSearch.startDate = '12/31/2022';
-  component.notificationSearch.endDate = '01/01/2022';
-
-  // Call the validateDates method
-  component.validateDates(form, 'startDate');
-
-  // Check the final error messages
-  expect(component.startDateErrorMsgs).toBe('Start Date must be less than End Date!');
-  expect(component.endDateErrorMsgs).toBe('End Date must be greater than Start Date!');
-
-  // Verify that setErrors was called with the expected arguments
-  expect(form.controls['startDatepickrnm'].setErrors).toHaveBeenCalledWith({ invalidDate: true });
-  expect(form.controls['endDatepickrnm'].setErrors).toHaveBeenCalledWith({ invalidDate: true });
-});
-
-
-// Test to ensure handleError displays a generic error message for unhandled status codes
-it('should display a generic error message for unhandled status codes in handleError', () => {
-  const mockError = { status: 400, error: 'Bad Request' } as HttpErrorResponse;
-  spyOn(component['alertService'], 'show');
-  
-  component.handleError(mockError);
-
-  expect(component['alertService'].show).toHaveBeenCalledWith({
-    message: 'Bad Request',
-    clrAlertType: IAlertType.DANGER,
-  });
-});
-
-// Test to ensure reset functionality clears all form values as expected
-it('should reset form values to initial state on reset', () => {
-  const form = {
-    form: {
-      get: jasmine.createSpy('get').and.callFake((controlName: string) => ({
-        setValue: jasmine.createSpy('setValue'),
-      })),
-      markAsPristine: jasmine.createSpy('markAsPristine'),
-      markAsUntouched: jasmine.createSpy('markAsUntouched'),
-      updateValueAndValidity: jasmine.createSpy('updateValueAndValidity'),
-    },
-    value: { ...component.notificationSearch },
-  } as unknown as NgForm;
-
-  component.notificationSearch = { startDate: '01/01/2022', endDate: '12/31/2022', location: 'Test' };
-  component.onReset(form);
-
-  expect(component.notificationSearch).toEqual(component.initialFormValue);
-  expect(form.form.markAsPristine).toHaveBeenCalled();
-  expect(form.form.markAsUntouched).toHaveBeenCalled();
-  expect(form.form.updateValueAndValidity).toHaveBeenCalled();
-});
-
-
-
-
-////
-
-
-import { of } from 'rxjs';
-import { fakeAsync, tick } from '@angular/core/testing';
-
-describe('NotificationSearchFormComponent', () => {
-
-  // --- Setup your initial component and mock data ---
-  let component: NotificationSearchFormComponent;
+describe('countryStateChange', () => {
+  let mockClaimantsWeatherAlertsService: any;
 
   beforeEach(() => {
-    // Initialize component and set up mocks here
-    component = new NotificationSearchFormComponent();
-    component.states = [
-      { key: 'CA', value: 'California' },
-      { key: 'TX', value: 'Texas' },
-      { key: 'NY', value: 'New York' },
-    ];
+    // Create a mock service
+    mockClaimantsWeatherAlertsService = {
+      getClaimantInfo: jasmine.createSpy('getClaimantInfo').and.returnValue(
+        of({
+          country: 'USA',
+          state: 'CA',
+          mappedCountries: ['USA', 'CAN'],
+          mappedStates: ['CA', 'TX']
+        })
+      )
+    };
+
+    // Provide the mock service
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: 'ClaimantsWeatherAlertsService',
+          useValue: mockClaimantsWeatherAlertsService
+        }
+      ]
+    });
+
+    component.claimantId = 'testClaimant';
+    component.caseId = 'testCase';
+    component.notificationSearch = {
+      mappedEvents: false,
+      frmSrchCountry: [],
+      frmSrchState: []
+    };
     component.countries = [
       { key: 'USA', value: 'United States' },
-      { key: 'CAN', value: 'Canada' },
-      { key: 'MEX', value: 'Mexico' },
+      { key: 'CAN', value: 'Canada' }
     ];
   });
 
-  // --- Test for getAvailableStates ---
-  it('should return all states when frmSrchState is empty', () => {
-    component.notificationSearch.frmSrchState = [];
-    const availableStates = component.getAvailableStates();
-    
-    expect(availableStates).toEqual([
-      { key: 'CA', value: 'California' },
-      { key: 'TX', value: 'Texas' },
-      { key: 'NY', value: 'New York' }
+  it('should call getClaimantInfo with correct parameters', () => {
+    component.countryStateChange();
+    expect(mockClaimantsWeatherAlertsService.getClaimantInfo).toHaveBeenCalledWith(
+      'testClaimant',
+      'testCase',
+      false
+    );
+  });
+
+  it('should update caseDetails with the response data', () => {
+    component.countryStateChange();
+    expect(component.caseDetails).toEqual({
+      country: 'USA',
+      state: 'CA',
+      mappedCountries: ['USA', 'CAN'],
+      mappedStates: ['CA', 'TX']
+    });
+  });
+
+  it('should update claimantResidentCountry with case country and mapped countries', () => {
+    component.countryStateChange();
+    expect(component.claimantResidentCountry).toEqual([
+      { key: 'USA', value: 'USA' },
+      { key: 'CAN', value: 'CAN' }
     ]);
   });
 
-  it('should filter out selected states from frmSrchState', () => {
-    component.notificationSearch.frmSrchState = [
-      { key: 'CA', value: 'California' }
-    ];
-
-    const availableStates = component.getAvailableStates();
-    
-    expect(availableStates).toEqual([
-      { key: 'TX', value: 'Texas' },
-      { key: 'NY', value: 'New York' }
-    ]);
-  });
-
-  // --- Test for getAvailableCountries ---
-  it('should return all countries when frmSrchCountry is empty', () => {
-    component.notificationSearch.frmSrchCountry = [];
-    const availableCountries = component.getAvailableCountries();
-    
-    expect(availableCountries).toEqual([
+  it('should update countriesComboboxData with country values', () => {
+    component.countryStateChange();
+    expect(component.countriesComboboxData).toEqual([
       { key: 'USA', value: 'United States' },
-      { key: 'CAN', value: 'Canada' },
-      { key: 'MEX', value: 'Mexico' }
+      { key: 'CAN', value: 'Canada' }
     ]);
   });
 
-  it('should filter out selected countries from frmSrchCountry', () => {
-    component.notificationSearch.frmSrchCountry = [
-      { key: 'USA', value: 'United States' }
-    ];
+  it('should update notificationSearch.frmSrchCountry with countriesComboboxData', () => {
+    component.countryStateChange();
+    expect(component.notificationSearch.frmSrchCountry).toEqual([
+      { key: 'USA', value: 'United States' },
+      { key: 'CAN', value: 'Canada' }
+    ]);
+  });
 
-    const availableCountries = component.getAvailableCountries();
+  it('should update states when country is USA', () => {
+    component.countryStateChange();
+    expect(component.states).toEqual([
+      { key: 'CA', value: 'CA' },
+      { key: 'TX', value: 'TX' }
+    ]);
+  });
+
+  it('should update notificationSearch.frmSrchState with states when country is USA', () => {
+    component.countryStateChange();
+    expect(component.notificationSearch.frmSrchState).toEqual([
+      { key: 'CA', value: 'CA' },
+      { key: 'TX', value: 'TX' }
+    ]);
+  });
+
+  it('should set isUSAExist to true when USA is in countriesComboboxData', () => {
+    component.countryStateChange();
+    expect(component.isUSAExist).toBeTrue();
+  });
+
+  it('should not update states when country is not USA', () => {
+    mockClaimantsWeatherAlertsService.getClaimantInfo.and.returnValue(
+      of({
+        country: 'CAN',
+        mappedCountries: ['CAN'],
+        mappedStates: []
+      })
+    );
+    component.countryStateChange();
+    expect(component.states).toEqual([]);
+    expect(component.notificationSearch.frmSrchState).toEqual([]);
+    expect(component.isUSAExist).toBeFalse();
+  });
+
+  it('should handle error response', () => {
+    const errorResponse = new HttpErrorResponse({
+      error: 'test 404 error',
+      status: 404,
+      statusText: 'Not Found'
+    });
     
-    expect(availableCountries).toEqual([
-      { key: 'CAN', value: 'Canada' },
-      { key: 'MEX', value: 'Mexico' }
+    mockClaimantsWeatherAlertsService.getClaimantInfo.and.returnValue(
+      throwError(() => errorResponse)
+    );
+    
+    spyOn(component, 'handleError');
+    component.countryStateChange();
+    
+    expect(component.handleError).toHaveBeenCalledWith(errorResponse);
+  });
+
+  it('should not add duplicate countries to claimantResidentCountry', () => {
+    mockClaimantsWeatherAlertsService.getClaimantInfo.and.returnValue(
+      of({
+        country: 'USA',
+        mappedCountries: ['USA'], // duplicate
+        mappedStates: []
+      })
+    );
+    
+    component.countryStateChange();
+    expect(component.claimantResidentCountry).toEqual([
+      { key: 'USA', value: 'USA' }
     ]);
   });
-  
+
+  it('should not add duplicate states', () => {
+    mockClaimantsWeatherAlertsService.getClaimantInfo.and.returnValue(
+      of({
+        country: 'USA',
+        state: 'CA',
+        mappedCountries: ['USA'],
+        mappedStates: ['CA'] // duplicate
+      })
+    );
+    
+    component.countryStateChange();
+    expect(component.states).toEqual([
+      { key: 'CA', value: 'CA' }
+    ]);
+  });
+
+  it('should handle empty mappedCountries', () => {
+    mockClaimantsWeatherAlertsService.getClaimantInfo.and.returnValue(
+      of({
+        country: 'USA',
+        mappedCountries: null,
+        mappedStates: []
+      })
+    );
+    
+    component.countryStateChange();
+    expect(component.claimantResidentCountry).toEqual([
+      { key: 'USA', value: 'USA' }
+    ]);
+  });
+
+  it('should handle empty mappedStates', () => {
+    mockClaimantsWeatherAlertsService.getClaimantInfo.and.returnValue(
+      of({
+        country: 'USA',
+        state: 'CA',
+        mappedCountries: ['USA'],
+        mappedStates: null
+      })
+    );
+    
+    component.countryStateChange();
+    expect(component.states).toEqual([
+      { key: 'CA', value: 'CA' }
+    ]);
+  });
 });
