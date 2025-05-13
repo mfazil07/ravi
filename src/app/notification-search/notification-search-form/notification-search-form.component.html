@@ -39,7 +39,6 @@ it('should fetch claimant info and update states and countries in countryStateCh
   ]);
 });
 
-// Test to ensure validateDates handles start date after end date correctly
 it('should set errors when start date is after end date in validateDates', () => {
   const form = {
     controls: {
@@ -48,16 +47,22 @@ it('should set errors when start date is after end date in validateDates', () =>
     },
   } as unknown as NgForm;
 
+  // Mock the start and end dates
   component.notificationSearch.startDate = '12/31/2022';
   component.notificationSearch.endDate = '01/01/2022';
 
+  // Call the method
   component.validateDates(form, 'startDate');
 
+  // Expected behavior
   expect(form.controls['startDatepickrnm'].setErrors).toHaveBeenCalledWith({ invalidDate: true });
-  expect(component.startDateErrorMsgs).toBe('Start Date must be less than End Date!');
   expect(form.controls['endDatepickrnm'].setErrors).toHaveBeenCalledWith({ invalidDate: true });
+
+  // Verify the error messages
+  expect(component.startDateErrorMsgs).toBe('Start Date must be less than End Date!');
   expect(component.endDateErrorMsgs).toBe('End Date must be greater than Start Date!');
 });
+
 
 // Test to ensure handleError displays a generic error message for unhandled status codes
 it('should display a generic error message for unhandled status codes in handleError', () => {
