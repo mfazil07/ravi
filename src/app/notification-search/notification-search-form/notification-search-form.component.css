@@ -1,34 +1,25 @@
 NotificationSearchFormComponent > should fetch claimant info and update states and countries in countryStateChange
 Expected [ Object({ country: 'USA', state: 'CA', mappedCountries: [ 'CAN', 'MEX' ], mappedStates: [ 'TX', 'NY' ] }) ] to equal Object({ country: 'USA', state: 'CA', mappedCountries: [ 'CAN', 'MEX' ], mappedStates: [ 'TX', 'NY' ] }).
     at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:555:33)
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:566:33)
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:1698:26)
     at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
     at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-Expected $.length = 0 to equal 3.
-Expected $[0] = undefined to equal Object({ key: 'USA', value: 'USA' }).
-Expected $[1] = undefined to equal Object({ key: 'CAN', value: '' }).
-Expected $[2] = undefined to equal Object({ key: 'MEX', value: '' }).
+Expected [  ] to equal <jasmine.arrayContaining([ 'USA', 'CAN', 'MEX' ])>.
     at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:556:43)
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:569:43)
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:1698:26)
     at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
     at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-Expected $.length = 0 to equal 3.
-Expected $[0] = undefined to equal Object({ key: 'CA', value: 'CA' }).
-Expected $[1] = undefined to equal Object({ key: 'TX', value: 'TX' }).
-Expected $[2] = undefined to equal Object({ key: 'NY', value: 'NY' }).
+Expected [  ] to equal <jasmine.arrayContaining([ 'CA', 'TX', 'NY' ])>.
     at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:561:28)
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:570:28)
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:1698:26)
     at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
     at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-Expected $.length = 0 to equal 3.
-Expected $[0] = undefined to equal Object({ key: 'CA', value: 'CA' }).
-Expected $[1] = undefined to equal Object({ key: 'TX', value: 'TX' }).
-Expected $[2] = undefined to equal Object({ key: 'NY', value: 'NY' }).
+Expected [  ] to equal <jasmine.arrayContaining([ 'CA', 'TX', 'NY' ])>.
     at <Jasmine>
-    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:566:53)
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:571:53)
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:1698:26)
     at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
     at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
