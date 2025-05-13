@@ -1,49 +1,47 @@
 // Test to ensure that countryChanged updates isUSAExist correctly
 import { of } from 'rxjs';
 import { fakeAsync, tick } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { fakeAsync, tick } from '@angular/core/testing';
+
 it('should fetch claimant info and update states and countries in countryStateChange', fakeAsync(() => {
-  const mockResponse = {
+  const mockClaimant = {
     country: 'USA',
     state: 'CA',
     mappedCountries: ['CAN', 'MEX'],
     mappedStates: ['TX', 'NY'],
   };
 
-  // Match expected return type: Observable<CaseWithAppointment[]>
-  spyOn(component['claimantsWeatherAlertsService'], 'getClaimantInfo')
-    .and.returnValue(of([mockResponse]));
+  // This is the expected return type: an array of claimants
+  const mockResponse = [mockClaimant];
 
-  // Prepare any required state
+  spyOn(component['claimantsWeatherAlertsService'], 'getClaimantInfo').and.returnValue(of(mockResponse));
+
+  // Set up required structure on component
   component.notificationSearch = {
     frmSrchCountry: [],
     frmSrchState: []
   };
 
-  // Ensure any required lifecycle init is called
-  if (component.ngOnInit) component.ngOnInit();
-
-  // Call method and simulate async passage
   component.countryStateChange();
-  tick(); // Wait for async Observable
+  tick(); // Simulate async passage
 
-  // Assert main object
-  expect(component.caseDetails).toEqual(mockResponse);
+  // ✅ EXPECTATIONS
+  // The component is using the first item in the array
+  expect(component.caseDetails).toEqual(mockClaimant);
 
-  // Assert country combo box
   expect(component.countriesComboboxData).toEqual([
     { key: 'USA', value: 'USA' },
     { key: 'CAN', value: '' },
     { key: 'MEX', value: '' },
   ]);
 
-  // Assert states
   expect(component.states).toEqual([
     { key: 'CA', value: 'CA' },
     { key: 'TX', value: 'TX' },
     { key: 'NY', value: 'NY' },
   ]);
 
-  // Assert form states
   expect(component.notificationSearch.frmSrchState).toEqual([
     { key: 'CA', value: 'CA' },
     { key: 'TX', value: 'TX' },
