@@ -1,680 +1,549 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
-import { SearchComponent } from '../search/search.component';
-import { FormsModule, NgModel } from '@angular/forms';
-import { ClrComboboxModule, ClrDatagridModule, ClrDatalistModule, ClrDataModule, ClrDatepickerModule, ClrInputModule, ClrModalModule } from '@clr/angular';
-import { AddeventComponent } from '../addevent/addevent.component';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonService } from '../services/common.service';
-import { of } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { formatDate } from '@angular/common';
+import { ChangeDetectionStrategy, Component, ElementRef, Renderer2, HostListener, Input, OnInit, ViewChild } from '@angular/core';
+import { WeatherEvent, WeatherEventRequest, KeyValueObject, CountrySaveRequest } from '../dtos/dtos';
+import { NgForm, NgModel } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AlertService, IAlertType } from '../services/alert.service';
+import { formatDate } from '@angular/common';
+import { SearchComponent } from '../search/search.component';
+import { ConfirmDialogService } from '../services/confirm-dialog.service';
 
-describe('AddeventComponent', () => {
-  let component: AddeventComponent;
-  let fixture: ComponentFixture<AddeventComponent>;
-  let commonService: jasmine.SpyObj<CommonService>;
-  let alertService: jasmine.SpyObj<AlertService>;
 
-  const activatedRouteMock = {
-    queryParams: of({ userName: 'RBALANZ' }),
-  };
+@Component({
+  selector: 'app-addevent',
+  templateUrl: './addevent.component.html',
+  styleUrl: './addevent.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class AddeventComponent implements OnInit {
 
-  beforeEach(async () => {
-    const commonServiceSpy = jasmine.createSpyObj('CommonService', [
-      'getUserAuthorization',
-      'getallCountries',
-      'getUsStates',
-      'getAllWeatherTypes',
-      'addWeatherEvent',
-    ]);
+  @ViewChild('weatheraddform') weatheraddform!: NgForm;
+  @ViewChild('addEventCountryComboBox', { static: false }) addEventCountryComboBoxRef!: ElementRef;
+  @ViewChild('addEventStateComboBox', { static: false }) addEventStateComboBoxRef!: ElementRef;
 
-    const alertServiceSpy = jasmine.createSpyObj('AlertService', ['show']);
-    const searchComponentSpy = jasmine.createSpyObj('SearchComponent', ['refreshWeatherEvents']);
-    const formSpy = jasmine.createSpyObj('form', ['get', 'enable']);
+  @Input() set formData(value: any) {
 
-    await TestBed.configureTestingModule({
-      declarations: [SearchComponent, AddeventComponent],
-      imports: [
-        HttpClientModule,
-        FormsModule,
-        ClrComboboxModule,
-        ClrDatalistModule,
-        ClrDatepickerModule,
-        ClrInputModule,
-        ClrDatagridModule,
-        ClrDataModule,
-        ClrModalModule,
-        HttpClientTestingModule,
-      ],
-      providers: [
-        { provide: CommonService, useValue: commonServiceSpy },
-        { provide: AlertService, useValue: alertServiceSpy },
-        { provide: ActivatedRoute, useValue: activatedRouteMock },
-        { provide: SearchComponent, useValue: searchComponentSpy },
-      ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    }).compileComponents();
+    this.prevSelectedStates = [];
+    this.prevSelectedCountries = [];
+    if (value) {
+      let countriesValue: CountrySaveRequest[] = value?.countries;
+      this.unsavedChanges = false;
+      this.eventType = 'Edit '
 
-    fixture = TestBed.createComponent(AddeventComponent);
+      let statesComboboxData: KeyValueObject[] | undefined = countriesValue?.find(x => x?.country.trim() === 'USA')?.usStates.map((item: any) => ({
+        key: item,
+        value: item,
+      }));
 
-    component = fixture.componentInstance;
-    component.addEventCountryComboBoxRef = {
-      nativeElement: {
-        querySelector: jasmine.createSpy('querySelector').and.returnValue(null)
+
+      let countriesComboboxData: KeyValueObject[] | undefined = countriesValue.map((item: any) => ({
+        key: item.country.trim(),
+        value: this.countries?.find(x => x?.key == item.country)?.value ?? '',
+      })).filter((y) => y !== undefined) ?? [];
+
+      this.weatherAdd = {
+        frmVaCode: value.vA_WeatherEvent_Code,
+        frmWeatherEvent: value.name,
+        frmReasons: value.weather_Reason_Code,
+        frmOtherDescription: value.reason,
+        frmCountry: countriesComboboxData,
+        frmState: statesComboboxData,
+        frmLocation: value.location,
+        frmStartDate: formatDate(new Date(value.startDate), 'yyyy-MM-dd', 'EN-US'),
+        frmEndDate: formatDate(new Date(value.endDate), 'yyyy-MM-dd', 'EN-US'),
+        frmDescription: value.description,
+        frmWeatherAlertId: value.weather_Event_Id,
+        isMapped: value.isMapped !== undefined ? value.isMapped : 0,
+        eventStatus: value.eventStatus,
       }
-    } as any;
+      this.initialValues = JSON.parse(JSON.stringify(this.weatherAdd));
 
-    component.addEventStateComboBoxRef = {
-      nativeElement: {
-        querySelector: jasmine.createSpy('querySelector').and.returnValue(null)
+      if (this.prevSelectedStates.length === 0 && this.weatherAdd.isMapped) {
+        this.prevSelectedStates = statesComboboxData?.map(x => Object.assign({}, x)).filter((y) => y !== undefined) ?? [];
       }
-    } as any;
-    commonService = TestBed.inject(CommonService) as jasmine.SpyObj<CommonService>;
-    alertService = TestBed.inject(AlertService) as jasmine.SpyObj<AlertService>;
 
-    // Mock the service methods
-    commonService.getallCountries.and.returnValue(
-      of([
-        { countryCode: 'US', countryName: 'United States', key: 'USA', value: 'United States' },
-        { countryCode: 'CA', countryName: 'Canada', key: 'Canada', value: 'Canada' },
-      ])
-    );
+      if (this.prevSelectedCountries.length === 0 && this.weatherAdd.isMapped) {
 
-    commonService.getUsStates.and.returnValue(
-      of([
-        { countryCode: 'CA', countryName: 'California', key: 'California', value: 'CA' },
-        { countryCode: 'TX', countryName: 'Texas', key: 'Texas', value: 'TX' },
-      ])
-    );
+        this.prevSelectedCountries = countriesComboboxData?.map(x => Object.assign({}, x)).filter((y) => y !== undefined) ?? [];
+      }
 
-    commonService.getAllWeatherTypes.and.returnValue(
-      of([{ weatherTypeCode: 'HURR', weatherName: 'Hurricane', key: 'Hurricane', value: 'Hurricane' }])
-    );
+      const indexUSA = countriesComboboxData?.findIndex(x => x.key.trim() === 'USA');
+      if (indexUSA > -1) {
+        this.isUSAExist = true;
+      }
+      else {
+        this.isUSAExist = false;
+      }
 
-    component.weatheraddform = { form: formSpy } as any;
+      if (this.weatherAdd.isMapped) {
+        this.disableFields();
+      }
+      else {
+        this.enableFields();
+      }
+      this.minEndDate = this.todayDate;
+      this.minStartDate = this.todayDate;
+      this.maxStartDate = '';
 
-    fixture.detectChanges();
-  });
+      if (this.eventType === 'Edit ' && this.weatherAdd.isMapped) {
+        this.weatheraddform.form.get('frmStartDate')?.enable();
+        let resultStartDate = new Date(value.startDate);
+        let resultEndDate = new Date(value.endDate);
 
-  it('should create Add Event component', () => {
-    expect(component).toBeTruthy();
-  });
+        if (this.weatherAdd.eventStatus === 'Past') {
+          this.weatheraddform.form.get('frmStartDate')?.disable();
+          resultStartDate.setDate(resultEndDate.getDate());
+          this.minEndDate = formatDate(resultEndDate, 'yyyy-MM-dd', 'EN-US');
+        }
+        else if (this.weatherAdd.eventStatus === 'Upcoming' || this.weatherAdd.eventStatus === 'Ongoing') {
+          resultStartDate.setDate(resultStartDate.getDate());
+          this.maxStartDate = formatDate(resultStartDate, 'yyyy-MM-dd', 'EN-US');
+          resultEndDate.setDate(resultEndDate.getDate());
+          this.minEndDate = formatDate(resultEndDate, 'yyyy-MM-dd', 'EN-US');
+          this.minStartDate = '';
+        }
+      }
 
-  it('should initialize properties and reset form when mode is "add"', () => {
-    component.weatherAdd = { frmWeatherAlertId: 123 };
-    component.todayDate = '2023-10-01';
-    spyOn(component, 'enableFields');
+    } else {
+      this.eventType = 'New ';
+    }
+  }
 
-    component.openModal('add');
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscape(event: KeyboardEvent) {
+    // Custom logic when Escape key is pressed
+    this.open = false;
+  }
 
-    expect(component.open).toBeTrue();
-    expect(component.eventType).toBe('Add');
-    expect(component.weatherAdd.frmWeatherAlertId).toBe(0);
-    expect(component.enableFields).toHaveBeenCalled();
-  });
+  apiResponse: any;
+  weatherEventRequest: any = { frmCountry: "", frmReasons: "" };
+  states: KeyValueObject[] = [];
+  weatherTypes: KeyValueObject[] = [];
+  eventType: string = 'New ';
+  countries: KeyValueObject[] = [];
+  input: any;
+  weatherEvent = {} as WeatherEvent;
+  open: boolean = false;
+  weatherAdd: any;
+  request = {} as WeatherEventRequest;
+  isOtherDescriptionRequired: boolean = false;
+  isStateDisabled: boolean = false;
+  isOtherDisabled: boolean = false;
+  todayDate: string = '';
+  minEndDate: string = '';
+  minStartDate: string = '';
+  maxStartDate: string = '';
+  prevSelectedStates: KeyValueObject[] = [];
+  prevSelectedCountries: KeyValueObject[] = [];
+  unsavedChanges: boolean = false;
+  initialValues: any = {};
+  isUSAExist = false;
 
-  it('should disable specific form controls and set isOtherDisabled to true when disableFields is called', () => {
-    component.weatheraddform = {
-      form: {
-        get: (field: string) => ({ disabled: false, enable: () => { }, disable: () => { } }),
+  constructor(private readonly commonService: CommonService,
+    private readonly confirmDialogService: ConfirmDialogService,
+    private readonly alertService: AlertService,
+    private readonly searchcomponent: SearchComponent,
+    private readonly renderer: Renderer2) {
+  }
+
+  ngOnInit(): void {
+
+    this.loadWeatherform();
+    this.commonService.getallCountries().subscribe({
+      next: (data) => {
+        this.countries = [...data]
       },
-    } as any;
-
-    component.disableFields();
-
-    expect(component.isOtherDisabled).toBeTrue();
-  });
-
-  it('should enable all form controls and set isOtherDisabled and isStateDisabled to false when enableFields is called', () => {
-    component.weatheraddform = {
-      form: {
-        enable: jasmine.createSpy('enable'),
-        get: (field: string) => ({ disabled: false, enable: () => { }, disable: () => { } }),
-      },
-    } as any;
-
-    component.disableFields();
-    component.enableFields();
-
-    expect(component.isOtherDisabled).toBeFalse();
-    expect(component.isStateDisabled).toBeFalse();
-    expect(component.weatheraddform.form.enable).toHaveBeenCalled();
-  });
-
-  it('should set invalidDate error when frmStartDate is in the past for an Add event', () => {
-    component.weatheraddform = {
-      controls: {
-        frmStartDate: { setErrors: jasmine.createSpy('setErrors') },
-        frmEndDate: { setErrors: jasmine.createSpy('setErrors') },
-      },
-    } as any;
-
-    component.todayDate = formatDate(new Date(), 'yyyy-MM-dd', 'EN-US');
-    const mockNgModel = {
-      value: '2023-01-01',
-      name: 'frmStartDate',
-      control: {
-        markAsTouched: jasmine.createSpy('markAsTouched'),
-        setErrors: jasmine.createSpy('setErrors'),
-      },
-    } as unknown as NgModel;
-
-    component.eventType = 'Add';
-    component.weatherAdd = { frmStartDate: '2023-10-01' };
-
-    component.onDateChange(mockNgModel);
-
-    expect(mockNgModel.control.setErrors).toHaveBeenCalled();
-  });
-
-  it('should set invalidMaxEndDate error when frmStartDate is greater than maxStartDate for an Edit event with Upcoming status', () => {
-    component.weatheraddform = {
-      controls: {
-        frmStartDate: { setErrors: jasmine.createSpy('setErrors') },
-        frmEndDate: { setErrors: jasmine.createSpy('setErrors') },
-      },
-    } as any;
-
-    const mockNgModel = {
-      value: '2023-12-01',
-      name: 'frmStartDate',
-      control: {
-        markAsTouched: jasmine.createSpy('markAsTouched'),
-        setErrors: jasmine.createSpy('setErrors'),
-      },
-    } as unknown as NgModel;
-
-    component.eventType = 'Edit ';
-    component.weatherAdd = {
-      isMapped: true,
-      eventStatus: 'Upcoming',
-      frmStartDate: '2023-11-01',
-      maxStartDate: '2023-11-30',
-    };
-
-    component.onDateChange(mockNgModel);
-
-    expect(mockNgModel.control.setErrors).toHaveBeenCalled();
-  });
-
-  it('should set invalidMinEndDate error when frmEndDate is less than minEndDate', () => {
-    component.weatheraddform = {
-      controls: {
-        frmStartDate: { setErrors: jasmine.createSpy('setErrors') },
-        frmEndDate: { setErrors: jasmine.createSpy('setErrors') },
-      },
-    } as any;
-
-    const mockNgModel = {
-      value: '2023-10-01',
-      name: 'frmEndDate',
-      control: {
-        markAsTouched: jasmine.createSpy('markAsTouched'),
-        setErrors: jasmine.createSpy('setErrors'),
-      },
-    } as unknown as NgModel;
-
-    component.eventType = 'Edit ';
-    component.weatherAdd = {
-      isMapped: true,
-      eventStatus: 'Upcoming',
-      frmEndDate: '2023-10-15',
-      minEndDate: '2023-10-10',
-    };
-
-    component.onDateChange(mockNgModel);
-
-    expect(mockNgModel.control.setErrors).toHaveBeenCalled();
-  });
-
-  it('should set invalidEndDate error when frmEndDate is less than frmStartDate', () => {
-    component.weatheraddform = {
-      controls: {
-        frmStartDate: { setErrors: jasmine.createSpy('setErrors') },
-        frmEndDate: { setErrors: jasmine.createSpy('setErrors') },
-      },
-    } as any;
-
-    const mockNgModel = {
-      value: '2023-10-01',
-      name: 'frmEndDate',
-      control: {
-        markAsTouched: jasmine.createSpy('markAsTouched'),
-        setErrors: jasmine.createSpy('setErrors'),
-      },
-    } as unknown as NgModel;
-
-    component.eventType = 'Edit ';
-    component.weatherAdd = {
-      isMapped: true,
-      eventStatus: 'Upcoming',
-      frmStartDate: '2023-10-05',
-      frmEndDate: '2023-10-15',
-    };
-
-    component.onDateChange(mockNgModel);
-
-    expect(mockNgModel.control.setErrors).toHaveBeenCalled();
-  });
-
-  it('should set invalidStartDate error when frmStartDate is greater than frmEndDate', () => {
-    component.weatheraddform = {
-      controls: {
-        frmStartDate: { setErrors: jasmine.createSpy('setErrors') },
-        frmEndDate: { setErrors: jasmine.createSpy('setErrors') },
-      },
-    } as any;
-
-    const mockNgModel = {
-      value: '2023-10-20',
-      name: 'frmStartDate',
-      control: {
-        markAsTouched: jasmine.createSpy('markAsTouched'),
-        setErrors: jasmine.createSpy('setErrors'),
-      },
-    } as unknown as NgModel;
-
-    component.eventType = 'Edit ';
-    component.weatherAdd = {
-      isMapped: true,
-      eventStatus: 'Upcoming',
-      frmStartDate: '2023-10-15',
-      frmEndDate: '2023-10-10',
-    };
-
-    component.onDateChange(mockNgModel);
-
-    expect(mockNgModel.control.setErrors).toHaveBeenCalled();
-  });
-
-  it('should clear errors when no validation errors are found', () => {
-    component.weatheraddform = {
-      controls: {
-        frmStartDate: { setErrors: jasmine.createSpy('setErrors') },
-        frmEndDate: { setErrors: jasmine.createSpy('setErrors') },
-      },
-    } as any;
-
-    const mockNgModel = {
-      value: '2023-10-15',
-      name: 'frmEndDate',
-      control: {
-        markAsTouched: jasmine.createSpy('markAsTouched'),
-        setErrors: jasmine.createSpy('setErrors'),
-      },
-    } as unknown as NgModel;
-
-    component.eventType = 'Edit ';
-    component.weatherAdd = {
-      isMapped: true,
-      eventStatus: 'Upcoming',
-      frmStartDate: '2023-10-10',
-      frmEndDate: '2023-10-20',
-      minEndDate: '2023-10-10',
-    };
-
-    component.onDateChange(mockNgModel);
-
-    expect(mockNgModel.control.setErrors).toHaveBeenCalled();
-    expect(component.weatheraddform.controls['frmEndDate'].setErrors).toHaveBeenCalled();
-    expect(component.weatheraddform.controls['frmStartDate'].setErrors).toHaveBeenCalled();
-  });
-
-  it('should handle checkCountries logic correctly', () => {
-    component.prevSelectedCountries = [
-      { key: 'USA', value: 'United States' },
-      { key: 'Canada', value: 'Canada' },
-    ];
-
-    const mockValues = [
-      { key: 'USA', value: 'United States' },
-      { key: 'India', value: 'India' },
-    ];
-
-    component.checkCountries(mockValues);
-
-    expect(component.isUSAExist).toBeTrue();
-
-    component.checkCountries(null);
-    expect(component.weatherAdd.frmCountry).toEqual(component.prevSelectedCountries);
-
-    const mockValuesWithoutUSA = [
-      { key: 'Canada', value: 'Canada' },
-      { key: 'India', value: 'India' },
-    ];
-    component.checkCountries(mockValuesWithoutUSA);
-    expect(component.isUSAExist).toBeFalse();
-    expect(component.weatherAdd.frmState).toEqual([]);
-  });
-
-  it('should handle checkStates logic correctly', () => {
-    component.prevSelectedStates = [
-      { key: 'California', value: 'CA' },
-      { key: 'Texas', value: 'TX' },
-    ];
-
-    const mockValues = [{ key: 'California', value: 'CA' }];
-
-    component.checkStates(mockValues);
-    expect(component.weatherAdd.frmState).toEqual(component.prevSelectedStates);
-
-    component.checkStates(null);
-    expect(component.weatherAdd.frmState).toEqual(component.prevSelectedStates);
-  });
-
-  it('should enable disabled fields and submit the form successfully when valid', () => {
-    component.weatheraddform = {
-      control: {
-        markAllAsTouched: jasmine.createSpy('markAllAsTouched'),
-      },
-      form: {
-        get: jasmine.createSpy('get').and.callFake((controlName: string) => ({
-          disabled: true,
-          enable: jasmine.createSpy('enable'),
-        })),
-        enable: jasmine.createSpy('enable'),
-      },
-      valid: true,
-      value: {
-        frmVaCode: 'VA001',
-        frmWeatherEvent: 'Hurricane',
-        frmReasons: 'WRC001',
-        frmOtherDescription: 'High winds',
-        frmCountry: [{ key: 'USA', value: 'United States' }],
-        frmState: [{ key: 'California', value: 'CA' }],
-        frmLocation: 'Florida',
-        frmStartDate: '2023-10-01',
-        frmEndDate: '2023-10-10',
-        frmDescription: 'Severe weather alert',
-      },
-      reset: jasmine.createSpy('reset'),
-    } as any;
-
-    component.weatherAdd = {
-      frmWeatherAlertId: 123,
-      resetForm: jasmine.createSpy('resetForm'),
-    };
-
-
-
-    component.request = {} as any;
-
-    commonService.addWeatherEvent.and.returnValue(of({ success: true }));
-
-    //spyOn(componentSearch, 'onNotify');
-
-    component.onSubmit(component.weatheraddform);
-
-    expect(component.weatheraddform.control.markAllAsTouched).toHaveBeenCalled();
-    expect(component.weatherAdd.resetForm).toHaveBeenCalled();
-  });
-
-  it('should return "disabled" if country is already selected in getCountryClass', () => {
-    component.prevSelectedCountries = [
-      { key: 'United States', value: 'USA' },
-    ];
-
-    // Mock the querySelector to return a dummy element
-    const mockElement = { setAttribute: jasmine.createSpy('setAttribute') };
-    (component.addEventCountryComboBoxRef.nativeElement.querySelector as jasmine.Spy)
-      .and.returnValue(mockElement);
-
-    const result = component.getCountryClass('USA');
-
-    expect(result).toBe('disabled');
-    expect(mockElement.setAttribute).toHaveBeenCalledWith('hidden', 'true');
-  });
-
-  it('should return null if country is not already selected in getCountryClass', () => {
-    component.prevSelectedCountries = [
-      { key: 'Canada', value: 'Canada' },
-    ];
-
-    const result = component.getCountryClass('USA');
-    expect(result).toBeNull();
-  });
-
-  it('should return "disabled" if state is already selected in getClass', () => {
-    component.prevSelectedStates = [
-      { key: 'California', value: 'CA' },
-    ];
-
-    // Mock the querySelector to return a dummy element
-    const mockElement = { setAttribute: jasmine.createSpy('setAttribute') };
-    (component.addEventStateComboBoxRef.nativeElement.querySelector as jasmine.Spy)
-      .and.returnValue(mockElement);
-
-    const result = component.getClass('CA');
-
-    expect(result).toBe('disabled');
-    expect(mockElement.setAttribute).toHaveBeenCalledWith('hidden', 'true');
-  });
-
-  it('should return null if state is not already selected in getClass', () => {
-    component.prevSelectedStates = [
-      { key: 'Texas', value: 'TX' },
-    ];
-
-    const result = component.getClass('California');
-    expect(result).toBeNull();
-  });
-
-  it('should handle formData input correctly', () => {
-    const formData = {
-      vA_WeatherEvent_Code: 'VA001',
-      name: 'Hurricane',
-      weather_Reason_Code: 'WRC001',
-      reason: 'High winds',
-      countries: [
-        { country: 'USA', usStates: ['California'] },
-        { country: 'Canada', usStates: [] },
-      ],
-      location: 'Florida',
-      startDate: '2023-10-01T00:00:00Z',
-      endDate: '2023-10-10T00:00:00Z',
-      description: 'Severe weather alert',
-      weather_Event_Id: 123,
-      isMapped: true,
-      eventStatus: 'Upcoming',
-    };
-
-    component.formData = formData;
-
-    expect(component.weatherAdd).toEqual({
-      frmVaCode: 'VA001',
-      frmWeatherEvent: 'Hurricane',
-      frmReasons: 'WRC001',
-      frmOtherDescription: 'High winds',
-      frmCountry: [
-        { key: 'USA', value: 'United States' },
-        { key: 'Canada', value: 'Canada' },
-      ],
-      frmState: [
-        { key: 'California', value: 'California' },
-      ],
-      frmLocation: 'Florida',
-      frmStartDate: formatDate(new Date('2023-10-01T00:00:00Z'), 'yyyy-MM-dd', 'EN-US'),
-      frmEndDate: formatDate(new Date('2023-10-10T00:00:00Z'), 'yyyy-MM-dd', 'EN-US'),
-      frmDescription: 'Severe weather alert',
-      frmWeatherAlertId: 123,
-      isMapped: true,
-      eventStatus: 'Upcoming',
     });
 
-    expect(component.isUSAExist).toBeTrue();
+    this.commonService.getUsStates().subscribe({
+      next: (data) => {
+        this.states = [...data]
+      },
+    });
 
-    const resultStartDate = new Date(formData.startDate);
-    const resultEndDate = new Date(formData.endDate);
+    this.commonService.getAllWeatherTypes().subscribe({
+      next: (data) => {
+        this.weatherTypes = [...data]
+      },
+    });
 
-    expect(component.maxStartDate).toBe(formatDate(resultStartDate, 'yyyy-MM-dd', 'EN-US'));
-    expect(component.minEndDate).toBe(formatDate(resultEndDate, 'yyyy-MM-dd', 'EN-US'));
-    expect(component.minStartDate).toBe('');
+    const today = new Date();
+    this.todayDate = today.toLocaleDateString('en-CA');
+    this.minStartDate = this.todayDate;
+  }
 
-    spyOn(component, 'disableFields');
-    component.formData = formData;
-    expect(component.disableFields).toHaveBeenCalled();
-  });
+  //method for setting the expiry label
+  eventExpire() {
+    const endDate = new Date(this.weatherAdd.frmEndDate);
+    endDate.setDate(endDate.getDate() + 31);
+    const month = endDate.getMonth() + 1; // Months are 0-indexed
+    const day = endDate.getDate();
+    const year = endDate.getFullYear();
 
-  it('should handle errors correctly in handleError', () => {
-    const errorResponses = [
-      { status: 500, expectedMessage: 'Weather event list not fetched: contact administrator' },
-      { status: 503, expectedMessage: 'Weather event list not fetched: contact administrator' },
-      { status: 401, expectedMessage: 'Unauthorized: You are not authorized to perform this action.' },
-      { status: 400, error: '', expectedMessage: 'Failed to Add weather alert' },
-      { status: 400, error: 'Custom error message', expectedMessage: 'Custom error message' },
-    ];
+    // Format the date as MM/dd/yyyy with slashes
+    return `${month < 10 ? '0' + month : month}/${day < 10 ? '0' + day : day}/${year}`;
+  }
 
-    errorResponses.forEach(errorResponse => {
-      const err = { status: errorResponse.status, error: errorResponse.error } as HttpErrorResponse;
-      alertService.show.calls.reset(); // Reset the spy to avoid "already been spied upon" error
+  //method for disabling fields if mapped
+  disableFields(): void {
+    this.weatheraddform.form.get('frmVaCode')?.disable();
+    this.weatheraddform.form.get('frmReasons')?.disable();
+    this.weatheraddform.form.get('frmOtherDescription')?.disable();
+    //this.weatheraddform.form.get('frmCountry')?.disable();
+    this.isOtherDisabled = true;
+  }
 
-      component.handleError(err);
+  //method for enabling back the disabled fields
+  enableFields(): void {
+    this.isOtherDisabled = false;
+    this.isStateDisabled = false;
+    this.weatheraddform.form.enable();
+  }
 
-      expect(alertService.show).toHaveBeenCalled();
-      expect(alertService.show.calls.mostRecent().args[0]).toEqual({
-        message: errorResponse.expectedMessage,
+  // Method to check if a state is already selected in the form
+  getAvailableStates(): KeyValueObject[] {
+    if (!this.weatherAdd.frmState) return this.states;
+
+    return this.states.filter(state => {
+      return !this.weatherAdd.frmState.some((selectedState: KeyValueObject) => selectedState.key === state.key);
+    });
+  }
+
+
+  // Method to check if a state is already selected in the form
+  getAvailableCountries(): KeyValueObject[] {
+    if (!this.weatherAdd.frmCountry) return this.countries;
+
+    return this.countries.filter(country => {
+      return !this.weatherAdd.frmCountry.some((selectedCountry: KeyValueObject) => selectedCountry.key === country.key);
+    });
+  }
+
+  //method for checking the date's entered
+  onDateChange(Datefield: NgModel) {
+
+    const controlfrmStartDate = this.weatheraddform.controls['frmStartDate'];
+    const controlfrmEndDate = this.weatheraddform.controls['frmEndDate'];
+
+    if (!Datefield?.value) return;
+    const selectedDate = Datefield.value;
+    const currentDate = formatDate(new Date(), 'yyyy-MM-dd', 'EN-US');
+
+    // Helper function to clear the field and set error
+    const setDateError = (error: string) => {
+      Datefield.control.markAsTouched();
+      Datefield.control.setErrors({ [error]: true });
+    };
+
+    if ((this.eventType == 'Add' || this.eventType == 'New ' || (this.eventType == 'Edit ' && !this.weatherAdd.isMapped)) && this.weatherAdd.frmStartDate) {
+      // Validate if selected date is in the past
+
+      if (selectedDate < currentDate && Datefield.name === 'frmStartDate') {
+        setDateError('invalidDate');
+        return;
+      }
+      this.maxStartDate = '';
+      //this.minEndDate = '';
+      //this.minStartDate = '';
+      this.minStartDate = this.todayDate;
+      this.minEndDate = this.weatherAdd.frmStartDate;
+    }
+
+
+    if (this.weatherAdd.isMapped && this.eventType == 'Edit ') {
+      if (this.weatherAdd.eventStatus === 'Upcoming' || this.weatherAdd.eventStatus === 'Ongoing') {
+
+        if (this.weatherAdd.frmStartDate && Datefield.name === 'frmStartDate' && selectedDate > this.maxStartDate) {
+          setDateError('invalidMaxEndDate');
+          return;
+        }
+      }
+      if (this.weatherAdd.frmEndDate && Datefield.name === 'frmEndDate' && selectedDate < this.minEndDate) {
+        setDateError('invalidMinEndDate');
+        return;
+      }
+    }
+
+    controlfrmEndDate.setErrors({ ['invalidEndDate']: false });
+    controlfrmStartDate.setErrors({ ['invalidStartDate']: false });
+
+    // Validate if End Date is after Start Date
+    if (this.weatherAdd.frmStartDate && Datefield.name === 'frmEndDate' && selectedDate < this.weatherAdd.frmStartDate) {
+      setDateError('invalidEndDate');
+      return;
+    }
+    else if ((this.weatherAdd.frmEndDate === null||this.weatherAdd.frmEndDate === undefined||this.weatherAdd.frmEndDate === "" ) && this.weatherAdd.frmStartDate && Datefield.name === 'frmStartDate') {
+      controlfrmEndDate.setErrors({ required: true });
+      return;
+    }
+
+    // Validate if Start Date is before End Date
+    if (this.weatherAdd.frmEndDate && Datefield.name === 'frmStartDate' && selectedDate > this.weatherAdd.frmEndDate) {
+      setDateError('invalidStartDate');
+      return;
+    }
+
+    // No errors, clear any previous errors
+    Datefield.control.setErrors(null);
+    controlfrmEndDate.setErrors(null);
+    controlfrmStartDate.setErrors(null);
+  }
+
+  setOtherReasonValidation(event: any) {
+    const { value } = event.target;
+    this.isOtherDescriptionRequired = value === 'WEATHER008';
+  }
+
+  openModal(mode = 'add'): void {
+    this.open = true;
+    this.eventType = mode === 'add' ? 'Add' : 'Edit'
+    this.weatherAdd.frmWeatherAlertId = mode === 'add' ? 0 : this.weatherAdd.frmWeatherAlertId
+
+    if (mode === 'add') {
+      this.maxStartDate = '';
+      this.minEndDate = '';
+      this.minStartDate = this.todayDate;
+      this.prevSelectedStates = [];
+      this.prevSelectedCountries = [];
+      this.enableFields();
+      this.weatheraddform.resetForm();
+    }
+  }
+
+  checkCountries(values: any) {
+    this.onInputChange();
+    if (!values || (values && values.length < this.prevSelectedCountries.length)) {
+      const selectedcountries = JSON.parse(JSON.stringify(this.prevSelectedCountries));
+      this.weatherAdd.frmCountry = selectedcountries;
+      values = selectedcountries
+    }
+    this.isUSAExist = false;
+    if (values && values.length) {
+      if (values.find((it: any) => it.key.trim() === 'USA')) {
+        this.isUSAExist = true;
+      }
+    }
+    if (!this.isUSAExist) {
+      this.weatherAdd.frmState = [];
+    }
+  }
+
+  checkStates(values: any) {
+    this.onInputChange(); // function calling to check
+    if (!values || (values && values.length < this.prevSelectedStates.length)) {
+      const selectedStates = JSON.parse(JSON.stringify(this.prevSelectedStates));
+      this.weatherAdd.frmState = selectedStates;
+    }
+
+  }
+
+  loadWeatherform() {
+    this.weatherAdd = {
+      frmVaCode: '',
+      frmWeatherEvent: '',
+      frmReasons: '',
+      frmCountry: '',
+      frmLocation: '',
+      frmStartDate: '',
+      frmEndDate: '',
+      frmDescription: '',
+      frmOtherDescription: '',
+      frmState: '',
+    };
+  }
+
+  closeModal(): void {
+    this.open = false;
+    this.weatherAdd.frmWeatherAlertId = 0;
+  }
+
+  resetForm(form: any): void {
+    form.reset();
+    this.open = false;
+  }
+
+  // This function will be called when any change happens
+  onInputChange() {
+    this.unsavedChanges = JSON.stringify(this.weatherAdd) !== JSON.stringify(this.initialValues);
+  }
+
+  // Show confirmation dialog if unsaved changes
+  async openConfirmationDialog(form: any) {
+    if (this.unsavedChanges && this.eventType === 'Edit ') {
+      const confirmation = await this.confirmDialogService.confirm('You are about to close the "Edit Weather Event" entry window. Are you sure you want to continue? ', 'Yes', 'No');
+      if (confirmation) {
+        form.reset();
+        this.open = false;
+        this.unsavedChanges = false;
+      }
+    } else {
+      form.reset();
+      this.closeModal();
+    }
+  }
+
+  onSubmit(weatheraddform: any): void {
+    weatheraddform.control.markAllAsTouched();  // Manually trigger validation
+
+    //enabling the disabled field to sent date on submit(else it will not send disabled fields)
+    if (this.weatheraddform.form.get('frmVaCode')?.disabled) {
+      this.weatheraddform.form.get('frmVaCode')?.enable();
+    }
+    if (this.weatheraddform.form.get('frmCountry')?.disabled) {
+      this.weatheraddform.form.get('frmCountry')?.enable();
+    }
+    if (this.isStateDisabled) {
+      this.weatheraddform.form.get('frmState')?.enable();
+    }
+    if (this.weatheraddform.form.get('frmReasons')?.disabled) {
+      this.weatheraddform.form.get('frmReasons')?.enable();
+    }
+    if (this.weatheraddform.form.get('frmOtherDescription')?.disabled) {
+      this.weatheraddform.form.get('frmOtherDescription')?.enable();
+    }
+    if (this.weatheraddform.form.get('frmStartDate')?.disabled) {
+      this.weatheraddform.form.get('frmStartDate')?.enable();
+    }
+    if (this.weatheraddform.form.get('frmEndDate')?.disabled) {
+      this.weatheraddform.form.get('frmEndDate')?.enable();
+    }
+
+    if (weatheraddform.valid) {
+      this.open = false;
+      let myStateArray: string[] = [];
+      let myCountriesStateArray: CountrySaveRequest[] = []
+      this.request.WeatherAlertID = this.weatherAdd.frmWeatherAlertId;
+      this.request.vaCode = weatheraddform.value.frmVaCode;
+      this.request.weatherAlertName = weatheraddform.value.frmWeatherEvent;
+      this.request.weatherType = weatheraddform.value.frmReasons;
+      this.request.otherReason = weatheraddform.value.frmOtherDescription;
+      this.request.country = weatheraddform.value.frmCountry;
+      this.request.states = weatheraddform.value.frmState;
+
+      for (let country of this.request.country) {
+        if (country.key.toLowerCase() === 'usa') {
+          for (let state of this.request.states) {
+            myStateArray.push(state?.key);
+          }
+        }
+        else {
+          myStateArray = []
+        }
+        myCountriesStateArray.push({ country: country.key, usStates: myStateArray });
+        myStateArray = []
+      }
+
+      this.request.statesArray = myStateArray;
+      this.request.countriesArray = myCountriesStateArray
+      this.request.location = weatheraddform.value.frmLocation;
+      this.request.startDate = weatheraddform.value.frmStartDate;
+      this.request.endDate = weatheraddform.value.frmEndDate;
+      this.request.description = weatheraddform.value.frmDescription;
+      this.commonService.addWeatherEvent(this.request).subscribe({
+        next: (data) => {
+          this.apiResponse = data;
+          let successMessage = this.eventType === 'Edit ' ? 'Updated successfully!' : 'Added successfully!';
+          this.alertService.show({ message: successMessage, clrAlertType: IAlertType.SUCCESS });
+          this.searchcomponent.refreshWeatherEvents();
+          this.weatherAdd.resetForm();
+          this.resetForm(weatheraddform);
+        },
+        error: (error: HttpErrorResponse) => {
+          weatheraddform.reset();
+          this.handleSaveError(error);
+        },
+      });
+    }
+  }
+
+  handleSaveError(err: HttpErrorResponse): void {
+    if (err.status === 500 || err.status === 503) {
+      this.alertService.show({
+        message: 'Failed to Add weather alert',
         clrAlertType: IAlertType.DANGER,
       });
+    } else if (err.status === 401) {
+      this.alertService.show({
+        message: 'Unauthorized: You are not authorized to perform this action.',
+        clrAlertType: IAlertType.DANGER,
+      });
+    }
+    else if (err.status === 400) {
+      let errMsg = err.error;
+      if (!errMsg || errMsg == '') {
+        errMsg = 'Failed to Add weather alert';
+      }
+      this.alertService.show({
+        message: errMsg,
+        clrAlertType: IAlertType.DANGER,
+      });
+    }
+    else {
+      // Handle any other unexpected errors
+      this.alertService.show({
+        message: 'An unexpected error occurred. Please try again later.',
+        clrAlertType: IAlertType.DANGER,
+      });
+    }
+  }
+
+  getCountryClass(selected: any) {
+    const isExist = this.prevSelectedCountries.find(it => it.value.trim() === selected.trim());
+    setTimeout(() => {
+      if (isExist) {
+        const ariaLabel = `[aria-label="Delete selected option ${selected}"]`
+        let element = this.addEventCountryComboBoxRef.nativeElement.querySelector(ariaLabel);
+        if (element)
+          this.renderer.setAttribute(element, 'hidden', 'true');
+      }
+      return null;
+    }, 5);
+    if (isExist) {
+      return 'disabled'
+    }
+    return null;
+  }
+
+
+  getClass(selected: any) {
+    const isExist = this.prevSelectedStates.find(it => it.key === selected);
+    setTimeout(() => {
+      if (isExist) {
+        const ariaLabel = `[aria-label="Delete selected option ${selected}"]`
+        let element = this.addEventStateComboBoxRef.nativeElement.querySelector(ariaLabel);
+        if (element)
+          this.renderer.setAttribute(element, 'hidden', 'true');
+      }
+      return null;
+    }, 5);
+    if (isExist) {
+      return 'disabled'
+    }
+    return null;
+  }
+
+
+  handleError(err: HttpErrorResponse): void {
+
+    let errMessage = "";
+
+    switch (err.status) {
+      case 500:
+      case 503:
+        errMessage = 'Weather event list not fetched: contact administrator';
+        break;
+
+      case 401:
+        errMessage = 'Unauthorized: You are not authorized to perform this action.';
+        break;
+
+      default:
+        errMessage = (!err.error || err.error == '') ? 'Failed to Add weather alert' : err.error;
+    }
+
+    this.alertService.show({
+      message: errMessage,
+      clrAlertType: IAlertType.DANGER,
     });
-  });
-
-  it('should set isOtherDescriptionRequired based on the event value in setOtherReasonValidation', () => {
-    const mockEvent = { target: { value: 'WEATHER008' } };
-    component.setOtherReasonValidation(mockEvent);
-
-    expect(component.isOtherDescriptionRequired).toBeTrue();
-
-    mockEvent.target.value = 'OTHER';
-    component.setOtherReasonValidation(mockEvent);
-
-    expect(component.isOtherDescriptionRequired).toBeFalse();
-  });
-
-  it('should return date 31 days after end date in MM/DD/YYYY format', () => {
-    // Set up test data
-    component.weatherAdd = {
-      frmEndDate: '2023-10-01' // October 1, 2023
-    };
-
-    // Call the method
-    const result = component.eventExpire();
-
-    // Verify the result
-    expect(result).toBe('10/31/2023');
-  });
-
-  it('should handle month boundary correctly', () => {
-    component.weatherAdd = {
-      frmEndDate: '2023-01-31' // January 31, 2023
-    };
-
-    const result = component.eventExpire();
-    expect(result).toBe('03/02/2023'); // March 2, 2023 (31 days after Jan 31)
-  });
-
-  it('should handle leap year correctly', () => {
-    component.weatherAdd = {
-      frmEndDate: '2024-01-31' // January 31, 2024 (leap year)
-    };
-
-    const result = component.eventExpire();
-    expect(result).toBe('03/01/2024'); // March 2, 2024 (31 days after Jan 31)
-  });
-
-  it('should pad single-digit months and days with leading zeros', () => {
-    component.weatherAdd = {
-      frmEndDate: '2023-09-01'
-    };
-
-    const result = component.eventExpire();
-    expect(result).toBe('10/01/2023');
-  });   
-
-  it('should return NaN/NaN/NaN when no end date is set', () => {
-    component.weatherAdd = {
-      frmEndDate: undefined
-    };
-
-    const result = component.eventExpire();
-    expect(result).toMatch(/NaN\/NaN\/NaN/);
-  });
-
-  it('should handle invalid date strings gracefully', () => {
-    component.weatherAdd = {
-      frmEndDate: 'invalid-date'
-    };
-
-    const result = component.eventExpire();
-    expect(result).toMatch(/NaN\/NaN\/NaN/);
-  });
-
-  it('should show specific error message for 500 status', () => {
-    const error = new HttpErrorResponse({ status: 500 });
-    component.handleSaveError(error);
-
-    expect(alertService.show).toHaveBeenCalledWith({
-      message: 'Failed to Add weather alert',
-      clrAlertType: IAlertType.DANGER
-    });
-  });
-
-  it('should show specific error message for 503 status', () => {
-    const error = new HttpErrorResponse({ status: 503 });
-    component.handleSaveError(error);
-
-    expect(alertService.show).toHaveBeenCalledWith({
-      message: 'Failed to Add weather alert',
-      clrAlertType: IAlertType.DANGER
-    });
-  });
-
-  it('should show unauthorized message for 401 status', () => {
-    const error = new HttpErrorResponse({ status: 401 });
-    component.handleSaveError(error);
-
-    expect(alertService.show).toHaveBeenCalledWith({
-      message: 'Unauthorized: You are not authorized to perform this action.',
-      clrAlertType: IAlertType.DANGER
-    });
-  });
-
-  it('should show error message from response for 400 status', () => {
-    const error = new HttpErrorResponse({
-      status: 400,
-      error: 'Custom validation error'
-    });
-    component.handleSaveError(error);
-
-    expect(alertService.show).toHaveBeenCalledWith({
-      message: 'Custom validation error',
-      clrAlertType: IAlertType.DANGER
-    });
-  });
-
-  it('should show default message for 400 status when no error message', () => {
-    const error = new HttpErrorResponse({
-      status: 400,
-      error: ''
-    });
-    component.handleSaveError(error);
-
-    expect(alertService.show).toHaveBeenCalledWith({
-      message: 'Failed to Add weather alert',
-      clrAlertType: IAlertType.DANGER
-    });
-  });
-
-  it('should show unexpected error message for other status codes', () => {
-    const error = new HttpErrorResponse({ status: 404 });
-    component.handleSaveError(error);
-
-    expect(alertService.show).toHaveBeenCalledWith({
-      message: 'An unexpected error occurred. Please try again later.',
-      clrAlertType: IAlertType.DANGER
-    });
-  });
-
-});
+  }
+}
