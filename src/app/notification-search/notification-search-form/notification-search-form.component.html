@@ -107,3 +107,84 @@ it('should reset form values to initial state on reset', () => {
   expect(form.form.markAsUntouched).toHaveBeenCalled();
   expect(form.form.updateValueAndValidity).toHaveBeenCalled();
 });
+
+
+
+
+////
+
+
+import { of } from 'rxjs';
+import { fakeAsync, tick } from '@angular/core/testing';
+
+describe('NotificationSearchFormComponent', () => {
+
+  // --- Setup your initial component and mock data ---
+  let component: NotificationSearchFormComponent;
+
+  beforeEach(() => {
+    // Initialize component and set up mocks here
+    component = new NotificationSearchFormComponent();
+    component.states = [
+      { key: 'CA', value: 'California' },
+      { key: 'TX', value: 'Texas' },
+      { key: 'NY', value: 'New York' },
+    ];
+    component.countries = [
+      { key: 'USA', value: 'United States' },
+      { key: 'CAN', value: 'Canada' },
+      { key: 'MEX', value: 'Mexico' },
+    ];
+  });
+
+  // --- Test for getAvailableStates ---
+  it('should return all states when frmSrchState is empty', () => {
+    component.notificationSearch.frmSrchState = [];
+    const availableStates = component.getAvailableStates();
+    
+    expect(availableStates).toEqual([
+      { key: 'CA', value: 'California' },
+      { key: 'TX', value: 'Texas' },
+      { key: 'NY', value: 'New York' }
+    ]);
+  });
+
+  it('should filter out selected states from frmSrchState', () => {
+    component.notificationSearch.frmSrchState = [
+      { key: 'CA', value: 'California' }
+    ];
+
+    const availableStates = component.getAvailableStates();
+    
+    expect(availableStates).toEqual([
+      { key: 'TX', value: 'Texas' },
+      { key: 'NY', value: 'New York' }
+    ]);
+  });
+
+  // --- Test for getAvailableCountries ---
+  it('should return all countries when frmSrchCountry is empty', () => {
+    component.notificationSearch.frmSrchCountry = [];
+    const availableCountries = component.getAvailableCountries();
+    
+    expect(availableCountries).toEqual([
+      { key: 'USA', value: 'United States' },
+      { key: 'CAN', value: 'Canada' },
+      { key: 'MEX', value: 'Mexico' }
+    ]);
+  });
+
+  it('should filter out selected countries from frmSrchCountry', () => {
+    component.notificationSearch.frmSrchCountry = [
+      { key: 'USA', value: 'United States' }
+    ];
+
+    const availableCountries = component.getAvailableCountries();
+    
+    expect(availableCountries).toEqual([
+      { key: 'CAN', value: 'Canada' },
+      { key: 'MEX', value: 'Mexico' }
+    ]);
+  });
+  
+});
