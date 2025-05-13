@@ -47,20 +47,20 @@ it('should set errors when start date is after end date in validateDates', () =>
     },
   } as unknown as NgForm;
 
-  // Mock the start and end dates
+  // Set start date and end date where start date is after end date
   component.notificationSearch.startDate = '12/31/2022';
   component.notificationSearch.endDate = '01/01/2022';
 
-  // Call the method
+  // Call the validateDates method
   component.validateDates(form, 'startDate');
 
-  // Expected behavior
-  expect(form.controls['startDatepickrnm'].setErrors).toHaveBeenCalledWith({ invalidDate: true });
-  expect(form.controls['endDatepickrnm'].setErrors).toHaveBeenCalledWith({ invalidDate: true });
-
-  // Verify the error messages
+  // Check the final error messages
   expect(component.startDateErrorMsgs).toBe('Start Date must be less than End Date!');
   expect(component.endDateErrorMsgs).toBe('End Date must be greater than Start Date!');
+
+  // Verify that setErrors was called with the expected arguments
+  expect(form.controls['startDatepickrnm'].setErrors).toHaveBeenCalledWith({ invalidDate: true });
+  expect(form.controls['endDatepickrnm'].setErrors).toHaveBeenCalledWith({ invalidDate: true });
 });
 
 
