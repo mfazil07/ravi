@@ -1,12 +1,4 @@
-Error: ../src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:141:7 - error TS2345: Argument of type 'Observable<{ key: string; value: string; }[]>' is not assignable to parameter of type 'Observable<Country[]>'.
-  Type '{ key: string; value: string; }[]' is not assignable to type 'Country[]'.
-    Type '{ key: string; value: string; }' is missing the following properties from type 'Country': countryCode, countryName
+Error: ../src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:156:7 - error TS2304: Cannot find name 'throwError'.
 
-141       of([
-          ~~~~
-142         { key: 'CA', value: 'California' },
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-143         { key: 'TX', value: 'Texas' },
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-144       ])
-    ~~~~~~~~
+156       throwError(() => new HttpErrorResponse({ status: 500 }))
+          ~~~~~~~~~~
