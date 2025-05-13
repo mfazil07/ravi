@@ -1,83 +1,20 @@
- AddeventComponent > should call required services on init
-Expected spy CommonService.getUserAuthorization to have been called.
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/addevent/addevent.component.spec.ts:133:48)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
 AddeventComponent > should return "disabled" if country is already selected in getCountryClass
-Expected null to be 'disabled'.
+TypeError: Cannot read properties of undefined (reading 'returnValue')
+    at UserContext.apply (http://localhost:9877/_karma_webpack_/webpack:/src/app/addevent/addevent.component.spec.ts:423:12)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+    at ZoneImpl.run (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:111:43)
+    at runInTestZone (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:216:38)
+    at UserContext.<anonymous> (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:234:32)
     at <Jasmine>
-    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/addevent/addevent.component.spec.ts:144:20)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-Error: <toHaveBeenCalledWith> : Expected a spy, but got Function.
-Usage: expect(<spyObj>).toHaveBeenCalledWith(...arguments)
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/addevent/addevent.component.spec.ts:146:8)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-    at ZoneImpl.run (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:111:43)
-    at runInTestZone (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:216:38)
-    at UserContext.<anonymous> (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:234:32)
 AddeventComponent > should return "disabled" if state is already selected in getClass
 TypeError: Cannot read properties of undefined (reading 'nativeElement')
-    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/addevent/addevent.component.spec.ts:166:47)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-    at ZoneImpl.run (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:111:43)
-    at runInTestZone (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:216:38)
-    at UserContext.<anonymous> (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:234:32)
+    at UserContext.apply (http://localhost:9877/_karma_webpack_/webpack:/src/app/addevent/addevent.component.spec.ts:447:41)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+    at ZoneImpl.run (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:111:43)
+    at runInTestZone (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:216:38)
+    at UserContext.<anonymous> (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:234:32)
     at <Jasmine>
-AddeventComponent > ComboBoxRef tests > should return "disabled" if country is already selected in getCountryClass
-Expected null to be 'disabled'.
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/addevent/addevent.component.spec.ts:230:22)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-Error: <toHaveBeenCalledWith> : Expected a spy, but got Function.
-Usage: expect(<spyObj>).toHaveBeenCalledWith(...arguments)
-    at <Jasmine>
-    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/addevent/addevent.component.spec.ts:232:10)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-    at ZoneImpl.run (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:111:43)
-    at runInTestZone (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:216:38)
-    at UserContext.<anonymous> (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:234:32)
-AddeventComponent > ComboBoxRef tests > should return "disabled" if state is already selected in getClass
-TypeError: Cannot read properties of undefined (reading 'nativeElement')
-    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/addevent/addevent.component.spec.ts:252:49)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-    at ZoneImpl.run (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:111:43)
-    at runInTestZone (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:216:38)
-    at UserContext.<anonymous> (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:234:32)
-    at <Jasmine>
-AddeventComponent > ComboBoxRef tests
-TypeError: Cannot read properties of undefined (reading 'nativeElement')
-    at apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/addevent/addevent.component.ts:513:53)
-    at apply (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:1809:37)
-    at _ZoneDelegate.invokeTask (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:402:33)
-    at ProxyZoneSpec.onInvokeTask (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2101:39)
-    at _ZoneDelegate.invokeTask (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:401:38)
-    at ZoneImpl.runTask (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:159:47)
-    at call (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:483:34)
-    at apply (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:472:48)
-    at data.args.<computed> (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:1778:32)
-AddeventComponent > Date calculation tests
-TypeError: Cannot read properties of undefined (reading 'nativeElement')
-    at apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/addevent/addevent.component.ts:513:53)
-    at apply (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:1809:37)
-    at _ZoneDelegate.invokeTask (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:402:33)
-    at ProxyZoneSpec.onInvokeTask (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2101:39)
-    at _ZoneDelegate.invokeTask (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:401:38)
-    at ZoneImpl.runTask (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:159:47)
-    at call (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:483:34)
-    at apply (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:472:48)
-    at data.args.<comput
