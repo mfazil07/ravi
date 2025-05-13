@@ -1,6 +1,6 @@
 // Test to ensure that countryChanged updates isUSAExist correctly
-import { fakeAsync, tick } from '@angular/core/testing';
 import { of } from 'rxjs';
+import { fakeAsync, tick } from '@angular/core/testing';
 
 it('should fetch claimant info and update states and countries in countryStateChange', fakeAsync(() => {
   const mockResponse = {
@@ -10,26 +10,41 @@ it('should fetch claimant info and update states and countries in countryStateCh
     mappedStates: ['TX', 'NY'],
   };
 
-  // Mock the service method
   spyOn(component['claimantsWeatherAlertsService'], 'getClaimantInfo').and.returnValue(of(mockResponse));
 
-  // Ensure form model is initialized if needed
+  // Setup required form model structure if not already in place
   component.notificationSearch = {
     frmSrchCountry: [],
     frmSrchState: []
   };
 
-  // Trigger method
-  component.countryStateChange();
-  tick();
+  // Optional: clear fields that should be updated
+  component.countriesComboboxData = [];
+  component.states = [];
 
-  // Assert case details were set
+  component.countryStateChange();
+  tick(); // flush async observable
+
   expect(component.caseDetails).toEqual(mockResponse);
 
-  // Consolidate expectations to reflect likely structure used by component
-  expect(component.countriesComboboxData).toEqual(jasmine.arrayContaining(['USA', 'CAN', 'MEX']));
-  expect(component.states).toEqual(jasmine.arrayContaining(['CA', 'TX', 'NY']));
-  expect(component.notificationSearch.frmSrchState).toEqual(jasmine.arrayContaining(['CA', 'TX', 'NY']));
+  // Now expect the properly structured arrays (assuming actual keys/values are used)
+  expect(component.countriesComboboxData).toEqual([
+    { key: 'USA', value: 'USA' },
+    { key: 'CAN', value: '' },
+    { key: 'MEX', value: '' }
+  ]);
+
+  expect(component.states).toEqual([
+    { key: 'CA', value: 'CA' },
+    { key: 'TX', value: 'TX' },
+    { key: 'NY', value: 'NY' }
+  ]);
+
+  expect(component.notificationSearch.frmSrchState).toEqual([
+    { key: 'CA', value: 'CA' },
+    { key: 'TX', value: 'TX' },
+    { key: 'NY', value: 'NY' }
+  ]);
 }));
 
 
