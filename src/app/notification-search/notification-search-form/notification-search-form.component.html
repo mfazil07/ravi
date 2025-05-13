@@ -1,46 +1,96 @@
-it('should populate states and handle claimantResidentState correctly when getUsStates is successful', () => {
-  const mockStates = [
-    { key: 'CA', value: 'California' },
-    { key: 'TX', value: 'Texas' },
-  ];
-  const mockClaimantResidentState = [{ key: 'CA', value: 'California' }];
-  const mockClaimantResidentCountry = [{ key: 'USA', value: 'United States' }];
+// Test to ensure that countryChanged updates isUSAExist correctly
+it('should update isUSAExist correctly in countryChanged', () => {
+  component.notificationSearch.frmSrchCountry = [{ key: 'USA', value: 'United States' }];
+  component.countryChanged();
+  expect(component.isUSAExist).toBeTrue();
 
-  component.claimantResidentState = mockClaimantResidentState;
-  component.claimantResidentCountry = mockClaimantResidentCountry;
-
-  spyOn(component['commonService'], 'getUsStates').and.returnValue(of(mockStates));
-
-  component.getUsStates();
-
-  expect(component.states).toEqual(mockStates);
-  expect(component.notificationSearch.frmSrchState).toEqual(mockClaimantResidentState);
-  expect(component.prevSelectedStates).toEqual(mockClaimantResidentState);
+  component.notificationSearch.frmSrchCountry = [{ key: 'CAN', value: 'Canada' }];
+  component.countryChanged();
+  expect(component.isUSAExist).toBeFalse();
 });
 
-it('should handle error when getUsStates fails', () => {
-  const mockError = new HttpErrorResponse({ status: 500, statusText: 'Internal Server Error' });
+// Test to ensure that countryStateChange fetches claimant info and updates states and countries
+it('should fetch claimant info and update states and countries in countryStateChange', () => {
+  const mockResponse = {
+    country: 'USA',
+    state: 'CA',
+    mappedCountries: ['CAN', 'MEX'],
+    mappedStates: ['TX', 'NY'],
+  };
 
-  spyOn(component['commonService'], 'getUsStates').and.returnValue(throwError(() => mockError));
-  spyOn(component, 'handleError');
+  spyOn(component['claimantsWeatherAlertsService'], 'getClaimantInfo').and.returnValue(of(mockResponse));
+  component.countryStateChange();
 
-  component.getUsStates();
-
-  expect(component.handleError).toHaveBeenCalledWith(mockError);
+  expect(component.caseDetails).toEqual(mockResponse);
+  expect(component.countriesComboboxData).toEqual([
+    { key: 'USA', value: 'USA' },
+    { key: 'CAN', value: '' },
+    { key: 'MEX', value: '' },
+  ]);
+  expect(component.states).toEqual([
+    { key: 'CA', value: 'CA' },
+    { key: 'TX', value: 'TX' },
+    { key: 'NY', value: 'NY' },
+  ]);
+  expect(component.notificationSearch.frmSrchState).toEqual([
+    { key: 'CA', value: 'CA' },
+    { key: 'TX', value: 'TX' },
+    { key: 'NY', value: 'NY' },
+  ]);
 });
 
-it('should set mappedEvents to true when showButton is false', () => {
-  component.showButton = false;
+// Test to ensure validateDates handles start date after end date correctly
+it('should set errors when start date is after end date in validateDates', () => {
+  const form = {
+    controls: {
+      startDatepickrnm: { setErrors: jasmine.createSpy('setErrors') },
+      endDatepickrnm: { setErrors: jasmine.createSpy('setErrors') },
+    },
+  } as unknown as NgForm;
 
-  component.getUsStates();
+  component.notificationSearch.startDate = '12/31/2022';
+  component.notificationSearch.endDate = '01/01/2022';
 
-  expect(component.notificationSearch.mappedEvents).toBeTrue();
+  component.validateDates(form, 'startDate');
+
+  expect(form.controls['startDatepickrnm'].setErrors).toHaveBeenCalledWith({ invalidDate: true });
+  expect(component.startDateErrorMsgs).toBe('Start Date must be less than End Date!');
+  expect(form.controls['endDatepickrnm'].setErrors).toHaveBeenCalledWith({ invalidDate: true });
+  expect(component.endDateErrorMsgs).toBe('End Date must be greater than Start Date!');
 });
 
-it('should not set mappedEvents when showButton is true', () => {
-  component.showButton = true;
+// Test to ensure handleError displays a generic error message for unhandled status codes
+it('should display a generic error message for unhandled status codes in handleError', () => {
+  const mockError = { status: 400, error: 'Bad Request' } as HttpErrorResponse;
+  spyOn(component['alertService'], 'show');
+  
+  component.handleError(mockError);
 
-  component.getUsStates();
+  expect(component['alertService'].show).toHaveBeenCalledWith({
+    message: 'Bad Request',
+    clrAlertType: IAlertType.DANGER,
+  });
+});
 
-  expect(component.notificationSearch.mappedEvents).toBeUndefined();
+// Test to ensure reset functionality clears all form values as expected
+it('should reset form values to initial state on reset', () => {
+  const form = {
+    form: {
+      get: jasmine.createSpy('get').and.callFake((controlName: string) => ({
+        setValue: jasmine.createSpy('setValue'),
+      })),
+      markAsPristine: jasmine.createSpy('markAsPristine'),
+      markAsUntouched: jasmine.createSpy('markAsUntouched'),
+      updateValueAndValidity: jasmine.createSpy('updateValueAndValidity'),
+    },
+    value: { ...component.notificationSearch },
+  } as unknown as NgForm;
+
+  component.notificationSearch = { startDate: '01/01/2022', endDate: '12/31/2022', location: 'Test' };
+  component.onReset(form);
+
+  expect(component.notificationSearch).toEqual(component.initialFormValue);
+  expect(form.form.markAsPristine).toHaveBeenCalled();
+  expect(form.form.markAsUntouched).toHaveBeenCalled();
+  expect(form.form.updateValueAndValidity).toHaveBeenCalled();
 });
