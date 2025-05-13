@@ -1,12 +1,12 @@
-NotificationSearchFormComponent > countryStateChange > should handle error response
-Error: Cannot configure the test module when the test module has already been instantiated. Make sure you are not using `inject` before `TestBed.configureTestingModule`.
-    at TestBedImpl.assertNotInstantiated (http://localhost:9877/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/testing.mjs:2016:19)
-    at TestBedImpl.configureTestingModule (http://localhost:9877/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/testing.mjs:1885:14)
-    at TestBedImpl.configureTestingModule (http://localhost:9877/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/testing.mjs:1730:37)
-    at UserContext.apply (http://localhost:9877/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:505:13)
-    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
-    at ProxyZoneSpec.onInvoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
-    at _ZoneDelegate.invoke (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
-    at ZoneImpl.run (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:111:43)
-    at runInTestZone (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:216:38)
-    at UserContext.<anonymous> (http://localhost:9877/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:234:32)
+NotificationSearchFormComponent > countryStateChange > should call getClaimantInfo with correct parameters
+Error: Cannot override provider when the test module has already been instantiated. Make sure you are not using `inject` before `overrideProvider`.
+    at TestBedImpl.assertNotInstantiated (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/testing.mjs:2016:19)
+    at TestBedImpl.overrideProvider (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/testing.mjs:1958:14)
+    at TestBedImpl.overrideProvider (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/testing.mjs:1765:37)
+    at UserContext.apply (http://localhost:9876/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:505:13)
+    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+    at _ZoneDelegate.invoke (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:368:34)
+    at ZoneImpl.run (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:111:43)
+    at runInTestZone (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:216:38)
+    at UserContext.<anonymous> (http://localhost:9876/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:234:32)
