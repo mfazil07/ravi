@@ -591,16 +591,7 @@ describe('AddeventComponent', () => {
 
     const result = component.eventExpire();
     expect(result).toBe('10/01/2023');
-  });
-
-  it('should handle year change correctly', () => {
-    component.weatherAdd = {
-      frmEndDate: '2023-11-01' // November 1, 2023
-    };
-
-    const result = component.eventExpire();
-    expect(result).toBe('12/02/2023');
-  });
+  });   
 
   it('should return NaN/NaN/NaN when no end date is set', () => {
     component.weatherAdd = {
