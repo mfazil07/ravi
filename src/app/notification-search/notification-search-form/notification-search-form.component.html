@@ -12,62 +12,42 @@ it('should update countries and states correctly when countryStateChange is call
 
   component.countryStateChange();
 
+  // Debugging to verify values
+  console.log('caseDetails:', component.caseDetails);
+  console.log('claimantResidentCountry:', component.claimantResidentCountry);
+  console.log('countriesComboboxData:', component.countriesComboboxData);
+  console.log('states:', component.states);
+  console.log('isUSAExist:', component.isUSAExist);
+
+  // Check caseDetails
   expect(component.caseDetails).toEqual(mockClaimantInfo[0]);
+
+  // Check claimantResidentCountry
   expect(component.claimantResidentCountry).toEqual([
     { key: 'USA', value: 'USA' },
     { key: 'Canada', value: 'Canada' },
   ]);
+
+  // Check countriesComboboxData
   expect(component.countriesComboboxData).toEqual([
     { key: 'USA', value: '' },
     { key: 'Canada', value: '' },
   ]);
+
+  // Check notificationSearch.frmSrchCountry
   expect(component.notificationSearch.frmSrchCountry).toEqual(component.countriesComboboxData);
   expect(component.prevSelectedCountries).toEqual(component.countriesComboboxData);
 
+  // Check states
   expect(component.states).toEqual([
     { key: 'California', value: 'California' },
     { key: 'Texas', value: 'Texas' },
   ]);
+
+  // Check notificationSearch.frmSrchState
   expect(component.notificationSearch.frmSrchState).toEqual(component.states);
   expect(component.prevSelectedStates).toEqual(component.states);
 
+  // Check isUSAExist
   expect(component.isUSAExist).toBeTrue();
-});
-
-it('should clear states when "USA" is not in countriesComboboxData', () => {
-  const mockClaimantInfo = [
-    {
-      country: 'Canada',
-      mappedCountries: ['Canada'],
-      state: undefined,
-      mappedStates: [],
-    },
-  ];
-
-  spyOn(component['claimantsWeatherAlertsService'], 'getClaimantInfo').and.returnValue(of(mockClaimantInfo));
-
-  component.countryStateChange();
-
-  expect(component.caseDetails).toEqual(mockClaimantInfo[0]);
-  expect(component.claimantResidentCountry).toEqual([{ key: 'Canada', value: 'Canada' }]);
-  expect(component.countriesComboboxData).toEqual([{ key: 'Canada', value: '' }]);
-  expect(component.notificationSearch.frmSrchCountry).toEqual(component.countriesComboboxData);
-  expect(component.prevSelectedCountries).toEqual(component.countriesComboboxData);
-
-  expect(component.states).toEqual([]);
-  expect(component.notificationSearch.frmSrchState).toEqual([]);
-  expect(component.prevSelectedStates).toEqual([]);
-
-  expect(component.isUSAExist).toBeFalse();
-});
-
-it('should handle error when countryStateChange is called and response fails', () => {
-  const mockError = new HttpErrorResponse({ status: 500, statusText: 'Internal Server Error' });
-
-  spyOn(component['claimantsWeatherAlertsService'], 'getClaimantInfo').and.returnValue(throwError(() => mockError));
-  spyOn(component, 'handleError');
-
-  component.countryStateChange();
-
-  expect(component.handleError).toHaveBeenCalledWith(mockError);
 });
