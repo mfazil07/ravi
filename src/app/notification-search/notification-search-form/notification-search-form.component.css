@@ -1,2 +1,34 @@
-Argument of type 'Observable<{ country: string; state: string; mappedCountries: string[]; mappedStates: string[]; }>' is not assignable to parameter of type 'Observable<CaseWithAppointment[]>'.
-  Type '{ country: string; state: string; mappedCountries: string[]; mappedStates: string[]; }' is missing the following properties from type 'CaseWithAppointment[]': length, pop, push, concat, and 29 more.ts(2345)
+NotificationSearchFormComponent > should fetch claimant info and update states and countries in countryStateChange
+Expected [ Object({ country: 'USA', state: 'CA', mappedCountries: [ 'CAN', 'MEX' ], mappedStates: [ 'TX', 'NY' ] }) ] to equal Object({ country: 'USA', state: 'CA', mappedCountries: [ 'CAN', 'MEX' ], mappedStates: [ 'TX', 'NY' ] }).
+    at <Jasmine>
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:564:33)
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:1698:26)
+    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+Expected $.length = 0 to equal 3.
+Expected $[0] = undefined to equal Object({ key: 'USA', value: 'USA' }).
+Expected $[1] = undefined to equal Object({ key: 'CAN', value: '' }).
+Expected $[2] = undefined to equal Object({ key: 'MEX', value: '' }).
+    at <Jasmine>
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:566:43)
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:1698:26)
+    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+Expected $.length = 0 to equal 3.
+Expected $[0] = undefined to equal Object({ key: 'CA', value: 'CA' }).
+Expected $[1] = undefined to equal Object({ key: 'TX', value: 'TX' }).
+Expected $[2] = undefined to equal Object({ key: 'NY', value: 'NY' }).
+    at <Jasmine>
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:572:28)
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:1698:26)
+    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
+Expected $.length = 0 to equal 3.
+Expected $[0] = undefined to equal Object({ key: 'CA', value: 'CA' }).
+Expected $[1] = undefined to equal Object({ key: 'TX', value: 'TX' }).
+Expected $[2] = undefined to equal Object({ key: 'NY', value: 'NY' }).
+    at <Jasmine>
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:578:53)
+    at UserContext.apply (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:1698:26)
+    at _ZoneDelegate.invoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone.js:369:28)
+    at ProxyZoneSpec.onInvoke (http://localhost:9878/_karma_webpack_/webpack:/node_modules/zone.js/fesm2015/zone-testing.js:2070:39)
