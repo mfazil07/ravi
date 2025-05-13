@@ -1,4 +1,2 @@
-Error: ../../src/app/notification-search/notification-search-form/notification-search-form.component.spec.ts:579:45 - error TS2345: Argument of type '{ country: string; mappedCountries: string[]; state: null; mappedStates: never[]; }' is not assignable to parameter of type 'Expected<CaseDetails>'.
-  Type '{ country: string; mappedCountries: string[]; state: null; mappedStates: never[]; }' is not assignable to type '{ claimantCaseId?: ExpectedRecursive<string | undefined>; claimantId?: ExpectedRecursive<string | undefined>; caseId?: ExpectedRecursive<string | undefined>; ... 12 more ...; mappedStates?: ExpectedRecursive<...>; }'.
-    Types of property 'state' are incompatible.
-      Type 'null' is not assignable to type 'ExpectedRecursive<string | undefined>'.
+Argument of type 'Observable<{ country: string; mappedCountries: string[]; state: undefined; mappedStates: never[]; }>' is not assignable to parameter of type 'Observable<CaseWithAppointment[]>'.
+  Type '{ country: string; mappedCountries: string[]; state: undefined; mappedStates: never[]; }' is missing the following properties from type 'CaseWithAppointment[]': length, pop, push, concat, and 29 more.ts(2345)
