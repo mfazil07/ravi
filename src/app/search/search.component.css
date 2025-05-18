@@ -24,3 +24,23 @@
         </div>
     </div>
 </div>
+
+
+
+                    <script>
+    $(document).on('click', '.dropdown-menu', function (e) {
+        e.stopPropagation();
+    });
+
+    // Optional: Update button text with selected items
+    $('input[name="SelectedAdaTypeIds"]').on('change', function() {
+        var selectedItems = [];
+        $('input[name="SelectedAdaTypeIds"]:checked').each(function() {
+            selectedItems.push($(this).parent().text().trim());
+        });
+        $('#adaTypeDropdown').html(
+            (selectedItems.length > 0 ? selectedItems.join(', ') : 'Select ADA Type(s)') + 
+            ' <span class="caret"></span>'
+        );
+    });
+</script>
