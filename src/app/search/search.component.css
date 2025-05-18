@@ -44,3 +44,14 @@
         );
     });
 </script>
+
+
+            <script>
+    $(document).ready(function() {
+        // Manually check if dropdown works when clicked
+        $('#adaTypeDropdown').on('click', function(e) {
+            e.preventDefault();
+            $(this).next('.dropdown-menu').toggle();
+        });
+    });
+</script>
