@@ -9,13 +9,13 @@
                 Select ADA Type(s)
                 <span class="caret"></span>
             </button>
-            <ul class="dropdown-menu" aria-labelledby="adaTypeDropdown" style="width:100%; padding:10px;">
+            <ul class="dropdown-menu" aria-labelledby="adaTypeDropdown" style="width:100%; padding:10px; max-height:200px; overflow:auto;">
                 @foreach (var ada in Model.AdaTypes)
                 {
                     <li>
                         <label style="font-weight:normal;">
                             <input type="checkbox" name="SelectedAdaTypeIds" value="@ada.Key"
-                                   @(Model.SelectedAdaTypeIds.Contains(ada.Key) ? "checked" : "") />
+                                @(Model.SelectedAdaTypeIds != null && Model.SelectedAdaTypeIds.Contains(ada.Key) ? "checked" : "") />
                             @ada.Value
                         </label>
                     </li>
