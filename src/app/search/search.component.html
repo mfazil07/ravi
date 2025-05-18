@@ -1,13 +1,209 @@
-it('should return "disabled" if state is already selected in getClass', () => {
-  component.prevSelectedStates = [{ key: 'California', value: 'CA' }];
+@model Qtc.PrintPkg.WebApp.ViewModel.PositiveConfirmationViewModel
 
-  // Mocking the querySelector method to return a dummy element
-  const mockElement = { setAttribute: jasmine.createSpy('setAttribute') };
-  (component.addEventStateComboBoxRef.nativeElement.querySelector as jasmine.Spy)
-    .and.returnValue(mockElement);
 
-  const result = component.getClass('CA');
+@using (@Html.BeginForm("SavePositiveConfirmation", "PositiveConfirmation", FormMethod.Post, new { name = "confirmationForm", id = "confirmationForm" }))
+{
 
-  expect(result).toBe('disabled');
-  expect(mockElement.setAttribute).toHaveBeenCalledWith('hidden', 'true');
-});
+   <!-- ** BEGIN HIDDEN FIELDS AREA ** -->
+    @Html.Partial("_HiddenFields");
+   <!-- ** END HIDDEN FIELDS AREA ** -->
+
+
+<div class="modal fade" id="pcntContactAttemptModal" role="dialog" data-backdrop="static">
+    <div class="modal-dialog ">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" id="mymodalClose" onclick="contactAttemptClosebtn()">
+                    <img src="~/Content/QTC_Images/close.png" />
+                </button>
+                <h1><i class="fa" style="text-align:left">&nbsp;</i>Contact Attempt</h1>
+            </div>
+            <div class="ok-modal-body">
+                <br />
+                <!-- Person Contacted-->
+                <div class="row">
+                    <div class="col-xs-5">
+                        <label class="redText" style="font-size:medium">*</label>
+                        <label class="" style="font-size:medium">Person Contacted:</label>
+                    </div>
+                    <div class="col-xs-7 ">
+                        @if (Model.IsVaLOB)
+                        {
+                            @Html.DropDownListFor(m => m.ContactId, new SelectList(Model.Contacts.Where(x => x.Text == "Claimant"), "Value", "Text"), new { id = "ContactCommunicationMethod", @disabled = "Disabled", @class = "form-control", @onchange = "FillTypesOnChange(this, 'CommunicationMethod')" })
+                            @Html.HiddenFor(m => m.ContactId)
+                        }
+                        else
+                        {
+                            @Html.DropDownListFor(m => m.ContactId, new SelectList(Model.Contacts, "Value", "Text"), new { id = "ContactCommunicationMethod", @class = "form-control", @onchange = "FillTypesOnChange(this, 'CommunicationMethod')" })
+                        }
+                    </div>
+                </div>
+                <br />
+                <!-- Communication Method-->
+                <div class="row">
+                    <div class="col-xs-5">
+                        <label class="redText" style="font-size:medium">*</label>
+                        <label class="" style="font-size:medium">Communication Method:</label>
+                    </div>
+                    <div class="col-xs-7">
+                        @if (Model.IsVaLOB)
+                        {
+                            @Html.DropDownListFor(m => m.CommunicationMethodId, new SelectList(Model.Communicationmethods, "Value", "Text"), new { id = "CommunicationMethod", @class = "form-control", @onchange = "FillTypesOnChange(this, 'ConfirmationType')" })
+                        }
+                        else
+                        {
+                            <select id="CommunicationMethod" name="CommunicationMethodId" class="form-control" onchange="FillTypesOnChange(this, 'ConfirmationType')"></select>
+                        }
+                    </div>
+                </div>
+                <br />
+
+                <!-- Confirmation Type-->
+                <div class="row">
+                    <div class="col-xs-5">
+                        <label class="redText" style="font-size:medium">*</label>
+                        <label class="" style="font-size:medium">Confirmation Type:</label>
+                    </div>
+                    <div class="col-xs-7">
+                        <select id="ConfirmationType" name="ConfirmationTypeId" class="form-control" onchange="FillTypesOnChange(this, 'CommunicationReponseType')"></select>
+                    </div>
+                </div>
+
+                <br />
+
+                <!-- Communication Response-->
+                <div class="row" id="CommunicationReponseTypeDiv">
+                    <div class="col-xs-5">
+                        <label class="redText" style="font-size:medium">*</label>
+                        <label class="" style="font-size:medium">Communication Response:</label>
+                    </div>
+                    <div class="col-xs-7">
+                        <select id="CommunicationReponseType" name="CommunicationResponseId" class="form-control"></select>
+                    </div>
+
+                </div>
+                <br class="linebreakHideOrShow" />
+
+                <!-- Person Spoken To-->
+                <div class="row">
+                    <div class="col-xs-5">
+                        <label class="redText lblRequiredSpokenTo" style="font-size:medium">*</label>
+                        <label class="" style="font-size:medium">Person Spoken To:</label>
+                    </div>
+                    <div class="col-xs-7">
+                        @Html.TextArea("ContactPerson", new { id = "txtPersonName", @class = "form-control", rows = 1, maxlength = 100, placeholder = "", onkeypress = "return CheckAlphaChar(event, $(this).val())" })
+                    </div>
+                </div>
+
+                <br />
+
+                <!-- ADA Type-->
+                <div class="row">
+                    <div class="col-xs-5">
+                        <label class="redText" style="font-size:medium">*</label>
+                        <label class="" style="font-size:medium">ADA:</label>
+                    </div>
+                    <div class="col-xs-7">
+                        @if (Model.IsVaLOB)
+                        {
+                            @Html.DropDownListFor(m => m.AdaTypeId, new SelectList(Model.AdaTypes, "Key", "Value"), new { id = "AdaType", @class = "form-control", @onchange = "FillTypesOnChange(this, 'AdaType')" })
+                        }
+                        else
+                        {
+                            <select id="AdaType" name="AdaTypeId" class="form-control" onchange="FillTypesOnChange(this, 'AdaType')"></select>
+                        }
+                    </div>
+                </div>
+                <br />
+                <!-- Provider Sex Preference-->
+                <div class="row">
+                    <div class="col-xs-5">
+                        <label class="redText" style="font-size:medium">*</label>
+                        <label class="" style="font-size:medium">Provider Sex Preference:</label>
+                    </div>
+                    <div class="col-xs-7">
+                        @if (Model.IsVaLOB)
+                        {
+                            @Html.DropDownListFor(m => m.ProviderGenderPreferenceTypeId, new SelectList(Model.ProviderGenderPreferenceTypes, "Key", "Value"), new { id = "ProviderGenderPreferenceType", @class = "form-control", @onchange = "FillTypesOnChange(this, 'ProviderGenderPreferenceType')" })
+                        }
+                        else
+                        {
+                            <select id="ProviderGenderPreferenceType" name="ProviderGenderPreferenceTypeId" class="form-control" onchange="FillTypesOnChange(this, 'ProviderGenderPreferenceType')"></select>
+                        }
+                    </div>
+                </div>
+
+                <br />
+                <!-- Chaperone Sex Preference-->
+                <div class="row">
+                    <div class="col-xs-5">
+                        <label class="redText" style="font-size:medium">*</label>
+                        <label class="" style="font-size:medium">Chaperone Sex Preference:</label>
+                    </div>
+                    <div class="col-xs-7">
+                        @if (Model.IsVaLOB)
+                        {
+                            @Html.DropDownListFor(m => m.ChaperoneGenderPreferenceTypeId, new SelectList(Model.ChaperoneGenderPreferenceTypes, "Key", "Value"), new { id = "ChaperoneGenderPreferenceType", @class = "form-control", @onchange = "FillTypesOnChange(this, 'ChaperoneGenderPreferenceType')" })
+                        }
+                        else
+                        {
+                            <select id="ChaperoneGenderPreferenceType" name="ChaperoneGenderPreferenceTypeId" class="form-control" onchange="FillTypesOnChange(this, 'ChaperoneGenderPreferenceType')"></select>
+                        }
+                    </div>
+                </div>
+
+                <br />
+
+
+                <!-- Note-->
+                <div class="row">
+                    <div class="col-xs-5">
+                        <label class="redText lblRequiredNotes" style="font-size:medium">*</label>
+                        <label class="" style="font-size:medium">Notes:</label>
+                    </div>
+                    <div class="col-xs-7">
+                        @Html.TextArea("ContactAttemptNote", new { id = "txtContactAttemptNote", @class = "form-control", rows = 1, maxlength = 3000, placeholder = "", onkeypress = "return CheckAlphaNumericChar(event, $(this).val())" })
+                    </div>
+                </div>
+
+                <br />
+
+
+
+
+
+                <div class="row" id="divAppointmentList" name="divEdit">
+                    <div class="col-xs-5">
+                        <label style="font-size:medium">Appointment(s):</label>
+                    </div>
+                    <div class="col-xs-7">
+                        <label id="SelectedAppointmentListLabel"></label>
+                    </div>
+                </div>
+                <br />
+
+            </div>
+            @*error message*@
+            <div id="div-contactAttemptmodal-error-container" style="margin-left: 15px;">
+                <ul id="contactAttempt-modal-validation-summary"></ul>
+            </div>
+
+            <div class="modal-footer inputLabel">
+                <button type="submit" id="btnContactAttempSave" name="btnContactAttemp" data-pdsa-action="save" class="btn-default" title="">
+                    Save
+                </button>
+
+                &nbsp;&nbsp;
+                <button id="btnCloseContactAttemp" class="btn-default" type="button" data-dismiss="modal" onclick="contactAttemptClosebtn()">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-overlay"></div>
+ <div class="spinner"></div>
+}
+
