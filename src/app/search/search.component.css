@@ -1,107 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Image OCR</title>
-
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.4.120/build/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@1.0.19/dist/tesseract.min.js"></script>
-</head>
-<body>
-
-    <input type="file" id="pdf-upload" accept="application/pdf" />
-    <input type="text" id="keyword-input" placeholder="Enter keyword to search..." />
-    <button id="scan-btn">Scan PDF</button>
-    <p id="result"></p>
-    <canvas id="pdf-canvas"></canvas>
-    
-    <script>
-    document.getElementById("scan-btn").addEventListener("click", async () => {
-        const fileInput = document.getElementById("pdf-upload");
-        const keyword = document.getElementById("keyword-input").value.trim();
-        const resultElement = document.getElementById("result");
-    
-        if (!fileInput.files[0]) {
-            resultElement.innerText = "Please upload a PDF.";
-            return;
-        }
-        if (!keyword) {
-            resultElement.innerText = "Please enter a keyword to search.";
-            return;
-        }
-    
-        const file = fileInput.files[0];
-        const fileReader = new FileReader();
-    
-        fileReader.onload = async function () {
-            const typedarray = new Uint8Array(this.result);
-            const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
-            const canvas = document.getElementById("pdf-canvas");
-            const context = canvas.getContext("2d");
-            const scale = 2;
-            let found = false;
-    
-            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                const page = await pdf.getPage(pageNum);
-                const viewport = page.getViewport({ scale });
-
-                const operatorList = await page.getOperatorList();
-                const images = [];
-
-                for (let i = 0; i < operatorList.fnArray.length; i++) {
-                    if (operatorList.fnArray[i] === pdfjsLib.OPS.paintImageXObject) {
-                        const imgName = operatorList.argsArray[i][0];
-                        const imgObject = page.objs[imgName];
-                        if (!imgObject) {
-                            console.warn(`Image ${imgName} not found.`);
-                            continue; // Skip if undefined
-                        }
-                        const image = await imgObject.promise;
-                        images.push({ image, name: imgName });
-                    }
+<div class="row">
+    <div class="col-xs-5">
+        <label class="redText" style="font-size:medium">*</label>
+        <label class="" style="font-size:medium">ADA:</label>
+    </div>
+    <div class="col-xs-7">
+        <div class="dropdown">
+            <button class="form-control dropdown-toggle" type="button" id="adaTypeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Select ADA Type(s)
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="adaTypeDropdown" style="width:100%; padding:10px;">
+                @foreach (var ada in Model.AdaTypes)
+                {
+                    <li>
+                        <label style="font-weight:normal;">
+                            <input type="checkbox" name="SelectedAdaTypeIds" value="@ada.Key"
+                                   @(Model.SelectedAdaTypeIds.Contains(ada.Key) ? "checked" : "") />
+                            @ada.Value
+                        </label>
+                    </li>
                 }
-
-                for (let { image, name } of images) {
-                    const imgWidth = image.width;
-                    const imgHeight = image.height;
-                    const imgArea = imgWidth * imgHeight;
-                    const viewportArea = viewport.width * viewport.height;
-                    const imgPercentage = (imgArea / viewportArea) * 100;
-
-                    console.log(`Image "${name}" occupies ${imgPercentage.toFixed(2)}% of viewport.`);
-
-                    if (imgPercentage <= 30) {
-                        canvas.width = imgWidth;
-                        canvas.height = imgHeight;
-                        context.clearRect(0, 0, canvas.width, canvas.height);
-                        context.drawImage(image, 0, 0);
-
-                        const imageDataUrl = canvas.toDataURL();
-                        const { data: { text } } = await Tesseract.recognize(imageDataUrl, 'eng');
-
-                        console.log(`Page ${pageNum} image text:\n`, text);
-    
-                        if (text.toLowerCase().includes(keyword.toLowerCase())) {
-                            resultElement.innerText = `✅ Keyword "${keyword}" found in an image on page ${pageNum}.`;
-                            found = true;
-                            break;
-                        }
-                    } else {
-                        console.log(`Skipping image "${name}" (too large).`);
-                    }
-                }
-                if (found) break;
-            }
-    
-            if (!found) {
-                resultElement.innerText = `❌ Keyword "${keyword}" not found in qualifying images.`;
-            }
-        };
-    
-        fileReader.readAsArrayBuffer(file);
-    });
-    </script>
-
-</body>
-</html>
+            </ul>
+        </div>
+    </div>
+</div>
