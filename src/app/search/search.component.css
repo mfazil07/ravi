@@ -1,141 +1,18 @@
-<div class="row">
-    <div class="col-xs-5">
-        <label class="redText" style="font-size:medium">*</label>
-        <label class="" style="font-size:medium">ADA:</label>
-    </div>
-    <div class="col-xs-7">
-        <div class="dropdown">
-            <button class="form-control dropdown-toggle" type="button" id="adaTypeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Select ADA Type(s)
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="adaTypeDropdown" style="width:100%; padding:10px; max-height:200px; overflow:auto;">
-                @foreach (var ada in Model.AdaTypes)
-                {
-                    <li>
-                        <label style="font-weight:normal;">
-                            <input type="checkbox" name="SelectedAdaTypeIds" value="@ada.Key"
-                                @(Model.SelectedAdaTypeIds != null && Model.SelectedAdaTypeIds.Contains(ada.Key) ? "checked" : "") />
-                            @ada.Value
-                        </label>
-                    </li>
-                }
-            </ul>
-        </div>
-    </div>
-</div>
+// Get all checked checkboxes for ADA types
+var checkedAdaCheckboxes = $("input[name='SelectedAdaTypeIds']:checked");
 
+// Store label texts for checked checkboxes
+var checkedAdaLabels = [];
+checkedAdaCheckboxes.each(function() {
+    // Get the label text next to the checkbox
+    var labelText = $(this).closest('label').text().trim();
+    checkedAdaLabels.push(labelText);
+});
 
-
-                    <script>
-    $(document).on('click', '.dropdown-menu', function (e) {
-        e.stopPropagation();
-    });
-
-    // Optional: Update button text with selected items
-    $('input[name="SelectedAdaTypeIds"]').on('change', function() {
-        var selectedItems = [];
-        $('input[name="SelectedAdaTypeIds"]:checked').each(function() {
-            selectedItems.push($(this).parent().text().trim());
-        });
-        $('#adaTypeDropdown').html(
-            (selectedItems.length > 0 ? selectedItems.join(', ') : 'Select ADA Type(s)') + 
-            ' <span class="caret"></span>'
-        );
-    });
-</script>
-
-
-            <script>
-    $(document).ready(function() {
-        // Manually check if dropdown works when clicked
-        $('#adaTypeDropdown').on('click', function(e) {
-            e.preventDefault();
-            $(this).next('.dropdown-menu').toggle();
-        });
-    });
-</script>
-
-
-
-
-
-
-            <div class="dropdown">
-    <button class="form-control dropdown-toggle" type="button" id="adaTypeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        Select ADA Type(s) <!-- Default text -->
-        <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu" aria-labelledby="adaTypeDropdown" style="width:100%; padding:10px; max-height:200px; overflow:auto;">
-        @foreach (var ada in Model.AdaTypes)
-        {
-            <li>
-                <label style="font-weight:normal;">
-                    <input type="checkbox" name="SelectedAdaTypeIds" value="@ada.Key"
-                           @(Model.SelectedAdaTypeIds != null && Model.SelectedAdaTypeIds.Contains(ada.Key) ? "checked" : "") />
-                    @ada.Value
-                </label>
-            </li>
-        }
-    </ul>
-</div>
-
-<script>
-    $(document).ready(function() {
-        // Update button text on page load (if items are pre-selected)
-        updateButtonText();
-
-        // Update button text when checkboxes change
-        $(document).on('change', 'input[name="SelectedAdaTypeIds"]', function() {
-            updateButtonText();
-        });
-
-        function updateButtonText() {
-            var selectedCount = $('input[name="SelectedAdaTypeIds"]:checked').length;
-            var buttonText = selectedCount === 0 
-                ? 'Select ADA Type(s)' 
-                : selectedCount + ' selected';
-            
-            $('#adaTypeDropdown').html(buttonText + ' <span class="caret"></span>');
-        }
-    });
-</script>
-
-
-
-            ----------------------
-
-            <script>
-    $(document).ready(function() {
-        // 1. Toggle dropdown manually (if Bootstrap fails)
-        $('#adaTypeDropdown').on('click', function(e) {
-            e.preventDefault();
-            $(this).next('.dropdown-menu').toggle();
-        });
-
-        // 2. Update button text on load (for pre-selected items)
-        updateButtonText();
-
-        // 3. Update button text when checkboxes change
-        $(document).on('change', 'input[name="SelectedAdaTypeIds"]', function() {
-            updateButtonText();
-        });
-
-        // 4. Prevent dropdown from closing when clicking checkboxes
-        $(document).on('click', '.dropdown-menu', function(e) {
-            if ($(e.target).is('input[type="checkbox"]')) {
-                e.stopPropagation(); // Keep dropdown open
-            }
-        });
-
-        // Helper function to update button text
-        function updateButtonText() {
-            var selectedCount = $('input[name="SelectedAdaTypeIds"]:checked').length;
-            var buttonText = selectedCount === 0 
-                ? 'Select ADA Type(s)' 
-                : selectedCount + ' selected';
-            
-            $('#adaTypeDropdown').html(buttonText + ' <span class="caret"></span>');
-        }
-    });
-</script>
+// Check if "NOT required" is selected with others
+if (
+    checkedAdaLabels.includes("NOT required") &&
+    checkedAdaLabels.length > 1
+) {
+    errorMsg.push('<li style="color: red">You cannot select "NOT required" along with other ADA types. Please select either "NOT required" or other ADA type(s), but not both.</li>');
+}
