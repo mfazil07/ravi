@@ -1,18 +1,77 @@
-// Get all checked checkboxes for ADA types
-var checkedAdaCheckboxes = $("input[name='SelectedAdaTypeIds']:checked");
+@model Qtc.PartnerPortal.WebApp.Models.RescheduleDetailsViewModel
+<div class="col-md-6" id="reschedule" style="display: none;">
+    <div class="row">
+        <div class="col-md-3">
+            <label>Requested by</label><span class="text-danger">*</span>
+            @Html.DropDownListFor(m => m.RequestedById, new SelectList(Model.RequestedByList, "RequestedById", "RequestedByName"), "- Select -", new { @id= "ddlRequestedBy", @class = "form-control" })
+            <div class="validationError divRequestedById text-danger" style="display:none"> <span class="field-validation-error" data-valmsg-for="RequestedById" data-valmsg-replace="true">Requested by is required</span></div>
 
-// Store label texts for checked checkboxes
-var checkedAdaLabels = [];
-checkedAdaCheckboxes.each(function() {
-    // Get the label text next to the checkbox
-    var labelText = $(this).closest('label').text().trim();
-    checkedAdaLabels.push(labelText);
-});
+        </div>
+        <div class="col-md-4">
+            <label>Reschedule Reason</label><span class="text-danger">*</span>
+            @Html.DropDownListFor(m => m.RescheduleReasonId, new SelectList(Model.RescheduleReasonList,"RescheduleReasonId","RescheduleReasonName"), "- Select -", new { @Disabled = true, @id="ddlRescheduleReason",  @class = "form-control" })
+            <div class="validationError divInvalideRescheduleReason text-danger" style="display:none"> <span class="field-validation-error" data-valmsg-for="RescheduleReasonId" data-valmsg-replace="true">Reschedule reason is required</span></div>
 
-// Check if "NOT required" is selected with others
-if (
-    checkedAdaLabels.includes("NOT required") &&
-    checkedAdaLabels.length > 1
-) {
-    errorMsg.push('<li style="color: red">You cannot select "NOT required" along with other ADA types. Please select either "NOT required" or other ADA type(s), but not both.</li>');
-}
+        </div>
+        <div class="col-md-4">
+            <label>Reschedule notes</label>
+            @Html.TextBoxFor(m => m.Note, new { @class = "form-control", @rows = "3", @placeholder = "Type reschedule notes here", @id = "Reschedulenotes", @maxlength = "30" })
+            <div class="validationError divInvalideReschedulenotes text-danger" style="display:none"> <span class="field-validation-error" data-valmsg-for="Note" data-valmsg-replace="true">Only 30 characters are allowed</span></div>
+        </div>
+    </div>
+
+    <!-- Weather Alerts -->
+    <div class="row mt-3 mb-2">
+        <div class="row justify-content-between">
+            <div class="col-3 p-2 h6 darkpurpleText">
+                <span class="fa-stack">
+                    <i class="fa fa-circle-thin fa-stack-2x text-primary"></i>
+                    <i class="fa fa-cloud fa-stack-1x text-black"></i>
+                    <i class="fa fa-bolt fa-stack-1x text-danger mt-1"></i>
+                </span>
+                <b> Weather Alerts</b>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <label title="Filter weather events by the Country" for="ddlreschApptCountry">Weather Alert Countries</label>
+            <div class="form-group">
+                <select class="form-control mb-2 qtc-weather-alert-multi-select" id="ddlreschApptCountry" name="Country" placeholder="- Select Country -" multiple="multiple">
+                    @foreach (var item in Model.CountryList)
+                    {
+                        <option value="@item.Key">
+                            @item.Value
+                        </option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label title="Filter weather events by the State (US)" for="ddlreschApptState">Weather Alert States (US)</label>
+            <div class="form-group">
+                <select class="form-control mb-2 qtc-weather-alert-multi-select" id="ddlreschApptState" name="States" placeholder="- Select State -" multiple="multiple">
+                    @foreach (var item in Model.StatesList)
+                    {
+                        <option value="@item.Key">
+                            @item.Value
+                        </option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="col-md-12 mt-3">
+            <label title="Select the weather event affected the reschedule" for="ddlreschWatherEvent">Weather Alert</label>
+            <div class="form-group">
+                <select class="form-control" id="ddlreschWatherEvent" name="Country" placeholder="- Select Weather Alert -">
+                    @*foreach (var item in Model.WeatherEventList)
+                    {
+                        <option value="@item.WeatherEventId">
+                            Event: @item.WeatherEvent, Type: @item.WeatherType, Description: @item.Description [ @item.StartDate.ToShortDateString() -  @item.EndDate.ToShortDateString() ]
+                        </option>
+                    }*@
+                </select>
+            </div>
+        </div>
+    </div>
+
+</div>
