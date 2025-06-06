@@ -25,3 +25,20 @@ function triggerWeatherEventsCheck() {
         }
     });
 }
+
+
+/////
+
+function updateWeatherEventsDropdown(events) {
+    var $dropdown = $("#ddlreschWatherEvent");
+    $dropdown.empty();
+    $dropdown.append('<option value="">- Select Weather Alert -</option>');
+    if (events && events.length) {
+        events.forEach(function (event) {
+            var text = "Event: " + event.WeatherEvent + ", Type: " + event.WeatherType +
+                ", Description: " + event.Description +
+                " [" + event.StartDate + " - " + event.EndDate + "]";
+            $dropdown.append('<option value="' + event.WeatherEventId + '">' + text + '</option>');
+        });
+    }
+}
