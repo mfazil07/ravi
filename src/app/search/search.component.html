@@ -1,35 +1,27 @@
-// Assuming you want to trigger when either dropdown changes
-$('#ddlreschApptCountry, #ddlreschApptState').change(function () {
-    var countries = $('#ddlreschApptCountry').val(); // array of selected country keys
-    var states = $('#ddlreschApptState').val(); // array of selected state keys
+function triggerWeatherEventsCheck() {
+    var selectedCountries = $("#ddlreschApptCountry").val();
+    var selectedStates = $("#ddlreschApptState").val();
 
-    // Check for 'USA' selected and one state selected
-    if (countries && countries.includes('USA') && states && states.length === 1) {
-        // Prepare data
-        var data = {
-            Country: countries, // List<string>
-            State: states       // List<string>
-        };
-
-        // Send to controller via AJAX (POST)
-        $.ajax({
-            url: '/RescheduleReason/YourAction', // replace with your action method
-            type: 'POST',
-            data: JSON.stringify(data),
-            contentType: 'application/json',
-            success: function (response) {
-                // Handle response (e.g., update RescheduleReason dropdown)
-                // Example: $('#ddlRescheduleReason').html(response);
-            }
-        });
+    if (selectedCountries && selectedCountries.includes("USA") && (!selectedStates || selectedStates.length === 0)) {
+        alert("Please select a state when USA is selected.");
+        return;
     }
-});
 
+    var data = {
+        Country: selectedCountries,
+        State: selectedStates
+    };
 
-<script>
-$(document).ready(function () {
-    $('#ddlreschApptCountry, #ddlreschApptState').change(function () {
-        // ... your logic ...
+    $.ajax({
+        url: '/RescheduleReason/GetWeatherEvents',
+        type: 'POST',
+        data: JSON.stringify(data),
+        contentType: 'application/json; charset=utf-8',
+        success: function (response) {
+            updateWeatherEventsDropdown(response);
+        },
+        error: function (xhr, status, error) {
+            alert("Error fetching weather events.");
+        }
     });
-});
-</script>
+}
