@@ -4,9 +4,13 @@
         multiple="multiple">
     @foreach (var item in Model.CountryList)
     {
-        <option value="@item.Key" 
-                @(Model.SelectedCountries.Contains(item.Key) ? "selected" : "")>
-            @item.Value
-        </option>
+        @if (Model.SelectedCountries.Contains(item.Key))
+        {
+            <option value="@item.Key" selected>@item.Value</option>
+        }
+        else
+        {
+            <option value="@item.Key">@item.Value</option>
+        }
     }
 </select>
