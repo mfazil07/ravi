@@ -18,7 +18,9 @@
     }
 </select>
 
-
+<option value="@item.Key" @(Model.State != null && Model.State.Contains(item.Key) ? "selected" : "")>
+    @item.Value
+</option>
 ////
 
 
