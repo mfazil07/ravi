@@ -1,44 +1,12 @@
-function triggerWeatherEventsCheck() {
-    var selectedCountries = $("#ddlreschApptCountry").val();
-    var selectedStates = $("#ddlreschApptState").val();
+<ul class="multiselect-container dropdown-menu show" data-popper-placement="bottom-start" style="max-height: 350px; overflow: hidden auto; position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate(0px, 35px);"><li class="active"><a tabindex="0"><label class="checkbox"><input type="checkbox" value="USA"> 
+                        UNITED STATES OF AMERICA
+                    </label></a></li><li><a tabindex="0"><label class="checkbox"><input type="checkbox" value="ALA"> 
+                        ÅLAND ISLANDS
+                    </label></a></li><li><a tabindex="0"><label class="checkbox"><input type="checkbox" value="ALB"> 
+                        ALBANIA
+                    </label></a></li><li><a tabindex="0"><label class="checkbox"><input type="checkbox" value="DZA"> 
+                        ALGERIA
+                    </label>
+                    </label></a></li></ul>
 
-    if (selectedCountries && selectedCountries.includes("USA") && (!selectedStates || selectedStates.length === 0)) {
-        alert("Please select a state when USA is selected.");
-        return;
-    }
-
-    var data = {
-        Country: selectedCountries,
-        State: selectedStates
-    };
-
-    $.ajax({
-        url: '/RescheduleReason/GetWeatherEvents',
-        type: 'POST',
-        data: JSON.stringify(data),
-        contentType: 'application/json; charset=utf-8',
-        success: function (response) {
-            updateWeatherEventsDropdown(response);
-        },
-        error: function (xhr, status, error) {
-            alert("Error fetching weather events.");
-        }
-    });
-}
-
-
-/////
-
-function updateWeatherEventsDropdown(events) {
-    var $dropdown = $("#ddlreschWatherEvent");
-    $dropdown.empty();
-    $dropdown.append('<option value="">- Select Weather Alert -</option>');
-    if (events && events.length) {
-        events.forEach(function (event) {
-            var text = "Event: " + event.WeatherEvent + ", Type: " + event.WeatherType +
-                ", Description: " + event.Description +
-                " [" + event.StartDate + " - " + event.EndDate + "]";
-            $dropdown.append('<option value="' + event.WeatherEventId + '">' + text + '</option>');
-        });
-    }
-}
+this how it rendering in UI ..how to clear the selections 
