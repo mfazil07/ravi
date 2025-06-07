@@ -22,14 +22,16 @@
     <div class="col-md-4">
         <label title="Filter weather events by the Country" for="@idDDCountry">Weather Alert Countries</label>
         <div class="form-group">
-            <select class="form-control mb-2 qtc-weather-alert-multi-select" id="@idDDCountry" name="Country" placeholder="- Select Country -" multiple="multiple">
-                @foreach (var item in Model.CountryList)
-                {
-                    <option value="@item.Key" selected="@(Model.Country != null && Model.Country ==item.Key)">
-                        @item.Value
-                    </option>
-                }
-            </select>
+           <select id="@idDDCountry" name="Country" multiple="multiple" class="form-control mb-2 qtc-weather-alert-multi-select">
+@foreach (var item in Model.CountryList)
+{
+    <option value="@item.Key"
+        @if (Model.Country != null && Model.Country.Contains(item.Key))
+        { <text>selected="selected"</text>; }>
+        @item.Value
+    </option>
+}
+</select>
         </div>
     </div>
     <div class="col-md-5">       
@@ -38,7 +40,7 @@
             <select class="form-control mb-2 qtc-weather-alert-multi-select" id="@idDDState" name="States" placeholder="- Select State -" multiple="multiple">
                 @foreach (var item in Model.StatesList)
                 {
-                    <option value="@item.Key" selected="@(Model.State != null && Model.State ==item.Key))">
+                    <option value="@item.Key" selected="@(Model.State != null && Model.State.Contains(item.Key))">
                         @item.Value
                     </option>
                 }
@@ -59,3 +61,33 @@
         </div>
     </div>
 </div>
+
+            <script>
+                   $(document).ready(function() {
+        // Get default values from the rendered select element
+        var defaultValues = $('#@idDDCountry').val() || [];
+
+        // Initialize multiselect
+        $('#@idDDCountry').multiselect({
+            buttonClass: 'btn btn-default',
+            templates: {
+                button: '<button type="button" class="multiselect dropdown-toggle form-control-drop-down form-control" data-bs-toggle="dropdown"></button>'
+            },
+            includeSelectAllOption: true,
+            enableFiltering: true,
+            // Update button text immediately
+            onChange: function() {
+                $('#@idDDCountry').multiselect('updateButtonText');
+            }
+        });
+
+        // Set default selections after initialization
+        if (defaultValues.length > 0) {
+            setTimeout(function() {
+                $('#@idDDCountry').multiselect('select', defaultValues);
+                $('#@idDDCountry').multiselect('updateButtonText');
+            }, 100);
+        }
+    });
+
+            </script>
