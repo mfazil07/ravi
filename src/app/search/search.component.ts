@@ -62,12 +62,12 @@ $(document).ready(function() {
 
 
 
-//@foreach (var item in Model.CountryList)
+<select id="@idDDCountry" name="Country" multiple="multiple" class="form-control mb-2 qtc-weather-alert-multi-select">
+@foreach (var item in Model.CountryList)
 {
     <option value="@item.Key"
         @if (Model.Country != null && Model.Country.Contains(item.Key)) { <text>selected="selected"</text>; }>
         @item.Value
     </option>
 }
-    }
-});
+</select>
