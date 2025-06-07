@@ -10,3 +10,29 @@
                     </label></a></li></ul>
 
 this how it rendering in UI ..how to clear the selections 
+
+
+
+
+ function toggleWeatherAlerts() {
+     // debugger;
+    var requestedByText = $("#ddlRequestedBy option:selected").text();
+    var rescheduleReasonText = $("#ddlRescheduleReason option:selected").text();
+
+    if (requestedByText === "EXAMINEE" && rescheduleReasonText==="Appointment rescheduled per weather event") {
+        $("#weatherAlertsSection").show();
+    } else {
+        $("#weatherAlertsSection").hide();
+
+
+        $("#ddlRescheduleApptState option:selected").prop("selected", false);
+        $("#ddlRescheduleApptCountry option:selected").prop("selected", false);
+        $("#ddlRescheduleWeatherEvent").val(null).trigger("change");
+
+        // Force the dropdowns to display the placeholder text
+        $(".qtc-weather-alert-multi-select").each(function () {
+            $(this).find("option:selected").removeAttr("selected"); 
+            $(this).val("").trigger("change");
+        });
+    }
+}
