@@ -25,6 +25,15 @@
     </option>
 }
 
+//2
+@foreach (var item in Model.CountryList)
+{
+    <option value="@item.Key"
+        @if (Model.Country != null && Model.Country.Contains(item.Key)) { <text>selected="selected"</text>; }>
+    @item.Value
+    </option>
+}
+
 
 $(document).ready(function () {
     var initialCountries = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Country ?? new List<string>()));
