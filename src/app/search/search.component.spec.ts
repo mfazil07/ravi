@@ -18,10 +18,12 @@
     }
 </select>
 
-<option value="@item.Key" @(Model.State != null && Model.State.Contains(item.Key) ? "selected" : "")>
-    @item.Value
-</option>
-////
+@foreach (var item in Model.CountryList)
+{
+    <option value="@item.Key" @(Model.Country != null && Model.Country.Contains(item.Key) ? "selected" : "")>
+        @item.Value
+    </option>
+}
 
 
 $(document).ready(function () {
