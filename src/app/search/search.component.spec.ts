@@ -1,53 +1,41 @@
-$('#ddlRescheduleApptState').multiselect('deselectAll', false);
-$('#ddlRescheduleApptState').multiselect('updateButtonText');
-$('#ddlRescheduleApptCountry').multiselect('deselectAll', false);
-$('#ddlRescheduleApptCountry').multiselect('updateButtonText');
+<select class="form-control mb-2 qtc-weather-alert-multi-select" id="@idDDCountry" name="Country" placeholder="- Select Country -" multiple="multiple">
+    @foreach (var item in Model.CountryList)
+    {
+        var selected = (Model.Country != null && Model.Country.Contains(item.Key)) ? "selected" : "";
+        <option value="@item.Key" @selected>
+            @item.Value
+        </option>
+    }
+</select>
+
+<select class="form-control mb-2 qtc-weather-alert-multi-select" id="@idDDState" name="States" placeholder="- Select State -" multiple="multiple">
+    @foreach (var item in Model.StatesList)
+    {
+        var selected = (Model.State != null && Model.State.Contains(item.Key)) ? "selected" : "";
+        <option value="@item.Key" @selected>
+            @item.Value
+        </option>
+    }
+</select>
 
 
+////
 
-function triggerWeatherEventsCheck() {
-    setTimeout(function () {
-        // Gather selections
-        var selectedStates = [];
-        $("#ddlRescheduleApptState").next(".btn-group").find("input:checked").each(function () {
-            selectedStates.push($(this).val());
-        });
-        var selectedCountries = $("#ddlRescheduleApptCountry").val();
 
-        // Handle USA: States must be selected
-        if (selectedCountries && selectedCountries.includes("USA")) {
-            if (selectedStates.length === 0) {
-                // No state selected with USA -- clear weather events and do NOT call AJAX
-                updateWeatherEventsDropdown([]);
-                return;
-            }
-        }
+$(document).ready(function () {
+    var initialCountries = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Country ?? new List<string>()));
+    var initialStates = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.State ?? new List<string>()));
 
-        // If no country selected at all, clear weather events
-        if (!selectedCountries || selectedCountries.length === 0) {
-            updateWeatherEventsDropdown([]);
-            return;
-        }
+    $("#ddlRescheduleApptCountry").val(initialCountries).trigger('change');
+    $("#ddlRescheduleApptState").val(initialStates).trigger('change');
 
-        // If another country (not USA), proceed with AJAX (states irrelevant)
-        var data = {
-            Country: selectedCountries,
-            State: selectedStates.length > 0 ? selectedStates : null
-        };
+    if (initialCountries && initialCountries.includes("USA")) {
+        $("#ddlRescheduleApptState").closest(".form-group").show();
+    } else {
+        $("#ddlRescheduleApptState").closest(".form-group").hide();
+    }
 
-        $.ajax({
-            url: "/RescheduleReason/GetWeatherEvents",
-            type: "POST",
-            data: JSON.stringify(data),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            processData: false,
-            success: function (response) {
-                updateWeatherEventsDropdown(response);
-            },
-            error: function (xhr, status, error) {
-                console.error("Error fetching weather events:", error);
-            }
-        });
-    }, 100);
-}
+    triggerWeatherEventsCheck();
+
+    // ... your other JS code ...
+});
