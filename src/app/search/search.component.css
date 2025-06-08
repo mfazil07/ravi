@@ -7,7 +7,7 @@
 }
 
 <!-- Weather Alerts -->
-<div class="row mt-3 mb-2">
+<div class="row mt-3 mb-2" id="weatherAlertsSection">
     <div class="row justify-content-between">
         <div class="col-3 p-2 h6 darkpurpleText">
             <span class="fa-stack">
@@ -26,7 +26,7 @@
             <select id="@idDDCountry" name="Country" multiple="multiple" class="form-control mb-2 qtc-weather-alert-multi-select">
                 @foreach (var item in Model.CountryList)
                 {
-                    <option value="@item.Key" selected="@(Model.Country != null && Model.Country.Contains(item.Key) ? "selected" : null)">
+                    <option value="@item.Key" @(Model.Country != null && Model.Country.Contains(item.Key) ? "selected" : null)>
                         @item.Value
                     </option>
                 }
@@ -44,7 +44,7 @@
             <select class="form-control mb-2 qtc-weather-alert-multi-select" id="@idDDState" name="States" placeholder="- Select State -" multiple="multiple">
                 @foreach (var item in Model.StatesList)
                 {
-                    <option value="@item.Key" selected="@(Model.State != null && Model.State.Contains(item.Key) ? "selected" : null)">
+                    <option value="@item.Key" @(Model.State != null && Model.State.Contains(item.Key) ? "selected" : null)>
                         @item.Value
                     </option>
                 }
@@ -52,7 +52,7 @@
         </div>
     </div>
     <div class="col-md-12 mt-3">
-        <label title="Select the weather event affected the reschedule" for="idDDWeatherEvent">Weather Alert</label>
+        <label title="Select the weather event affected the reschedule" for="@idDDWeatherEvent">Weather Alert</label>
         <div class="form-group">
             <select class="form-control" id="@idDDWeatherEvent" name="Weather Alerts" placeholder="- Select Weather Alert -">
                 @* @foreach (var item in Model.WeatherEventList) *@
@@ -67,8 +67,12 @@
 </div>
 
 <script>
+    // -- Pass selected values from Razor model --
+    var selectedCountries = @Html.Raw(Json.Serialize(Model.Country ?? new List<string>()));
+    var selectedStates = @Html.Raw(Json.Serialize(Model.State ?? new List<string>()));
+
     function updateWeatherEventsDropdown(events) {
-        var $dropdown = $("#ddlRescheduleWeatherEvent");
+        var $dropdown = $("#@idDDWeatherEvent");
         $dropdown.empty();
         $dropdown.append('<option value="">- Select Weather Alert -</option>');
         if (events && events.length) {
@@ -82,105 +86,96 @@
     }
 
     $(document).ready(function () {
-        // Initialize multiselects
-        function initializeMultiSelects() {
-            $('#@idDDCountry').multiselect({
-                includeSelectAllOption: true,
-                enableFiltering: true,
-                enableCaseInsensitiveFiltering: true,
-                buttonWidth: '100%',
-                maxHeight: 300,
-                buttonClass: 'form-control text-left',
-                templates: {
-                    filter: '<li class="multiselect-item multiselect-filter"><div class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span><input class="form-control multiselect-search" type="text"></div></li>',
-                    filterClearBtn: '<span class="input-group-btn"><button class="btn btn-default multiselect-clear-filter" type="button"><i class="fa fa-times"></i></button></span>'
-                },
-                onInitialized: function(select, container) {
-                    var selectedCountries = @Html.Raw(Json.Serialize(Model.Country ?? new List<string>()));
-                    if (selectedCountries && selectedCountries.length > 0) {
-                        $(select).val(selectedCountries);
-                        $(select).multiselect('refresh');
-                    }
-                }
-            });
+        // 1. Initialize Country & State Bootstrap Multiselects
+        $('#@idDDCountry').multiselect({
+            includeSelectAllOption: true,
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true,
+            buttonWidth: '100%',
+            maxHeight: 300,
+            buttonClass: 'form-control text-left',
+            nonSelectedText: '- Select Country -',
+            selectAllText: 'Select All',
+            allSelectedText: 'All Selected',
+            nSelectedText: 'Selected',
+            templates: {
+                filter: '<li class="multiselect-item multiselect-filter"><div class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span><input class="form-control multiselect-search" type="text"></div></li>',
+                filterClearBtn: '<span class="input-group-btn"><button class="btn btn-default multiselect-clear-filter" type="button"><i class="fa fa-times"></i></button></span>'
+            }
+        });
 
-            $('#@idDDState').multiselect({
-                includeSelectAllOption: true,
-                enableFiltering: true,
-                buttonWidth: '100%',
-                buttonClass: 'form-control text-left',
-                onInitialized: function(select, container) {
-                    var selectedStates = @Html.Raw(Json.Serialize(Model.State ?? new List<string>()));
-                    if (selectedStates && selectedStates.length > 0) {
-                        $(select).val(selectedStates);
-                        $(select).multiselect('refresh');
-                    }
-                }
-            });
+        $('#@idDDState').multiselect({
+            includeSelectAllOption: true,
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true,
+            buttonWidth: '100%',
+            maxHeight: 300,
+            buttonClass: 'form-control text-left',
+            nonSelectedText: '- Select State -',
+            selectAllText: 'Select All',
+            allSelectedText: 'All Selected',
+            nSelectedText: 'Selected'
+        });
+
+        // 2. Set selected values and refresh
+        $('#@idDDCountry').val(selectedCountries).multiselect('refresh');
+        $('#@idDDState').val(selectedStates).multiselect('refresh');
+
+        // 3. Toggle State dropdown visibility depending on country selection
+        function toggleStateDropdown() {
+            var selCountries = $('#@idDDCountry').val();
+            if (selCountries && selCountries.includes('USA')) {
+                $('#@idDDState').closest('.form-group').show();
+            } else {
+                $('#@idDDState').closest('.form-group').hide();
+                $('#@idDDState').val([]).multiselect('refresh');
+            }
         }
+        toggleStateDropdown();
 
-        // Initialize the multiselect dropdowns
-        initializeMultiSelects();
-
+        // 4. Show/hide weather alert section based on other dropdowns
         function toggleWeatherAlerts() {
             var requestedByText = $("#ddlRequestedBy option:selected").text();
             var rescheduleReasonText = $("#ddlRescheduleReason option:selected").text();
 
             if (requestedByText === "EXAMINEE" && rescheduleReasonText === "Appointment rescheduled per weather event") {
                 $("#weatherAlertsSection").show();
-                // Refresh multiselects to ensure proper rendering
                 $('#@idDDCountry').multiselect('refresh');
                 $('#@idDDState').multiselect('refresh');
             } else {
                 $("#weatherAlertsSection").hide();
-                // Clear selections
-                $('#@idDDState').multiselect('deselectAll', false);
-                $('#@idDDState').multiselect('updateButtonText');
-                $('#@idDDCountry').multiselect('deselectAll', false);
-                $('#@idDDCountry').multiselect('updateButtonText');
-                $("#ddlRescheduleWeatherEvent").val(null).trigger("change");
+                $('#@idDDState').multiselect('deselectAll', false).multiselect('updateButtonText');
+                $('#@idDDCountry').multiselect('deselectAll', false).multiselect('updateButtonText');
+                $("#@idDDWeatherEvent").val(null).trigger("change");
+                $(".qtc-weather-alert-multi-select").each(function () {
+                    $(this).find("option:selected").removeAttr("selected");
+                    $(this).val("").trigger("change");
+                });
             }
         }
 
-        // Bind the change event to dropdowns
+        // 5. Event bindings
         $("#ddlRequestedBy, #ddlRescheduleReason").on("change", function () {
             toggleWeatherAlerts();
         });
 
-        // Run the function on page load to set the correct visibility
-        toggleWeatherAlerts();
-
-        // state checkboxes click event inside multi-select dropdown
-        $("#ddlRescheduleApptState").next(".btn-group").find("input").on("click", function () {
+        $('#@idDDCountry').on('change', function () {
+            toggleStateDropdown();
             triggerWeatherEventsCheck();
         });
 
-        $("#ddlRescheduleApptCountry").on("change", function () {
+        $('#@idDDState').on('change', function () {
             triggerWeatherEventsCheck();
-
-            var selectedCountries = $(this).val();
-            if (selectedCountries && selectedCountries.includes("USA")) {
-                $("#ddlRescheduleApptState").closest(".form-group").show();
-            } else {
-                $("#ddlRescheduleApptState").closest(".form-group").hide();
-                $("#ddlRescheduleApptState").val([]).trigger("change");
-            }
         });
 
-        // state dropdown is hidden initially if USA is not selected
-        var initialCountries = $("#ddlreschApptCountry").val();
-        if (!initialCountries || !initialCountries.includes("USA")) {
-            $("#ddlRescheduleApptState").closest(".form-group").hide();
-        }
+        // Hide state dropdown on load if USA not selected
+        toggleStateDropdown();
 
+        // 6. Weather Event AJAX logic
         function triggerWeatherEventsCheck() {
             setTimeout(function () {
-                // Gather selections
-                var selectedStates = [];
-                $("#ddlRescheduleApptState").next(".btn-group").find("input:checked").each(function () {
-                    selectedStates.push($(this).val());
-                });
-                var selectedCountries = $("#ddlRescheduleApptCountry").val();
+                var selectedStates = $('#@idDDState').val() || [];
+                var selectedCountries = $('#@idDDCountry').val();
 
                 // Handle USA: States must be selected
                 if (selectedCountries && selectedCountries.includes("USA")) {
@@ -218,5 +213,8 @@
                 });
             }, 100);
         }
+
+        // 7. Initial Weather Alerts visibility on load
+        toggleWeatherAlerts();
     });
 </script>
