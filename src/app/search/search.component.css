@@ -1,131 +1,21 @@
-<script>
-    $(document).ready(function () {
-        var selectedCountriesFromModel = @Html.Raw(Json.Serialize(Model.Country ?? new List<string>()));
-        var selectedStatesFromModel = @Html.Raw(Json.Serialize(Model.State ?? new List<string>()));
+$(document).ready(function () {
+    var $country = $('#@idDDCountry');
+    var $state = $('#@idDDState');
 
-        // Set default values *after* DOM is ready but *before* plugin is refreshed
-        var $country = $('#@idDDCountry');
-        var $state = $('#@idDDState');
-        var $weather = $('#@idDDWeatherEvent');
+    // Only refresh — don't reset .val() if selected is already rendered by Razor
+    if ($country.data('multiselect')) $country.multiselect('refresh');
+    if ($state.data('multiselect')) $state.multiselect('refresh');
 
-        // Set values BEFORE initializing the multiselect refresh
-        $country.val(selectedCountriesFromModel);
-        $state.val(selectedStatesFromModel);
+    // Visibility check and AJAX call
+    var selectedCountries = $country.val() || [];
+    var selectedStates = $state.val() || [];
 
-        // Refresh plugin (do this AFTER setting value)
-        if ($country.data('multiselect')) {
-            $country.multiselect('refresh');
-        }
-        if ($state.data('multiselect')) {
-            $state.multiselect('refresh');
-        }
+    if (selectedCountries.includes("USA") && selectedStates.length > 0) {
+        $state.closest(".form-group").show();
+        triggerWeatherEventsCheck(); // your ajax call
+    } else {
+        $state.closest(".form-group").hide();
+    }
 
-        // Now handle visibility and ajax
-        function updateWeatherEventsDropdown(events) {
-            $weather.empty().append('<option value="">- Select Weather Alert -</option>');
-            if (events && events.length) {
-                events.forEach(function (event) {
-                    var text = "Event: " + event.WeatherEventName + ", Type: " + event.Reason +
-                        ", Description: " + event.Description +
-                        " [" + event.StartDate + " - " + event.EndDate + "]";
-                    $weather.append('<option value="' + event.WeatherEventId + '">' + text + '</option>');
-                });
-            }
-        }
-
-        function triggerWeatherEventsCheck() {
-            setTimeout(function () {
-                var selectedStates = [];
-                $state.next(".btn-group").find("input:checked").each(function () {
-                    selectedStates.push($(this).val());
-                });
-
-                var selectedCountries = $country.val();
-
-                if (!selectedCountries || selectedCountries.length === 0 ||
-                    (selectedCountries.includes("USA") && selectedStates.length === 0)) {
-                    updateWeatherEventsDropdown([]);
-                    return;
-                }
-
-                var data = {
-                    Country: selectedCountries,
-                    State: selectedStates.length > 0 ? selectedStates : null
-                };
-
-                $.ajax({
-                    url: "/RescheduleReason/GetWeatherEvents",
-                    type: "POST",
-                    data: JSON.stringify(data),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (response) {
-                        updateWeatherEventsDropdown(response);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("Error fetching weather events:", error);
-                    }
-                });
-            }, 100);
-        }
-
-        function toggleWeatherAlerts() {
-            var requestedByText = $("#ddlRequestedBy option:selected").text();
-            var rescheduleReasonText = $("#ddlRescheduleReason option:selected").text();
-
-            if (requestedByText === "EXAMINEE" && rescheduleReasonText === "Appointment rescheduled per weather event") {
-                $("#weatherAlertsSection").show();
-
-                var selectedCountries = $country.val();
-                if (selectedCountries.includes("USA")) {
-                    $state.closest(".form-group").show();
-                }
-
-                triggerWeatherEventsCheck();
-
-            } else {
-                $("#weatherAlertsSection").hide();
-                $state.closest(".form-group").hide();
-
-                $country.val([]).trigger("change");
-                $state.val([]).trigger("change");
-                $weather.empty().append('<option value="">- Select Weather Alert -</option>');
-
-                if ($country.data('multiselect')) $country.multiselect('refresh');
-                if ($state.data('multiselect')) $state.multiselect('refresh');
-            }
-        }
-
-        // Initial state display logic
-        if (selectedCountriesFromModel.includes("USA") && selectedStatesFromModel.length > 0) {
-            $state.closest(".form-group").show();
-            triggerWeatherEventsCheck();
-        } else {
-            $state.closest(".form-group").hide();
-        }
-
-        // Initial show/hide of weather section
-        toggleWeatherAlerts();
-
-        // Bind handlers
-        $("#ddlRequestedBy, #ddlRescheduleReason").on("change", function () {
-            toggleWeatherAlerts();
-        });
-
-        $country.on("change", function () {
-            var selectedCountries = $(this).val();
-            if (selectedCountries.includes("USA")) {
-                $state.closest(".form-group").show();
-            } else {
-                $state.closest(".form-group").hide();
-                $state.val([]).trigger("change");
-                if ($state.data('multiselect')) $state.multiselect('refresh');
-            }
-            triggerWeatherEventsCheck();
-        });
-
-        $state.next(".btn-group").find("input").on("click", function () {
-            triggerWeatherEventsCheck();
-        });
-    });
-</script>
+    // Run visibility logic as needed here
+});
