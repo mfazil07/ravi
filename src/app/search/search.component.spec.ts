@@ -1,2 +1,156 @@
-<select id="ddlRescheduleApptCountry" name="Country" multiple="multiple" class="form-control mb-2 qtc-weather-alert-multi-select" style="display: none;">
-<option value="USA" selected="">UNITED STATES OF AMERICA</option><option value="ALA">ÅLAND ISLANDS</option><option value="ALB">ALBANIA</option><option value="DZA">ALGERIA</option><option value="ASM">AMERICAN SAMOA</option><option value="AND">ANDORRA</option><option value="AGO">ANGOLA</option><option value="AIA">ANGUILLA</option><option value="ATA">ANTARCTICA</option><option value="ATG">ANTIGUA AND BARBUDA</option><option value="ARG">ARGENTINA</option><option value="ARM">ARMENIA</option><option value="ABW">ARUBA</option><option value="AUS">AUSTRALIA</option><option value="AUT">AUSTRIA</option><option value="AZE">AZERBAIJAN</option><option value="BHS">BAHAMAS</option><option value="BHR">BAHRAIN</option><option value="BGD">BANGLADESH</option><option value="BRB">BARBADOS</option><option value="BLR">BELARUS</option><option value="BEL">BELGIUM</option><option value="BLZ">BELIZE</option><option value="BEN">BENIN</option><option value="BMU">BERMUDA</option><option value="BTN">BHUTAN</option><option value="BOL">BOLIVIA	 PLURINATIONAL STATE OF</option><option value="BIH">BOSNIA AND HERZEGOVINA</option><option value="BWA">BOTSWANA</option><option value="BVT">BOUVET ISLAND</option><option value="BRA">BRAZIL</option><option value="IOT">BRITISH INDIAN OCEAN TERRITORY</option><option value="BRN">BRUNEI DARUSSALAM</option><option value="BGR">BULGARIA</option><option value="BFA">BURKINA FASO</option><option value="BDI">BURUNDI</option><option value="KHM">CAMBODIA</option><option value="CMR">CAMEROON</option><option value="CAN">CANADA</option><option value="CPV">CAPE VERDE</option><option value="CYM">CAYMAN ISLANDS</option><option value="CAF">CENTRAL AFRICAN REPUBLIC</option><option value="TCD">CHAD</option><option value="CHL">CHILE</option><option value="CHN">CHINA</option><option value="CXR">CHRISTMAS ISLAND</option><option value="CCK">COCOS (KEELING) ISLANDS</option><option value="COL">COLOMBIA</option><option value="COM">COMOROS</option><option value="COG">CONGO</option><option value="COD">CONGO	 THE DEMOCRATIC REPUBLIC OF THE</option><option value="COK">COOK ISLANDS</option><option value="CRI">COSTA RICA</option><option value="CIV">CÔTE D'IVOIRE</option><option value="HRV">CROATIA</option><option value="CUB">CUBA</option><option value="CYP">CYPRUS</option><option value="CZE">CZECH REPUBLIC</option><option value="DNK">DENMARK</option><option value="DJI">DJIBOUTI</option><option value="DMA">DOMINICA</option><option value="DOM">DOMINICAN REPUBLIC</option><option value="ECU">ECUADOR</option><option value="EGY">EGYPT</option><option value="SLV">EL SALVADOR</option><option value="GNQ">EQUATORIAL GUINEA</option><option value="ERI">ERITREA</option><option value="EST">ESTONIA</option><option value="ETH">ETHIOPIA</option><option value="FLK">FALKLAND ISLANDS (MALVINAS)</option><option value="FRO">FAROE ISLANDS</option><option value="FJI">FIJI</option><option value="FIN">FINLAND</option><option value="FRA">FRANCE</option><option value="GUF">FRENCH GUIANA</option><option value="PYF">FRENCH POLYNESIA</option><option value="ATF">FRENCH SOUTHERN TERRITORIES</option><option value="GAB">GABON</option><option value="GMB">GAMBIA</option><option value="GEO">GEORGIA</option><option value="DEU">GERMANY</option><option value="GHA">GHANA</option><option value="GIB">GIBRALTAR</option><option value="GRC">GREECE</option><option value="GRL">GREENLAND</option><option value="GRD">GRENADA</option><option value="GLP">GUADELOUPE</option><option value="GUM">GUAM</option><option value="GTM">GUATEMALA</option><option value="GGY">GUERNSEY</option><option value="GIN">GUINEA</option><option value="GNB">GUINEA-BISSAU</option><option value="GUY">GUYANA</option><option value="HTI">HAITI</option><option value="HMD">HEARD ISLAND AND MCDONALD ISLANDS</option><option value="VAT">HOLY SEE (VATICAN CITY STATE)</option><option value="HND">HONDURAS</option><option value="HKG">HONG KONG</option><option value="HUN">HUNGARY</option><option value="ISL">ICELAND</option><option value="IND">INDIA</option><option value="IDN">INDONESIA</option><option value="IRN">IRAN	 ISLAMIC REPUBLIC OF</option><option value="IRQ">IRAQ</option><option value="IRL">IRELAND</option><option value="IMN">ISLE OF MAN</option><option value="ISR">ISRAEL</option><option value="ITA">ITALY</option><option value="JAM">JAMAICA</option><option value="JAP">JAPAN</option><option value="JPN">JAPAN </option><option value="JEY">JERSEY</option><option value="JOR">JORDAN</option><option value="KAZ">KAZAKHSTAN</option><option value="KEN">KENYA</option><option value="KIR">KIRIBATI</option><option value="PRK">KOREA	 DEMOCRATIC PEOPLE'S REPUBLIC OF</option><option value="KOR">KOREA	 REPUBLIC OF</option><option value="KWT">KUWAIT</option><option value="KGZ">KYRGYZSTAN</option><option value="LAO">LAO PEOPLE'S DEMOCRATIC REPUBLIC</option><option value="LVA">LATVIA</option><option value="LBN">LEBANON</option><option value="LSO">LESOTHO</option><option value="LBR">LIBERIA</option><option value="LBY">LIBYAN ARAB JAMAHIRIYA</option><option value="LIE">LIECHTENSTEIN</option><option value="LTU">LITHUANIA</option><option value="LUX">LUXEMBOURG</option><option value="MAC">MACAO</option><option value="MDG">MADAGASCAR</option><option value="MWI">MALAWI</option><option value="MYS">MALAYSIA</option><option value="MDV">MALDIVES</option><option value="MLI">MALI</option><option value="MLT">MALTA</option><option value="MHL">MARSHALL ISLANDS</option><option value="MTQ">MARTINIQUE</option><option value="MRT">MAURITANIA</option><option value="MUS">MAURITIUS</option><option value="MYT">MAYOTTE</option><option value="MEX">MEXICO</option><option value="FSM">MICRONESIA	 FEDERATED STATES OF</option><option value="MDA">MOLDOVA	 REPUBLIC OF</option><option value="MCO">MONACO</option><option value="MNG">MONGOLIA</option><option value="MNE">MONTENEGRO</option><option value="MSR">MONTSERRAT</option><option value="MAR">MOROCCO</option><option value="MOZ">MOZAMBIQUE</option><option value="MMR">MYANMAR</option><option value="NAM">NAMIBIA</option><option value="NRU">NAURU</option><option value="NPL">NEPAL</option><option value="NLD">NETHERLANDS</option><option value="ANT">NETHERLANDS ANTILLES</option><option value="NCL">NEW CALEDONIA</option><option value="NZL">NEW ZEALAND</option><option value="NIC">NICARAGUA</option><option value="NER">NIGER</option><option value="NGA">NIGERIA</option><option value="NIU">NIUE</option><option value="NFK">NORFOLK ISLAND</option><option value="MNP">NORTHERN MARIANA ISLANDS</option><option value="NOR">NORWAY</option><option value="OMN">OMAN</option><option value="OTH">OTHER</option><option value="PAK">PAKISTAN</option><option value="PLW">PALAU</option><option value="PSE">PALESTINIAN TERRITORY	 OCCUPIED</option><option value="PAN">PANAMA</option><option value="PNG">PAPUA NEW GUINEA</option><option value="PRY">PARAGUAY</option><option value="PER">PERU</option><option value="PHL">PHILIPPINES</option><option value="PCN">PITCAIRN</option><option value="POL">POLAND</option><option value="PRT">PORTUGAL</option><option value="PRI">PUERTO RICO</option><option value="QAT">QATAR</option><option value="REU">RÉUNION</option><option value="ROU">ROMANIA</option><option value="RUS">RUSSIAN FEDERATION</option><option value="RWA">RWANDA</option><option value="BLM">SAINT BARTHÉLEMY</option><option value="KNA">SAINT KITTS AND NEVIS</option><option value="LCA">SAINT LUCIA</option><option value="MAF">SAINT MARTIN (FRENCH PART)</option><option value="SPM">SAINT PIERRE AND MIQUELON</option><option value="VCT">SAINT VINCENT AND THE GRENADINES</option><option value="WSM">SAMOA</option><option value="SMR">SAN MARINO</option><option value="STP">SAO TOME AND PRINCIPE</option><option value="SAU">SAUDI ARABIA</option><option value="SEN">SENEGAL</option><option value="SRB">SERBIA</option><option value="SYC">SEYCHELLES</option><option value="SLE">SIERRA LEONE</option><option value="SGP">SINGAPORE</option><option value="SVK">SLOVAKIA</option><option value="SVN">SLOVENIA</option><option value="SLB">SOLOMON ISLANDS</option><option value="SOM">SOMALIA</option><option value="ZAF">SOUTH AFRICA</option><option value="ESP">SPAIN</option><option value="LKA">SRI LANKA</option><option value="SDN">SUDAN</option><option value="SUR">SURINAME</option><option value="SJM">SVALBARD AND JAN MAYEN</option><option value="SWZ">SWAZILAND</option><option value="SWE">SWEDEN</option><option value="CHE">SWITZERLAND</option><option value="SYR">SYRIAN ARAB REPUBLIC</option><option value="TWN">TAIWAN	 PROVINCE OF CHINA</option><option value="TJK">TAJIKISTAN</option><option value="TZA">TANZANIA	 UNITED REPUBLIC OF</option><option value="THA">THAILAND</option><option value="TLS">TIMOR-LESTE</option><option value="TGO">TOGO</option><option value="TKL">TOKELAU</option><option value="TON">TONGA</option><option value="TTO">TRINIDAD AND TOBAGO</option><option value="TUN">TUNISIA</option><option value="TUR">TURKEY</option><option value="TKM">TURKMENISTAN</option><option value="TCA">TURKS AND CAICOS ISLANDS</option><option value="TUV">TUVALU</option><option value="UGA">UGANDA</option><option value="UKR">UKRAINE</option><option value="ARE">UNITED ARAB EMIRATES</option><option value="GBR">UNITED KINGDOM</option><option value="UMI">UNITED STATES MINOR OUTLYING ISLANDS</option><option value="URY">URUGUAY</option><option value="UZB">UZBEKISTAN</option><option value="VUT">VANUATU</option><option value="VEN">VENEZUELA	 BOLIVARIAN REPUBLIC OF</option><option value="VNM">VIET NAM</option><option value="VGB">VIRGIN ISLANDS	 BRITISH</option><option value="VIR">VIRGIN ISLANDS	 U.S.</option><option value="WLF">WALLIS AND FUTUNA</option><option value="ESH">WESTERN SAHARA</option><option value="YEM">YEMEN</option><option value="ZMB">ZAMBIA</option><option value="ZWE">ZIMBABWE</option>            </select>
+<script>
+    // -- Pass selected values from Razor model --
+    var selectedCountries = @Html.Raw(Json.Serialize(Model.Country ?? new List<string>()));
+    var selectedStates = @Html.Raw(Json.Serialize(Model.State ?? new List<string>()));
+
+    console.log(selectedCountries);
+
+    function updateWeatherEventsDropdown(events) {
+        var $dropdown = $("#@idDDWeatherEvent");
+        $dropdown.empty();
+        $dropdown.append('<option value="">- Select Weather Alert -</option>');
+        if (events && events.length) {
+            events.forEach(function (event) {
+                var text = "Event: " + event.WeatherEventName + ", Type: " + event.Reason +
+                    ", Description: " + event.Description +
+                    " [" + event.StartDate + " - " + event.EndDate + "]";
+                $dropdown.append('<option value="' + event.WeatherEventId + '">' + text + '</option>');
+            });
+        }
+    }
+
+    $(document).ready(function () {
+        // 1. Initialize Country & State Bootstrap Multiselects
+        $('#@idDDCountry').multiselect({
+            includeSelectAllOption: true,
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true,
+            buttonWidth: '100%',
+            maxHeight: 300,
+            buttonClass: 'form-control text-left',
+            nonSelectedText: '- Select Country -',
+            selectAllText: 'Select All',
+            allSelectedText: 'All Selected',
+            nSelectedText: 'Selected',
+            templates: {
+                filter: '<li class="multiselect-item multiselect-filter"><div class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span><input class="form-control multiselect-search" type="text"></div></li>',
+                filterClearBtn: '<span class="input-group-btn"><button class="btn btn-default multiselect-clear-filter" type="button"><i class="fa fa-times"></i></button></span>'
+            }
+        });
+
+        $('#@idDDState').multiselect({
+            includeSelectAllOption: true,
+            enableFiltering: true,
+            enableCaseInsensitiveFiltering: true,
+            buttonWidth: '100%',
+            maxHeight: 300,
+            buttonClass: 'form-control text-left',
+            nonSelectedText: '- Select State -',
+            selectAllText: 'Select All',
+            allSelectedText: 'All Selected',
+            nSelectedText: 'Selected'
+        });
+
+        // 2. Set selected values and refresh
+        $('#@idDDCountry').multiselect('select', ['USA'])
+
+        $('#@idDDState').multiselect('select', ['CA'])
+
+
+        // 3. Toggle State dropdown visibility depending on country selection
+        function toggleStateDropdown() {
+            var selCountries = $('#@idDDCountry').val();
+            if (selCountries && selCountries.includes('USA')) {
+                $('#@idDDState').closest('.form-group').show();
+            } else {
+                $('#@idDDState').closest('.form-group').hide();
+                $('#@idDDState').val([]).multiselect('refresh');
+            }
+        }
+        toggleStateDropdown();
+
+        // 4. Show/hide weather alert section based on other dropdowns
+        function toggleWeatherAlerts() {
+            var requestedByText = $("#ddlRequestedBy option:selected").text();
+            var rescheduleReasonText = $("#ddlRescheduleReason option:selected").text();
+
+            if (requestedByText === "EXAMINEE" && rescheduleReasonText === "Appointment rescheduled per weather event") {
+                $("#weatherAlertsSection").show();
+                $('#@idDDCountry').multiselect('refresh');
+                $('#@idDDState').multiselect('refresh');
+            } else {
+                $("#weatherAlertsSection").hide();
+                $('#@idDDState').multiselect('deselectAll', false).multiselect('updateButtonText');
+                $('#@idDDCountry').multiselect('deselectAll', false).multiselect('updateButtonText');
+                $("#@idDDWeatherEvent").val(null).trigger("change");
+                $(".qtc-weather-alert-multi-select").each(function () {
+                    $(this).find("option:selected").removeAttr("selected");
+                    $(this).val("").trigger("change");
+                });
+            }
+        }
+
+        // 5. Event bindings
+        $("#ddlRequestedBy, #ddlRescheduleReason").on("change", function () {
+            toggleWeatherAlerts();
+        });
+
+        $('#@idDDCountry').on('change', function () {
+            toggleStateDropdown();
+            triggerWeatherEventsCheck();
+        });
+
+        $('#@idDDState').on('change', function () {
+            triggerWeatherEventsCheck();
+        });
+
+        // Hide state dropdown on load if USA not selected
+        toggleStateDropdown();
+
+        // 6. Weather Event AJAX logic
+        function triggerWeatherEventsCheck() {
+            setTimeout(function () {
+                var selectedStates = $('#@idDDState').val() || [];
+                var selectedCountries = $('#@idDDCountry').val();
+
+                // Handle USA: States must be selected
+                if (selectedCountries && selectedCountries.includes("USA")) {
+                    if (selectedStates.length === 0) {
+                        updateWeatherEventsDropdown([]);
+                        return;
+                    }
+                }
+
+                // If no country selected at all, clear weather events
+                if (!selectedCountries || selectedCountries.length === 0) {
+                    updateWeatherEventsDropdown([]);
+                    return;
+                }
+
+                // If another country (not USA), proceed with AJAX (states irrelevant)
+                var data = {
+                    Country: selectedCountries,
+                    State: selectedStates.length > 0 ? selectedStates : null
+                };
+
+                $.ajax({
+                    url: "/RescheduleReason/GetWeatherEvents",
+                    type: "POST",
+                    data: JSON.stringify(data),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    processData: false,
+                    success: function (response) {
+                        updateWeatherEventsDropdown(response);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error fetching weather events:", error);
+                    }
+                });
+            }, 100);
+        }
+
+        // 7. Initial Weather Alerts visibility on load
+        toggleWeatherAlerts();
+    });
+</script>
