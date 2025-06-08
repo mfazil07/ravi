@@ -3,29 +3,47 @@
         var selectedCountriesFromModel = @Html.Raw(Json.Serialize(Model.Country ?? new List<string>()));
         var selectedStatesFromModel = @Html.Raw(Json.Serialize(Model.State ?? new List<string>()));
 
-        $('#@idDDCountry').val(selectedCountriesFromModel).trigger("change");
-        $('#@idDDState').val(selectedStatesFromModel).trigger("change");
+        // Set default values *after* DOM is ready but *before* plugin is refreshed
+        var $country = $('#@idDDCountry');
+        var $state = $('#@idDDState');
+        var $weather = $('#@idDDWeatherEvent');
 
-        if ($('#@idDDCountry').data('multiselect')) {
-            $('#@idDDCountry').multiselect('refresh');
-            $('#@idDDState').multiselect('refresh');
+        // Set values BEFORE initializing the multiselect refresh
+        $country.val(selectedCountriesFromModel);
+        $state.val(selectedStatesFromModel);
+
+        // Refresh plugin (do this AFTER setting value)
+        if ($country.data('multiselect')) {
+            $country.multiselect('refresh');
+        }
+        if ($state.data('multiselect')) {
+            $state.multiselect('refresh');
+        }
+
+        // Now handle visibility and ajax
+        function updateWeatherEventsDropdown(events) {
+            $weather.empty().append('<option value="">- Select Weather Alert -</option>');
+            if (events && events.length) {
+                events.forEach(function (event) {
+                    var text = "Event: " + event.WeatherEventName + ", Type: " + event.Reason +
+                        ", Description: " + event.Description +
+                        " [" + event.StartDate + " - " + event.EndDate + "]";
+                    $weather.append('<option value="' + event.WeatherEventId + '">' + text + '</option>');
+                });
+            }
         }
 
         function triggerWeatherEventsCheck() {
             setTimeout(function () {
                 var selectedStates = [];
-                $("#@idDDState").next(".btn-group").find("input:checked").each(function () {
+                $state.next(".btn-group").find("input:checked").each(function () {
                     selectedStates.push($(this).val());
                 });
 
-                var selectedCountries = $("#@idDDCountry").val();
+                var selectedCountries = $country.val();
 
-                if (!selectedCountries || selectedCountries.length === 0) {
-                    updateWeatherEventsDropdown([]);
-                    return;
-                }
-
-                if (selectedCountries.includes("USA") && selectedStates.length === 0) {
+                if (!selectedCountries || selectedCountries.length === 0 ||
+                    (selectedCountries.includes("USA") && selectedStates.length === 0)) {
                     updateWeatherEventsDropdown([]);
                     return;
                 }
@@ -41,7 +59,6 @@
                     data: JSON.stringify(data),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
-                    processData: false,
                     success: function (response) {
                         updateWeatherEventsDropdown(response);
                     },
@@ -52,20 +69,6 @@
             }, 100);
         }
 
-        function updateWeatherEventsDropdown(events) {
-            var $dropdown = $("#@idDDWeatherEvent");
-            $dropdown.empty();
-            $dropdown.append('<option value="">- Select Weather Alert -</option>');
-            if (events && events.length) {
-                events.forEach(function (event) {
-                    var text = "Event: " + event.WeatherEventName + ", Type: " + event.Reason +
-                        ", Description: " + event.Description +
-                        " [" + event.StartDate + " - " + event.EndDate + "]";
-                    $dropdown.append('<option value="' + event.WeatherEventId + '">' + text + '</option>');
-                });
-            }
-        }
-
         function toggleWeatherAlerts() {
             var requestedByText = $("#ddlRequestedBy option:selected").text();
             var rescheduleReasonText = $("#ddlRescheduleReason option:selected").text();
@@ -73,60 +76,55 @@
             if (requestedByText === "EXAMINEE" && rescheduleReasonText === "Appointment rescheduled per weather event") {
                 $("#weatherAlertsSection").show();
 
-                var selectedCountries = $("#@idDDCountry").val();
-                var selectedStates = $("#@idDDState").val();
-
+                var selectedCountries = $country.val();
                 if (selectedCountries.includes("USA")) {
-                    $("#@idDDState").closest(".form-group").show();
+                    $state.closest(".form-group").show();
                 }
 
                 triggerWeatherEventsCheck();
 
             } else {
                 $("#weatherAlertsSection").hide();
-                $("#@idDDState").closest(".form-group").hide();
+                $state.closest(".form-group").hide();
 
-                // Clear selections
-                $("#@idDDCountry").val([]).trigger("change");
-                $("#@idDDState").val([]).trigger("change");
-                $("#@idDDWeatherEvent").empty().append('<option value="">- Select Weather Alert -</option>');
+                $country.val([]).trigger("change");
+                $state.val([]).trigger("change");
+                $weather.empty().append('<option value="">- Select Weather Alert -</option>');
 
-                if ($('#@idDDCountry').data('multiselect')) {
-                    $('#@idDDCountry').multiselect('refresh');
-                    $('#@idDDState').multiselect('refresh');
-                }
+                if ($country.data('multiselect')) $country.multiselect('refresh');
+                if ($state.data('multiselect')) $state.multiselect('refresh');
             }
         }
 
-        // On initial page load
+        // Initial state display logic
         if (selectedCountriesFromModel.includes("USA") && selectedStatesFromModel.length > 0) {
-            $("#@idDDState").closest(".form-group").show();
+            $state.closest(".form-group").show();
             triggerWeatherEventsCheck();
         } else {
-            $("#@idDDState").closest(".form-group").hide();
+            $state.closest(".form-group").hide();
         }
 
-        toggleWeatherAlerts(); // apply visibility on load
+        // Initial show/hide of weather section
+        toggleWeatherAlerts();
 
-        // Events
+        // Bind handlers
         $("#ddlRequestedBy, #ddlRescheduleReason").on("change", function () {
             toggleWeatherAlerts();
         });
 
-        $("#@idDDCountry").on("change", function () {
+        $country.on("change", function () {
             var selectedCountries = $(this).val();
-
             if (selectedCountries.includes("USA")) {
-                $("#@idDDState").closest(".form-group").show();
+                $state.closest(".form-group").show();
             } else {
-                $("#@idDDState").closest(".form-group").hide();
-                $("#@idDDState").val([]).trigger("change");
+                $state.closest(".form-group").hide();
+                $state.val([]).trigger("change");
+                if ($state.data('multiselect')) $state.multiselect('refresh');
             }
-
             triggerWeatherEventsCheck();
         });
 
-        $("#@idDDState").next(".btn-group").find("input").on("click", function () {
+        $state.next(".btn-group").find("input").on("click", function () {
             triggerWeatherEventsCheck();
         });
     });
