@@ -4,10 +4,13 @@
     var idDDCountry = $"ddl{Model.Section}ApptCountry";
     var idDDState = $"ddl{Model.Section}ApptState";
     var idDDWeatherEvent = $"ddl{Model.Section}WeatherEvent";
+    
+    // Determine initial visibility
+    var initiallyVisible = Model.ShowWeatherAlertsSection; // Add this property to your ViewModel if needed
 }
 
 <!-- Weather Alerts Section -->
-<div class="row mt-3 mb-2" id="weatherAlertsSection" style="display:none;">
+<div class="row mt-3 mb-2" id="weatherAlertsSection" style="display:@(initiallyVisible ? "block" : "none")">
     <div class="row justify-content-between">
         <div class="col-3 p-2 h6 darkpurpleText">
             <span class="fa-stack">
@@ -60,6 +63,9 @@
 
 <script>
     $(document).ready(function() {
+        // Debugging: Log initial state
+        console.log("Document ready - initializing weather alerts section");
+
         // 1. Initialize with model values
         var selectedCountries = @Html.Raw(Json.Serialize(Model.Country ?? new List<string>()));
         var selectedStates = @Html.Raw(Json.Serialize(Model.State ?? new List<string>()));
@@ -68,13 +74,17 @@
         if (selectedCountries && !Array.isArray(selectedCountries)) selectedCountries = [selectedCountries];
         if (selectedStates && !Array.isArray(selectedStates)) selectedStates = [selectedStates];
 
+        console.log("Initial countries:", selectedCountries);
+        console.log("Initial states:", selectedStates);
+
         // 2. Initialize multiselect dropdowns
         $('#@idDDCountry').multiselect({
             includeSelectAllOption: true,
             enableFiltering: true,
             buttonWidth: '100%',
             buttonClass: 'form-control text-left',
-            onChange: function(option, checked) {
+            onChange: function() {
+                console.log("Country selection changed");
                 handleCountryChange();
             }
         });
@@ -84,8 +94,9 @@
             enableFiltering: true,
             buttonWidth: '100%',
             buttonClass: 'form-control text-left',
-            onChange: function(option, checked) {
+            onChange: function() {
                 if ($('#@idDDCountry').val() && $('#@idDDCountry').val().includes("USA")) {
+                    console.log("State selection changed for USA");
                     triggerWeatherEventsCheck();
                 }
             }
@@ -96,11 +107,13 @@
             var countries = $('#@idDDCountry').val() || [];
             var showStates = countries.includes("USA");
             
+            console.log("Toggling state dropdown. Show states?", showStates);
             $('#stateDropdownContainer').toggle(showStates);
             
             if (showStates) {
                 // If USA was in model, set those states
                 if (selectedCountries && selectedCountries.includes("USA") && selectedStates && selectedStates.length > 0) {
+                    console.log("Setting initial states for USA");
                     $('#@idDDState').multiselect('select', selectedStates);
                     // Trigger weather check after states are set
                     setTimeout(triggerWeatherEventsCheck, 100);
@@ -108,6 +121,7 @@
             } else {
                 // For non-USA countries, trigger immediately
                 if (countries.length > 0) {
+                    console.log("Triggering weather check for non-USA countries");
                     triggerWeatherEventsCheck();
                 }
             }
@@ -118,8 +132,14 @@
             var selectedCountries = $('#@idDDCountry').val() || [];
             var selectedStates = $('#@idDDState').val() || [];
             
+            console.log("Triggering weather check with:", {
+                countries: selectedCountries,
+                states: selectedStates
+            });
+
             // Don't call if USA selected but no states chosen
             if (selectedCountries.includes("USA") && selectedStates.length === 0) {
+                console.log("USA selected but no states - skipping AJAX");
                 updateWeatherEventsDropdown([]);
                 return;
             }
@@ -133,6 +153,7 @@
                     State: selectedCountries.includes("USA") ? selectedStates : null
                 }),
                 success: function(response) {
+                    console.log("Received weather events:", response);
                     updateWeatherEventsDropdown(response);
                 },
                 error: function(xhr, status, error) {
@@ -147,6 +168,8 @@
             var $dropdown = $('#@idDDWeatherEvent');
             $dropdown.empty().append('<option value="">- Select Weather Alert -</option>');
             
+            console.log("Updating weather events dropdown with", events);
+            
             if (events && events.length) {
                 events.forEach(function(event) {
                     var optionText = "Event: " + event.WeatherEventName + 
@@ -159,21 +182,33 @@
 
         // 6. Toggle weather alerts section visibility
         function toggleWeatherAlerts() {
-            var showSection = $("#ddlRequestedBy option:selected").text() === "EXAMINEE" && 
-                            $("#ddlRescheduleReason option:selected").text() === "Appointment rescheduled per weather event";
+            var requestedBy = $("#ddlRequestedBy option:selected").text();
+            var rescheduleReason = $("#ddlRescheduleReason option:selected").text();
             
+            var showSection = requestedBy === "EXAMINEE" && 
+                            rescheduleReason === "Appointment rescheduled per weather event";
+            
+            console.log("Toggling weather alerts section. Show?", showSection, {
+                requestedBy: requestedBy,
+                rescheduleReason: rescheduleReason
+            });
+
             $("#weatherAlertsSection").toggle(showSection);
             
             if (showSection) {
+                console.log("Setting up weather alerts section");
                 // Set initial country selections
                 if (selectedCountries && selectedCountries.length > 0) {
+                    console.log("Setting initial countries", selectedCountries);
                     $('#@idDDCountry').multiselect('select', selectedCountries);
                 }
                 
                 // Handle USA case
                 if (selectedCountries && selectedCountries.includes("USA")) {
+                    console.log("USA detected - showing state dropdown");
                     $('#stateDropdownContainer').show();
                     if (selectedStates && selectedStates.length > 0) {
+                        console.log("Setting initial states", selectedStates);
                         $('#@idDDState').multiselect('select', selectedStates);
                     }
                 }
@@ -181,6 +216,7 @@
                 // Trigger initial weather check
                 setTimeout(triggerWeatherEventsCheck, 200);
             } else {
+                console.log("Clearing weather alerts section");
                 // Clear selections when hidden
                 $('#@idDDCountry').multiselect('deselectAll', false);
                 $('#@idDDState').multiselect('deselectAll', false);
@@ -189,13 +225,16 @@
         }
 
         // 7. Initial setup
+        console.log("Setting up event listeners");
         $("#ddlRequestedBy, #ddlRescheduleReason").on("change", toggleWeatherAlerts);
         
         // Set initial visibility
+        console.log("Initial toggleWeatherAlerts call");
         toggleWeatherAlerts();
         
         // If USA is in initial model countries, show states
         if (selectedCountries && selectedCountries.includes("USA")) {
+            console.log("Initial USA detection - showing states");
             $('#stateDropdownContainer').show();
         }
     });
