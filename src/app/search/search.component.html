@@ -82,6 +82,29 @@
     }
 
      $(document).ready(function () {
+
+          var selectedCountriesFromModel = @Html.Raw(Json.Serialize(Model.Country ?? new List<string>()));
+          $('#@idDDCountry').val(selectedCountriesFromModel).trigger("change");
+
+           var selectedStatesFromModel = @Html.Raw(Json.Serialize(Model.State ?? new List<string>()));
+          $('#@idDDState').val(selectedStatesFromModel).trigger("change");
+
+    // Optional: refresh multiselect plugin if used
+    if ($('#@idDDCountry').data('multiselect')) {
+        $('#@idDDCountry').multiselect('refresh');
+        $('#@idDDState').multiselect('refresh');
+    }
+
+    debugger;
+    if(selectedCountriesFromModel.includes("USA") && selectedStatesFromModel.length >0 ){
+         $("#ddlRescheduleApptState").closest(".form-group").show();
+         //triggerWeatherEventsCheck();
+
+    }
+    else{
+         $("#ddlRescheduleApptState").closest(".form-group").hide();
+         //triggerWeatherEventsCheck();
+    }
          function toggleWeatherAlerts() {
              // debugger;
             var requestedByText = $("#ddlRequestedBy option:selected").text();
@@ -93,18 +116,18 @@
                 $("#weatherAlertsSection").hide();
 
 
-               $('#ddlRescheduleApptState').multiselect('deselectAll', false);
-               $('#ddlRescheduleApptState').multiselect('updateButtonText');
-               $('#ddlRescheduleApptCountry').multiselect('deselectAll', false);
-               $('#ddlRescheduleApptCountry').multiselect('updateButtonText');
+               // $('#ddlRescheduleApptState').multiselect('deselectAll', false);
+               // $('#ddlRescheduleApptState').multiselect('updateButtonText');
+               // $('#ddlRescheduleApptCountry').multiselect('deselectAll', false);
+               // $('#ddlRescheduleApptCountry').multiselect('updateButtonText');
 
-                $("#ddlRescheduleWeatherEvent").val(null).trigger("change");
+               //$("#ddlRescheduleWeatherEvent").val(null).trigger("change");
 
-                // Force the dropdowns to display the placeholder text
-                $(".qtc-weather-alert-multi-select").each(function () {
-                    $(this).find("option:selected").removeAttr("selected");
-                    $(this).val("").trigger("change");
-                });
+                //Force the dropdowns to display the placeholder text
+                // $(".qtc-weather-alert-multi-select").each(function () {
+                //     $(this).find("option:selected").removeAttr("selected");
+                //     $(this).val("").trigger("change");
+                // });
             }
         }
 
