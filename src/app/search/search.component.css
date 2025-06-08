@@ -1,132 +1,32 @@
-<script>
-    $(document).ready(function () {
-        var $country = $('#@idDDCountry');
-        var $state = $('#@idDDState');
-        var $weatherEvent = $('#@idDDWeatherEvent');
+function toggleWeatherAlerts() {
+    var requestedByText = $("#ddlRequestedBy option:selected").text();
+    var rescheduleReasonText = $("#ddlRescheduleReason option:selected").text();
 
-        // Refresh multiselect plugin if used
-        if ($country.data('multiselect')) $country.multiselect('refresh');
-        if ($state.data('multiselect')) $state.multiselect('refresh');
+    if (requestedByText === "EXAMINEE" && rescheduleReasonText === "Appointment rescheduled per weather event") {
+        $("#weatherAlertsSection").show();
 
-        // Get initial values
-        var selectedCountries = $country.val() || [];
-        var selectedStates = $state.val() || [];
+        // Restore previously selected values
+        $('#@idDDCountry').val(selectedCountriesFromModel).trigger("change");
+        $('#ddlRescheduleApptState').val(selectedStatesFromModel).trigger("change");
 
-        // Show state dropdown and load events if USA and state present
-        if (selectedCountries.includes("USA") && selectedStates.length > 0) {
-            $state.closest(".form-group").show();
-            triggerWeatherEventsCheck();
-        } else {
-            $state.closest(".form-group").hide();
+        // Optional: refresh multiselect plugin if you're using it
+        if ($('#@idDDCountry').data('multiselect')) {
+            $('#@idDDCountry').multiselect('refresh');
+            $('#ddlRescheduleApptState').multiselect('refresh');
         }
 
-        // === Weather Alerts Visibility Logic ===
-        function toggleWeatherAlerts() {
-            var requestedBy = $("#ddlRequestedBy option:selected").text();
-            var rescheduleReason = $("#ddlRescheduleReason option:selected").text();
+    } else {
+        $("#weatherAlertsSection").hide();
 
-            var isWeatherAlertScenario = requestedBy === "EXAMINEE" && rescheduleReason === "Appointment rescheduled per weather event";
+        // Clear dropdown selections
+        $('#@idDDCountry').val(null).trigger("change");
+        $('#ddlRescheduleApptState').val(null).trigger("change");
+        $('#ddlRescheduleWeatherEvent').val("").trigger("change");
 
-            if (isWeatherAlertScenario) {
-                $("#weatherAlertsSection").show();
-                // Restore state and country (Razor already selected)
-                if ($country.data('multiselect')) $country.multiselect('refresh');
-                if ($state.data('multiselect')) $state.multiselect('refresh');
-
-                var restoredCountries = $country.val() || [];
-                var restoredStates = $state.val() || [];
-
-                if (restoredCountries.includes("USA") && restoredStates.length > 0) {
-                    $state.closest(".form-group").show();
-                    triggerWeatherEventsCheck();
-                }
-            } else {
-                $("#weatherAlertsSection").hide();
-                // Clear country, state, weather event
-                $country.val([]).trigger("change");
-                $state.val([]).trigger("change");
-                $weatherEvent.empty().append('<option value="">- Select Weather Alert -</option>');
-
-                if ($country.data('multiselect')) $country.multiselect('refresh');
-                if ($state.data('multiselect')) $state.multiselect('refresh');
-            }
+        // Optional: refresh multiselect plugin
+        if ($('#@idDDCountry').data('multiselect')) {
+            $('#@idDDCountry').multiselect('refresh');
+            $('#ddlRescheduleApptState').multiselect('refresh');
         }
-
-        // Bind change event for visibility logic
-        $("#ddlRequestedBy, #ddlRescheduleReason").on("change", toggleWeatherAlerts);
-
-        // Trigger once on page load
-        toggleWeatherAlerts();
-
-        // State checkbox click inside multiselect dropdown
-        $state.next(".btn-group").find("input").on("click", function () {
-            triggerWeatherEventsCheck();
-        });
-
-        // Country dropdown change
-        $country.on("change", function () {
-            var newCountries = $(this).val();
-            if (newCountries && newCountries.includes("USA")) {
-                $state.closest(".form-group").show();
-            } else {
-                $state.closest(".form-group").hide();
-                $state.val([]).trigger("change");
-            }
-            triggerWeatherEventsCheck();
-        });
-
-        // === Weather Events AJAX ===
-        function triggerWeatherEventsCheck() {
-            setTimeout(function () {
-                var selectedStates = [];
-                $state.next(".btn-group").find("input:checked").each(function () {
-                    selectedStates.push($(this).val());
-                });
-                var selectedCountries = $country.val();
-
-                if (selectedCountries && selectedCountries.includes("USA") && selectedStates.length === 0) {
-                    updateWeatherEventsDropdown([]);
-                    return;
-                }
-
-                if (!selectedCountries || selectedCountries.length === 0) {
-                    updateWeatherEventsDropdown([]);
-                    return;
-                }
-
-                var data = {
-                    Country: selectedCountries,
-                    State: selectedStates.length > 0 ? selectedStates : null
-                };
-
-                $.ajax({
-                    url: "/RescheduleReason/GetWeatherEvents",
-                    type: "POST",
-                    data: JSON.stringify(data),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    processData: false,
-                    success: function (response) {
-                        updateWeatherEventsDropdown(response);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("Error fetching weather events:", error);
-                    }
-                });
-            }, 100);
-        }
-
-        function updateWeatherEventsDropdown(events) {
-            var $dropdown = $weatherEvent;
-            $dropdown.empty().append('<option value="">- Select Weather Alert -</option>');
-            if (events && events.length) {
-                events.forEach(function (event) {
-                    var text = "Event: " + event.WeatherEventName + ", Type: " + event.Reason +
-                        ", Description: " + event.Description +
-                        " [" + event.StartDate + " - " + event.EndDate + "]";
-                    $dropdown.append('<option value="' + event.WeatherEventId + '">' + text + '</option>');
-                });
-            }
-        }
-    });
-</script>
+    }
+}
