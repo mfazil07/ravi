@@ -1,3 +1,69 @@
+@model Qtc.PartnerPortal.WebApp.Models.CancelReschWeatherAlertViewModel
+
+@{    
+    var idDDCountry = $"ddl{Model.Section}ApptCountry";
+    var idDDState = $"ddl{Model.Section}ApptState";
+    var idDDWeatherEvent = $"ddl{Model.Section}WeatherEvent";
+}
+
+<!-- Weather Alerts -->
+<div class="row mt-3 mb-2" id="weatherAlertsSection">
+    <div class="row justify-content-between">
+        <div class="col-3 p-2 h6 darkpurpleText">
+            <span class="fa-stack">
+                <i class="fa fa-circle-thin fa-stack-2x text-primary"></i>
+                <i class="fa fa-cloud fa-stack-1x text-black"></i>
+                <i class="fa fa-bolt fa-stack-1x text-danger mt-1"></i>
+            </span>
+            <b> Weather Alerts</b>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <label title="Filter weather events by the Country" for="@idDDCountry">Weather Alert Countries</label>
+        <span class="text-danger">*</span>
+        <div class="form-group">
+            <select id="@idDDCountry" name="Country" multiple="multiple" class="form-control mb-2 qtc-weather-alert-multi-select">
+                @foreach (var item in Model.CountryList)
+                {
+                    var isSelected = Model.Country != null && Model.Country.Contains(item.Key) ? " selected" : "";
+                    @Html.Raw($"<option value=\"{item.Key}\"{isSelected}>{item.Value}</option>")
+                }
+            </select>
+            <div class="validationError divInvalidCountry text-danger" style="display:none">
+                <span class="field-validation-error" data-valmsg-for="Country" data-valmsg-replace="true">
+                    Please select at least one country.
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">       
+        <div class="form-group">
+            <label title="Filter weather events by the State (US)" for="@idDDState">Weather Alert States (US)</label>
+            <select class="form-control mb-2 qtc-weather-alert-multi-select" id="@idDDState" name="States" placeholder="- Select State -" multiple="multiple">
+                @foreach (var item in Model.StatesList)
+                {
+                    var isSelected = Model.State != null && Model.State.Contains(item.Key) ? " selected" : "";
+                    @Html.Raw($"<option value=\"{item.Key}\"{isSelected}>{item.Value}</option>")
+                }
+            </select>
+        </div>
+    </div>
+    <div class="col-md-12 mt-3">
+        <label title="Select the weather event affected the reschedule" for="@idDDWeatherEvent">Weather Alert</label>
+        <div class="form-group">
+            <select class="form-control" id="@idDDWeatherEvent" name="Weather Alerts" placeholder="- Select Weather Alert -">
+                @* @foreach (var item in Model.WeatherEventList) *@
+                @* { *@
+                @*     <option value="@item.WeatherEventId"> *@
+                @*         Event: @item.WeatherEvent, Type: @item.WeatherType, Description: @item.Description [ @item.StartDate.ToShortDateString() -  @item.EndDate.ToShortDateString() ] *@
+                @*     </option> *@
+                @* } *@
+            </select>
+        </div>
+    </div>
+</div>
+
 <script>
     // -- Pass selected values from Razor model --
     var selectedCountries = @Html.Raw(Json.Serialize(Model.Country ?? new List<string>()));
@@ -21,7 +87,7 @@
 
     $(document).ready(function () {
         // 1. Initialize Country & State Bootstrap Multiselects
-        $('#@idDDCountry').multiselect({
+        $('#ddlRescheduleApptCountry').multiselect({
             includeSelectAllOption: true,
             enableFiltering: true,
             enableCaseInsensitiveFiltering: true,
@@ -52,14 +118,14 @@
         });
 
         // 2. Set selected values and refresh
-        $('#@idDDCountry').multiselect('select', ['USA'])
+        $('#ddlRescheduleApptCountry').multiselect('select', 'USA')
 
-        $('#@idDDState').multiselect('select', ['CA'])
+        $('#@idDDState').multiselect('select', 'CA')
 
 
         // 3. Toggle State dropdown visibility depending on country selection
         function toggleStateDropdown() {
-            var selCountries = $('#@idDDCountry').val();
+            var selCountries = $('#ddlRescheduleApptCountry').val();
             if (selCountries && selCountries.includes('USA')) {
                 $('#@idDDState').closest('.form-group').show();
             } else {
