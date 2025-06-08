@@ -30,3 +30,60 @@ function toggleWeatherAlerts() {
         }
     }
 }
+
+
+////////////////////////////
+
+function callGetWeatherEvents() {
+    const selectedCountries = $('#@idDDCountry').val() || [];
+    const selectedStates = $('#ddlRescheduleApptState').val() || [];
+
+    const hasUSA = selectedCountries.includes("USA");
+    const hasOtherCountries = selectedCountries.some(c => c !== "USA");
+
+    // RULE: Call only if (hasOtherCountries) OR (hasUSA AND states selected)
+    if (!hasOtherCountries && (!hasUSA || selectedStates.length === 0)) {
+        updateWeatherEventsDropdown([]); // Clear weather event dropdown
+        return;
+    }
+
+    $.ajax({
+        url: '@Url.Action("GetWeatherEvents", "YourControllerName")', // Replace with your controller
+        method: 'POST',
+        data: {
+            countries: selectedCountries,
+            states: selectedStates
+        },
+        traditional: true,
+        success: function (response) {
+            updateWeatherEventsDropdown(response);
+        },
+        error: function () {
+            console.error('Error fetching weather events.');
+            updateWeatherEventsDropdown([]); // Optionally clear
+        }
+    });
+}
+
+/// hoook
+
+$(document).ready(function () {
+    var selectedCountriesFromModel = @Html.Raw(Json.Serialize(Model.Country ?? new List<string>()));
+    $('#@idDDCountry').val(selectedCountriesFromModel).trigger("change");
+
+    var selectedStatesFromModel = @Html.Raw(Json.Serialize(Model.State ?? new List<string>()));
+    $('#ddlRescheduleApptState').val(selectedStatesFromModel).trigger("change");
+
+    if ($('#@idDDCountry').data('multiselect')) {
+        $('#@idDDCountry').multiselect('refresh');
+        $('#ddlRescheduleApptState').multiselect('refresh');
+    }
+
+    // Trigger once on page load
+    callGetWeatherEvents();
+
+    // Bind to changes
+    $('#@idDDCountry, #ddlRescheduleApptState').on('change', function () {
+        callGetWeatherEvents();
+    });
+});
