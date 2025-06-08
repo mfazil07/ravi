@@ -81,19 +81,26 @@
         }
     }
 
+
      $(document).ready(function () {
 
           var selectedCountriesFromModel = @Html.Raw(Json.Serialize(Model.Country ?? new List<string>()));
           $('#@idDDCountry').val(selectedCountriesFromModel).trigger("change");
 
            var selectedStatesFromModel = @Html.Raw(Json.Serialize(Model.State ?? new List<string>()));
-          $('#@idDDState').val(selectedStatesFromModel).trigger("change");
+          $('#ddlRescheduleApptState').val(selectedStatesFromModel).trigger("change");
 
     // Optional: refresh multiselect plugin if used
     if ($('#@idDDCountry').data('multiselect')) {
         $('#@idDDCountry').multiselect('refresh');
-        $('#@idDDState').multiselect('refresh');
+        $('#ddlRescheduleApptState').multiselect('refresh');
     }
+
+    callGetWeatherEvents();
+
+     $('#@idDDCountry, #ddlRescheduleApptState').on('change', function () {
+        callGetWeatherEvents();
+    });
 
     debugger;
     if(selectedCountriesFromModel.includes("USA") && selectedStatesFromModel.length >0 ){
@@ -105,67 +112,43 @@
          $("#ddlRescheduleApptState").closest(".form-group").hide();
          //triggerWeatherEventsCheck();
     }
-         function toggleWeatherAlerts() {
-             // debugger;
-            var requestedByText = $("#ddlRequestedBy option:selected").text();
-            var rescheduleReasonText = $("#ddlRescheduleReason option:selected").text();
 
-            if (requestedByText === "EXAMINEE" && rescheduleReasonText==="Appointment rescheduled per weather event") {
-                $("#weatherAlertsSection").show();
-            } else {
-                $("#weatherAlertsSection").hide();
+    function toggleWeatherAlerts() {
+        var requestedByText = $("#ddlRequestedBy option:selected").text();
+        var rescheduleReasonText = $("#ddlRescheduleReason option:selected").text();
 
+        if (requestedByText === "EXAMINEE" && rescheduleReasonText === "Appointment rescheduled per weather event") {
+            $("#weatherAlertsSection").show();
 
-               // $('#ddlRescheduleApptState').multiselect('deselectAll', false);
-               // $('#ddlRescheduleApptState').multiselect('updateButtonText');
-               // $('#ddlRescheduleApptCountry').multiselect('deselectAll', false);
-               // $('#ddlRescheduleApptCountry').multiselect('updateButtonText');
+            // Restore previously selected values
+            $('#@idDDCountry').val(selectedCountriesFromModel).trigger("change");
+            $('#ddlRescheduleApptState').val(selectedStatesFromModel).trigger("change");
 
-               //$("#ddlRescheduleWeatherEvent").val(null).trigger("change");
+            // Optional: refresh multiselect plugin if you're using it
+            if ($('#@idDDCountry').data('multiselect')) {
+                $('#@idDDCountry').multiselect('refresh');
+                $('#ddlRescheduleApptState').multiselect('refresh');
+            }
+            callGetWeatherEvents();
 
-                //Force the dropdowns to display the placeholder text
-                // $(".qtc-weather-alert-multi-select").each(function () {
-                //     $(this).find("option:selected").removeAttr("selected");
-                //     $(this).val("").trigger("change");
-                // });
+        } else {
+            $("#weatherAlertsSection").hide();
+
+            // Clear dropdown selections
+            $('#@idDDCountry').val(null).trigger("change");
+            $('#ddlRescheduleApptState').val(null).trigger("change");
+            $('#ddlRescheduleWeatherEvent').val("").trigger("change");
+
+            // Optional: refresh multiselect plugin
+            if ($('#@idDDCountry').data('multiselect')) {
+                $('#@idDDCountry').multiselect('refresh');
+                $('#ddlRescheduleApptState').multiselect('refresh');
             }
         }
+    }
 
-        // Bind the change event to dropdowns
-        $("#ddlRequestedBy, #ddlRescheduleReason").on("change", function () {
-            // debugger;
-            toggleWeatherAlerts();
-        });
-
-        // Run the function on page load to set the correct visibility
-        toggleWeatherAlerts();
-
-        // state checkboxes click event inside multi-select dropdown
-        $("#ddlRescheduleApptState").next(".btn-group").find("input").on("click", function () {
-            triggerWeatherEventsCheck();
-        });
-
-        $("#ddlRescheduleApptCountry").on("change", function () {
-            triggerWeatherEventsCheck();
-
-            var selectedCountries = $(this).val();
-
-            if (selectedCountries && selectedCountries.includes("USA")) {
-                $("#ddlRescheduleApptState").closest(".form-group").show();
-            } else {
-                $("#ddlRescheduleApptState").closest(".form-group").hide();
-                $("#ddlRescheduleApptState").val([]).trigger("change");
-            }
-        });
-
-        // state dropdown is hidden initially if USA is not selected
-        var initialCountries = $("#ddlreschApptCountry").val();
-        if (!initialCountries || !initialCountries.includes("USA")) {
-            $("#ddlRescheduleApptState").closest(".form-group").hide();
-        }
-
-       function triggerWeatherEventsCheck() {
-        setTimeout(function () {
+       function callGetWeatherEvents() {
+         setTimeout(function () {
             // Gather selections
             var selectedStates = [];
             $("#ddlRescheduleApptState").next(".btn-group").find("input:checked").each(function () {
@@ -210,6 +193,32 @@
             });
         }, 100);
     }
+        // Bind the change event to dropdowns
+        $("#ddlRequestedBy, #ddlRescheduleReason").on("change", function () {
+            // debugger;
+            toggleWeatherAlerts();
+        });
+
+        // Run the function on page load to set the correct visibility
+       // toggleWeatherAlerts();
+
+        // state checkboxes click event inside multi-select dropdown
+        $("#ddlRescheduleApptState").next(".btn-group").find("input").on("click", function () {
+            //triggerWeatherEventsCheck();
+        });
+
+        $("#ddlRescheduleApptCountry").on("change", function () {
+            //triggerWeatherEventsCheck();
+
+            var selectedCountries = $(this).val();
+
+            if (selectedCountries && selectedCountries.includes("USA")) {
+                $("#ddlRescheduleApptState").closest(".form-group").show();
+            } else {
+                $("#ddlRescheduleApptState").closest(".form-group").hide();
+                $("#ddlRescheduleApptState").val([]).trigger("change");
+            }
+        });
 
     });
 
