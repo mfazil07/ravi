@@ -1,89 +1,66 @@
-function toggleWeatherAlerts() {
-    var requestedByText = $("#ddlRequestedBy option:selected").text();
-    var rescheduleReasonText = $("#ddlRescheduleReason option:selected").text();
+ public ActionResult GetAppointmentInfo(int claimantId, int caseId)
+ {
+     AppointmentsViewModel vm = new AppointmentsViewModel();
+     CancelReschWeatherAlertViewModel crm = new CancelReschWeatherAlertViewModel();
+     List<Dropdown> pronounDropdwnList = new List<Dropdown>();
+     List<Dropdown> pregnantDropdownList = new List<Dropdown>();
+     var caseDetails = _caseDetailsService.GetCaseDetails(claimantId, caseId);
+     vm.AccountDetails = caseDetails.Account;
+     var orderedExams = _examBusinessService.ReorderExams(caseDetails.Exams);
+     vm.Exams = orderedExams;
+     vm.AssignedToList = _dropdownConfigurations.AssignedToList;
+     var summary = _examBusinessService.SetExamStatus(orderedExams);
+     vm.TotalAppointments = summary.TotalCount;
+     vm.CompletedAppointments = summary.CompletedCount;
+     vm.AccountDetails.AccountId = vm.AccountDetails.ClaimantId == "0" ? "" : $"{vm.AccountDetails.ClaimantId}.{vm.AccountDetails.CaseId}";
+     vm.ExamineeDetails = caseDetails.ExamineeDetails.ToExamineeViewModel();
+     vm.ExamineeDetails.ADASpecialAccomodations = _caseDetailsService.GetADASpecialAccomodations(claimantId, caseId);
+     crm.Country = new List<string> { caseDetails.ExamineeDetails.Country };
+     crm.State = new List<string> { caseDetails.ExamineeDetails.State};
+     TempData["Country"] = JsonConvert.SerializeObject(crm.Country);
+     TempData["State"] = JsonConvert.SerializeObject(crm.State);
+      
+     pronounDropdwnList.Add(new Dropdown() { Key = "S", Value = "-Select-" });
+     pronounDropdwnList.AddRange(_dropdownService.GetDropdownData("PRONOUN_PREF"));
 
-    if (requestedByText === "EXAMINEE" && rescheduleReasonText === "Appointment rescheduled per weather event") {
-        $("#weatherAlertsSection").show();
+     if (caseDetails.Account.IsPronounComplianceEnabled)
+     {
+         pronounDropdwnList = pronounDropdwnList.Where(d => d.Value == "He/Him" || d.Value == "She/Her").ToList();
+     }
+     vm.PronounList = pronounDropdwnList;
+     pregnantDropdownList.Add(new Dropdown { Key = "Y", Value = "Yes" });
+     pregnantDropdownList.Add(new Dropdown { Key = "N", Value = "No" });
+     if (caseDetails.Account.IsUnknownPregnantEnabled)
+     {
+         pregnantDropdownList.Add(new Dropdown { Key = "U", Value = "Unknown" });
+     }
+     vm.PregnantOptions = pregnantDropdownList;
 
-        // Restore previously selected values
-        $('#@idDDCountry').val(selectedCountriesFromModel).trigger("change");
-        $('#ddlRescheduleApptState').val(selectedStatesFromModel).trigger("change");
+     return View("~/Views/Appointment/ScheduleAppointment.cshtml", vm);
+ }
 
-        // Optional: refresh multiselect plugin if you're using it
-        if ($('#@idDDCountry').data('multiselect')) {
-            $('#@idDDCountry').multiselect('refresh');
-            $('#ddlRescheduleApptState').multiselect('refresh');
-        }
-
-    } else {
-        $("#weatherAlertsSection").hide();
-
-        // Clear dropdown selections
-        $('#@idDDCountry').val(null).trigger("change");
-        $('#ddlRescheduleApptState').val(null).trigger("change");
-        $('#ddlRescheduleWeatherEvent').val("").trigger("change");
-
-        // Optional: refresh multiselect plugin
-        if ($('#@idDDCountry').data('multiselect')) {
-            $('#@idDDCountry').multiselect('refresh');
-            $('#ddlRescheduleApptState').multiselect('refresh');
-        }
-    }
-}
+///
 
 
-////////////////////////////
+  public ActionResult GetRescheduleInfo()
+  {
+      RescheduleDetailsViewModel vm = new RescheduleDetailsViewModel();
+      var reasons = _reasonsService.GetReasons();
+      vm.RequestedByList = _rescheduleReasonService.MapRescheduleRequestedBy(reasons.RequesterList);
+      vm.RescheduleReasonList = reasons.RescheduleReasonList.OrderBy(e => e.RescheduleReasonName);
 
-function callGetWeatherEvents() {
-    const selectedCountries = $('#@idDDCountry').val() || [];
-    const selectedStates = $('#ddlRescheduleApptState').val() || [];
+      CancelReschWeatherAlertViewModel crm = new CancelReschWeatherAlertViewModel();
+      crm.CountryList = _dropdownService.GetCountries();
+      crm.StatesList = _dropdownService.GetStates();
+      var country = TempData.Peek("Country") != null
+                      ? JsonConvert.DeserializeObject<List<string>>(TempData.Peek("Country").ToString())
+                    : new List<string>();  
 
-    const hasUSA = selectedCountries.includes("USA");
-    const hasOtherCountries = selectedCountries.some(c => c !== "USA");
+      var state = TempData.Peek("State") != null
+          ? JsonConvert.DeserializeObject<List<string>>(TempData.Peek("State").ToString())
+          : new List<string>();
 
-    // RULE: Call only if (hasOtherCountries) OR (hasUSA AND states selected)
-    if (!hasOtherCountries && (!hasUSA || selectedStates.length === 0)) {
-        updateWeatherEventsDropdown([]); // Clear weather event dropdown
-        return;
-    }
-
-    $.ajax({
-        url: '@Url.Action("GetWeatherEvents", "YourControllerName")', // Replace with your controller
-        method: 'POST',
-        data: {
-            countries: selectedCountries,
-            states: selectedStates
-        },
-        traditional: true,
-        success: function (response) {
-            updateWeatherEventsDropdown(response);
-        },
-        error: function () {
-            console.error('Error fetching weather events.');
-            updateWeatherEventsDropdown([]); // Optionally clear
-        }
-    });
-}
-
-/// hoook
-
-$(document).ready(function () {
-    var selectedCountriesFromModel = @Html.Raw(Json.Serialize(Model.Country ?? new List<string>()));
-    $('#@idDDCountry').val(selectedCountriesFromModel).trigger("change");
-
-    var selectedStatesFromModel = @Html.Raw(Json.Serialize(Model.State ?? new List<string>()));
-    $('#ddlRescheduleApptState').val(selectedStatesFromModel).trigger("change");
-
-    if ($('#@idDDCountry').data('multiselect')) {
-        $('#@idDDCountry').multiselect('refresh');
-        $('#ddlRescheduleApptState').multiselect('refresh');
-    }
-
-    // Trigger once on page load
-    callGetWeatherEvents();
-
-    // Bind to changes
-    $('#@idDDCountry, #ddlRescheduleApptState').on('change', function () {
-        callGetWeatherEvents();
-    });
-});
+      vm.WeatherEventVM = crm;
+   
+      return PartialView("~/Views/Appointment/RescheduleAppointment.cshtml", vm);
+  }
