@@ -1,3 +1,13 @@
+@section scripts {
+    <script>
+        $(function () {
+            if (typeof weatheralert !== 'undefined') {
+                weatheralert.init(); // your setup logic
+            }
+        });
+    </script>
+}
+
 var weatheralert = (function () {
 
     function initWeatherAlertControls() {
