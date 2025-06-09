@@ -1,66 +1,268 @@
- public ActionResult GetAppointmentInfo(int claimantId, int caseId)
- {
-     AppointmentsViewModel vm = new AppointmentsViewModel();
-     CancelReschWeatherAlertViewModel crm = new CancelReschWeatherAlertViewModel();
-     List<Dropdown> pronounDropdwnList = new List<Dropdown>();
-     List<Dropdown> pregnantDropdownList = new List<Dropdown>();
-     var caseDetails = _caseDetailsService.GetCaseDetails(claimantId, caseId);
-     vm.AccountDetails = caseDetails.Account;
-     var orderedExams = _examBusinessService.ReorderExams(caseDetails.Exams);
-     vm.Exams = orderedExams;
-     vm.AssignedToList = _dropdownConfigurations.AssignedToList;
-     var summary = _examBusinessService.SetExamStatus(orderedExams);
-     vm.TotalAppointments = summary.TotalCount;
-     vm.CompletedAppointments = summary.CompletedCount;
-     vm.AccountDetails.AccountId = vm.AccountDetails.ClaimantId == "0" ? "" : $"{vm.AccountDetails.ClaimantId}.{vm.AccountDetails.CaseId}";
-     vm.ExamineeDetails = caseDetails.ExamineeDetails.ToExamineeViewModel();
-     vm.ExamineeDetails.ADASpecialAccomodations = _caseDetailsService.GetADASpecialAccomodations(claimantId, caseId);
-     crm.Country = new List<string> { caseDetails.ExamineeDetails.Country };
-     crm.State = new List<string> { caseDetails.ExamineeDetails.State};
-     TempData["Country"] = JsonConvert.SerializeObject(crm.Country);
-     TempData["State"] = JsonConvert.SerializeObject(crm.State);
-      
-     pronounDropdwnList.Add(new Dropdown() { Key = "S", Value = "-Select-" });
-     pronounDropdwnList.AddRange(_dropdownService.GetDropdownData("PRONOUN_PREF"));
+var weatheralert = (function () {
 
-     if (caseDetails.Account.IsPronounComplianceEnabled)
-     {
-         pronounDropdwnList = pronounDropdwnList.Where(d => d.Value == "He/Him" || d.Value == "She/Her").ToList();
-     }
-     vm.PronounList = pronounDropdwnList;
-     pregnantDropdownList.Add(new Dropdown { Key = "Y", Value = "Yes" });
-     pregnantDropdownList.Add(new Dropdown { Key = "N", Value = "No" });
-     if (caseDetails.Account.IsUnknownPregnantEnabled)
-     {
-         pregnantDropdownList.Add(new Dropdown { Key = "U", Value = "Unknown" });
-     }
-     vm.PregnantOptions = pregnantDropdownList;
+    function initWeatherAlertControls() {
+        $(".qtc-weather-alert-multi-select").multiselect({
+            maxHeight: 350,
+            minwidth: 250,
+            numberDisplayed: 0,
+            nonSelectedText: 'Select',
+            buttonClass: 'form-control-drop-down form-control',
+            buttonContainer: '<div class="btn-group form-control col-auto border-0 p-0" />',
+        });
+    }
 
-     return View("~/Views/Appointment/ScheduleAppointment.cshtml", vm);
- }
+    function initweatherAlertModalControls() {
+        $("#weather-alerts").on("shown.bs.modal", function (evt) {
+            setTitle(evt.relatedTarget.dataset["bsTitle"]);
+            loadTable();
+            bindTabEvents();
+        });
+    }
 
-///
+    function setTitle(account) {
+        $("#weather-alert-modal-title").html("");
+        $("#weather-alert-modal-title").append(
+            "Weather Alert - ",
+            "[ ",
+            $("<span>").addClass("text-primary").html(account),
+            " ]"
+        );
+    }
+
+    function loadWeatherAlerts() {
+        $.ajax({
+            type: "GET",
+            url: '/Appointment/GetWeatherAlertsDetails',
+            headers: {
+                "RequestVerificationToken": $('input[name = __RequestVerificationToken]').val()
+            },
+            data: {
+                IsMapped: $("#cbxMapped").is(":checked")
+            },
+            success: function (result) {
+                $("#tblWeatherAlertsDetails").html(result);
+            }
+        });
+    }
+
+    function disableOnMapped() {
+        if ($("#cbxMapped").is(":checked")) {
+            $(".disable-on-mapped").prop("disabled", "disabled");
+        } else {
+            $(".disable-on-mapped").prop("disabled", "");
+            var toDate = new Date()
+            $("#txtStartDate").val();
+        }
+    }
+
+    function loadTable() {
+        $("#tblWeatherAlerts").dataTable({
+            searching: true,
+            bFilter: true,
+            "initComplete": function () {
+                removeLoader();
+                $("#tblWeatherAlerts").show();
+            },
+            "lengthMenu": [10, 25, 50, 75, 100],
+            "bInfo": true,
+            "responsive": true,
+            "order": [[7, "desc"]], // Sort by DOR column descending
+            "bAutoWidth": true,
+            "columnDefs": [
+                {
+                    "targets": [0, 8],
+                    "orderable": false
+                }
+            ]
+        });
+    }
+
+    function loadTable1() {
+        $("#tblWeatherAlerts1").dataTable({
+            searching: true,
+            bFilter: true,
+            "initComplete": function () {
+                removeLoader();
+                $("#tblWeatherAlerts1").show();
+            },
+            "lengthMenu": [10, 25, 50, 75, 100],
+            "bInfo": true,
+            "responsive": true,
+            "order": [[7, "desc"]], // Sort by DOR column descending
+            "bAutoWidth": true
+        });
+    }
+
+    function removeLoader() {
+        $("#loadingDiv").fadeOut(500, function () {
+            // fadeOut complete. Remove the loading div
+            $("#loadingDiv").remove(); //makes page more lightweight
+
+        });
+    }
+
+    function bindTabEvents() {
+        $("#wa-nav-tabs").on("shown.bs.tab", function (evt) {
+            if (evt.target.id == "nav-wa-appt-level")
+                loadTable1();
+        });
+    }
+
+    function updateWeatherEventsDropdown(events) {
+        var $dropdown = $("#ddlRescheduleWeatherEvent");
+        $dropdown.empty();
+        $dropdown.append('<option value="">- Select Weather Alert -</option>');
+        if (events && events.length) {
+            events.forEach(function (event) {
+                var text = "Event: " + event.WeatherEventName + ", Type: " + event.Reason +
+                    ", Description: " + event.Description +
+                    " [" + event.StartDate + " - " + event.EndDate + "]";
+                $dropdown.append('<option value="' + event.WeatherEventId + '">' + text + '</option>');
+            });
+        }
+    }
 
 
-  public ActionResult GetRescheduleInfo()
-  {
-      RescheduleDetailsViewModel vm = new RescheduleDetailsViewModel();
-      var reasons = _reasonsService.GetReasons();
-      vm.RequestedByList = _rescheduleReasonService.MapRescheduleRequestedBy(reasons.RequesterList);
-      vm.RescheduleReasonList = reasons.RescheduleReasonList.OrderBy(e => e.RescheduleReasonName);
+    $(document).ready(function () {
 
-      CancelReschWeatherAlertViewModel crm = new CancelReschWeatherAlertViewModel();
-      crm.CountryList = _dropdownService.GetCountries();
-      crm.StatesList = _dropdownService.GetStates();
-      var country = TempData.Peek("Country") != null
-                      ? JsonConvert.DeserializeObject<List<string>>(TempData.Peek("Country").ToString())
-                    : new List<string>();  
+        //var selectedCountriesFromModel = @Html.Raw(Json.Serialize(Model.Country ?? new List < string > ()));
+        //$('#@idDDCountry').val(selectedCountriesFromModel).trigger("change");
 
-      var state = TempData.Peek("State") != null
-          ? JsonConvert.DeserializeObject<List<string>>(TempData.Peek("State").ToString())
-          : new List<string>();
+        //var selectedStatesFromModel = @Html.Raw(Json.Serialize(Model.State ?? new List < string > ()));
+        //$('#ddlRescheduleApptState').val(selectedStatesFromModel).trigger("change");
 
-      vm.WeatherEventVM = crm;
-   
-      return PartialView("~/Views/Appointment/RescheduleAppointment.cshtml", vm);
-  }
+        var selectedCountriesFromModel = JSON.parse($('#countriesData').val() || '[]');
+        var selectedStatesFromModel = JSON.parse($('#statesData').val() || '[]');
+
+        // Optional: refresh multiselect plugin if used
+        if ($('#ddlRescheduleApptCountry').data('multiselect')) {
+            $('#ddlRescheduleApptCountry').multiselect('refresh');
+            $('#ddlRescheduleApptState').multiselect('refresh');
+        }
+
+        callGetWeatherEvents();
+
+        $('#ddlRescheduleApptCountry, #ddlRescheduleApptState').on('change', function () {
+            callGetWeatherEvents();
+        });
+
+        debugger;
+        if (selectedCountriesFromModel.includes("USA") && selectedStatesFromModel.length > 0) {
+            $("#ddlRescheduleApptState").closest(".form-group").show();
+            //triggerWeatherEventsCheck();
+
+        }
+        else {
+            $("#ddlRescheduleApptState").closest(".form-group").hide();
+            //triggerWeatherEventsCheck();
+        }
+
+        function toggleWeatherAlerts() {
+            var requestedByVal = $("#ddlRequestedBy option:selected").val();
+            var rescheduleReasonVal = $("#ddlRescheduleReason option:selected").val();
+            debugger;
+            if (requestedByVal && requestedByVal !== "VA" && rescheduleReasonVal === "COMRES39") {
+                $("#weatherAlertsSection").show();
+
+                // Restore previously selected values
+                $('#ddlRescheduleApptCountry').val(selectedCountriesFromModel).trigger("change");
+                $('#ddlRescheduleApptState').val(selectedStatesFromModel).trigger("change");
+
+                // Optional: refresh multiselect plugin if you're using it
+                if ($('#ddlRescheduleApptCountry').data('multiselect')) {
+                    $('#ddlRescheduleApptCountry').multiselect('refresh');
+                    $('#ddlRescheduleApptState').multiselect('refresh');
+                }
+                callGetWeatherEvents();
+
+            } else {
+                $("#weatherAlertsSection").hide();
+
+                $('#ddlRescheduleApptCountry').val(null).trigger("change");
+                $('#ddlRescheduleApptState').val(null).trigger("change");
+                $('#ddlRescheduleWeatherEvent').val("").trigger("change");
+
+                if ($('#ddlRescheduleApptCountry').data('multiselect')) {
+                    $('#ddlRescheduleApptCountry').multiselect('refresh');
+                    $('#ddlRescheduleApptState').multiselect('refresh');
+                }
+            }
+        }
+
+        function callGetWeatherEvents() {
+            setTimeout(function () {
+                // Gather selections
+                var selectedStates = [];
+                $("#ddlRescheduleApptState").next(".btn-group").find("input:checked").each(function () {
+                    selectedStates.push($(this).val());
+                });
+                var selectedCountries = $("#ddlRescheduleApptCountry").val();
+
+                // Handle USA: States must be selected
+                if (selectedCountries && selectedCountries.includes("USA")) {
+                    if (selectedStates.length === 0) {
+                        // No state selected with USA -- clear weather events and do NOT call AJAX
+                        updateWeatherEventsDropdown([]);
+                        return;
+                    }
+                }
+
+                // If no country selected at all, clear weather events
+                if (!selectedCountries || selectedCountries.length === 0) {
+                    updateWeatherEventsDropdown([]);
+                    return;
+                }
+
+                // If another country (not USA), proceed with AJAX (states irrelevant)
+                var data = {
+                    Country: selectedCountries,
+                    State: selectedStates.length > 0 ? selectedStates : null
+                };
+
+                $.ajax({
+                    url: "/RescheduleReason/GetWeatherEvents",
+                    type: "POST",
+                    data: JSON.stringify(data),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    processData: false,
+                    success: function (response) {
+                        updateWeatherEventsDropdown(response);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error fetching weather events:", error);
+                    }
+                });
+            }, 100);
+        }
+
+        $("#ddlRequestedBy, #ddlRescheduleReason").on("change", function () {
+
+            toggleWeatherAlerts();
+        });
+
+        $("#ddlRescheduleApptCountry").on("change", function () {
+
+            var selectedCountries = $(this).val();
+
+            if (selectedCountries && selectedCountries.includes("USA")) {
+                $("#ddlRescheduleApptState").closest(".form-group").show();
+            } else {
+                $("#ddlRescheduleApptState").closest(".form-group").hide();
+                $("#ddlRescheduleApptState").val([]).trigger("change");
+            }
+        });
+
+    });
+
+
+    return {
+        initWeatherAlertControls: initWeatherAlertControls,
+        initweatherAlertModalControls: initweatherAlertModalControls,
+        loadWeatherAlerts: loadWeatherAlerts
+    };
+
+
+
+})();
+
