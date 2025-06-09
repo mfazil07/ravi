@@ -76,10 +76,18 @@
     </div>
     <input type="hidden" id="countriesData" value='@Html.Raw(Json.Serialize(Model.Country ?? new List<string>()))' />
     <input type="hidden" id="statesData" value='@Html.Raw(Json.Serialize(Model.State ?? new List<string>()))' />
-
+    <input type="hidden" id="weatherAlertCountryId" value="@idDDCountry" />
+    <input type="hidden" id="weatherAlertStateId" value="@idDDState" />
+    <input type="hidden" id="weatherAlertEventId" value="@idDDWeatherEvent" />
 </div>
-@section scripts {   
-    <script src="~/js/partner-portal/weatheralert.js"></script>
+@section scripts {
+    <script>
+        $(function () {
+            if (typeof weatheralert !== 'undefined') {
+                weatheralert.init(); 
+            }
+        });
+    </script>
 }
 @* <script> *@
 
