@@ -122,7 +122,8 @@ var weatheralert = (function () {
         var requestedByVal = $("#ddlRequestedBy option:selected").val();
         var rescheduleReasonVal = $("#ddlRescheduleReason option:selected").val();
 
-        if (requestedByVal && requestedByVal !== "VA" && rescheduleReasonVal === "COMRES39") {
+        if (requestedByVal && requestedByVal !== "6" //VA
+            && rescheduleReasonVal === "COMRES39") {
             $("#weatherAlertsSection").show();
 
             $('#' + countryId).val(selectedCountriesFromModel).trigger("change");
@@ -192,7 +193,7 @@ var weatheralert = (function () {
         }, 50);
     }
 
-    ///////
+  
     function initWeatherAlertReschedule() {   
         
             var countryId = $('#weatherAlertCountryId').val();
@@ -237,7 +238,7 @@ var weatheralert = (function () {
     }
     return {
         initWeatherAlertReschedule: initWeatherAlertReschedule,
-        initWeatherAlertControls: initWeatherAlertControls,
+        initWeatherAlertMultiSelectControls: initWeatherAlertMultiSelectControls,
         initweatherAlertModalControls: initweatherAlertModalControls,
         loadWeatherAlerts: loadWeatherAlerts
     };
