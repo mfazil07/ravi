@@ -1,5 +1,56 @@
-function clearMultiselect(selector) {
-    $(selector).val([]);
-    $(selector).multiselect('deselectAll', false);
-    $(selector).multiselect('refresh');
-}
+
+        [DataTestMethod]
+        [DataRow(1001, 1, true)]
+        [DataRow(1002, 1, false)]
+        public async Task Test_HasMappedAppointmentsAsync(long claimantId, long caseId, bool expectedResult)
+        {
+            // Arrange
+            _WeatherAlertData
+      .Setup(d => d.MappedInfoAsync(It.IsAny<long>(), It.IsAny<long>()))
+      .ReturnsAsync(new ResponseDto<WeatherAlertMappedInfo>
+      {
+          Entity = new WeatherAlertMappedInfo { /* Populate required properties */ },
+          StatusCode = HttpStatusCode.OK
+      });
+
+            // Act
+            var result = await _weatherAlertManager.MappedInfoAsync(claimantId, caseId);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+            Assert.AreEqual(expectedResult, result.Entity);
+        }
+
+
+/////
+
+
+
+  public async Task<ResponseDto<WeatherAlertMappedInfo>> MappedInfoAsync(long claimantId, long caseId)
+  {
+      if (claimantId <= 0)
+      {
+          return new ResponseDto<WeatherAlertMappedInfo>
+          {
+              Message = AppConstants.WARNING_INVALID_CLAIMANT_ID,
+              StatusCode = HttpStatusCode.BadRequest
+          };
+      }
+
+      if (caseId <= 0)
+      {
+          return new ResponseDto<WeatherAlertMappedInfo>
+          {
+              Message = AppConstants.WARNING_INVALID_CASE_ID,
+              StatusCode = HttpStatusCode.BadRequest
+          };
+      }
+
+
+      return new ResponseDto<WeatherAlertMappedInfo>
+      {
+          Entity = await _weatherAlertData.MappedInfoAsync(claimantId, caseId),
+          StatusCode = HttpStatusCode.OK
+      };
+  }
