@@ -1,3 +1,30 @@
-<footer>
-        <p class="p">Copyright 1980 - 2024 Leidos QTC Health Services</p>
-</footer>
+showHideTabularView().then(function (response) {
+            debugger;
+
+            // Update mapped countries/states
+            mappedCountries = response?.MappedCountries || [];
+            mappedStates = response?.MappedStates || [];
+
+            let selectedCountries = claimantCountry ? claimantCountry.split(",") : [];
+            selectedCountries = [...new Set([...selectedCountries, ...mappedCountries])];
+
+            $(".disable-on-mapped").prop("disabled", false);
+            $('#btnSaveWeatherAlerts').prop('disabled', true);
+            $("#selCountry").val(selectedCountries).trigger("change");
+
+            if (selectedCountries.includes("USA")) {
+                $("#stateContainer").show();
+                let selectedStates = claimantState ? claimantState.split(",") : [];
+                selectedStates = [...new Set([...selectedStates, ...mappedStates])];
+                $("#selState").val(selectedStates);
+            } else {
+                $("#stateContainer").hide();
+                $("#selState").val([]);
+            }
+
+            // Refresh UI
+            initWeatherAlertMultiSelectControls();
+            loadCaseLevelWeatherAlerts();
+            bindTabEvents();
+            bindCaseLevelEvents();
+            validateAndToggleSearchButton();
