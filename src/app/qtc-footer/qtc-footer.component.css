@@ -315,7 +315,7 @@ var weatheralert = (function () {
             },
             success: function (response) {
                 debugger;                
-                if (response) {
+                if (response.HasMappedAppt) {
                     $("#weather-alert-nav-bar").show();
                 } else {
                     $("#weather-alert-nav-bar").hide();
@@ -367,11 +367,43 @@ var weatheralert = (function () {
                 impactedAlerts: impactedAlerts
             },
             success: function (response) {
+                debugger;
                 if (response) {
                     displayAlert('Weather event case level mapping saved <b>successfully</b>!', 'success');
 
+                    showHideTabularView().then(function (response) {
+                        debugger;
+                        // Update mapped countries/states
+                        mappedCountries = response?.MappedCountries || [];
+                        mappedStates = response?.MappedStates || [];
+
+                        let selectedCountries = claimantCountry ? claimantCountry.split(",") : [];
+                        selectedCountries = [...new Set([...selectedCountries, ...mappedCountries])];
+
+                        $(".disable-on-mapped").prop("disabled", false);
+                        $('#btnSaveWeatherAlerts').prop('disabled', true);
+                        $("#selCountry").val(selectedCountries).trigger("change");
+                        $("#selCountry").multiselect('refresh');
+
+                        if (selectedCountries.includes("USA")) {
+                            $("#stateContainer").show();
+                            let selectedStates = claimantState ? claimantState.split(",") : [];
+                            selectedStates = [...new Set([...selectedStates, ...mappedStates])];
+                            $("#selState").val(selectedStates);
+                            $("#selState").multiselect('refresh');
+                        } else {
+                            $("#stateContainer").hide();
+                            $("#selState").val([]);
+                        }
+                    });
+                        //// Refresh UI
+                        //initWeatherAlertMultiSelectControls();
+                        //loadCaseLevelWeatherAlerts();
+                        //bindTabEvents();
+                        //bindCaseLevelEvents();
+                        //validateAndToggleSearchButton();
                     loadCaseLevelWeatherAlerts();
-                    showHideTabularView();
+                    
 
                     $('#btnSaveWeatherAlerts').prop('disabled', true);
                 }
