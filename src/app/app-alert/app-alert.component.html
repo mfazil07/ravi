@@ -1,19 +1,228 @@
-<div class="alert-container">
-    <div
-      *ngFor="let alert of alerts"
-      class="alert"
-      [@alertAnimation]
-      [ngClass]="'alert-' + alert.clrAlertType"
-    >
-        <clr-alert class="app-notification-wrapper" [clrAlertType]="alert.clrAlertType || 'success'"
-            (clrAlertClosedChange)="closeAlert(alert)" [clrAlertAppLevel]="alert.clrAlertAppLevel || true"
-            [clrAlertClosable]="alert.clrAlertClosable || true">
-            <clr-alert-item>
-                <span class="alert-text">
-                    {{alert.message}}
-                </span>
-            </clr-alert-item>
-        </clr-alert>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Provider Selection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .form-row {
+      display: flex;
+      gap: 40px;
+      margin-bottom: 20px;
+    }
+    .form-section {
+      flex: 1;
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    .form-section h2 {
+      margin-top: 0;
+    }
+    .form-group {
+      margin-bottom: 10px;
+    }
+    label {
+      font-weight: bold;
+      display: inline-block;
+      width: 140px;
+    }
+    select, input[type="text"] {
+      width: 200px;
+    }
+    .radio-group {
+      display: inline-block;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    button {
+      padding: 8px 12px;
+      margin-top: 10px;
+    }
+    .trash-btn {
+      cursor: pointer;
+      font-size: 18px;
+      color: red;
+      border: none;
+      background: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-row">
+    <div class="form-section">
+      <h2>Claimant Information</h2>
+      <div class="form-group">
+        <label>Claimant Name:</label>
+        <input type="text" value="DONOTUSE_SM_RICPIT10" readonly>
+      </div>
+      <div class="form-group">
+        <label>Claimant ID:</label>
+        <input type="text" value="5084526-1" readonly>
+      </div>
+      <div class="form-group">
+        <label>Sex:</label>
+        <input type="text" value="M" readonly>
+      </div>
+      <div class="form-group">
+        <label>Do not contact:</label>
+        <div class="radio-group">
+          <label><input type="radio" name="contact" value="yes"> Yes</label>
+          <label><input type="radio" name="contact" value="no" checked> No</label>
+        </div>
+      </div>
     </div>
-</div>
-  
+
+    <div class="form-section">
+      <h2>Provider Information</h2>
+      <div class="form-group">
+        <label>Specialty:</label>
+        <select><option>None Selected</option></select>
+      </div>
+      <div class="form-group">
+        <label>Gender:</label>
+        <select><option>Select Gender</option></select>
+      </div>
+      <div class="form-group">
+        <label>Provider:</label>
+        <select><option>Select Provider</option></select>
+      </div>
+      <div class="form-group">
+        <label>Location:</label>
+        <select><option>Select Location</option></select>
+      </div>
+      <button>Search</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Available Providers</h2>
+    <table id="availableTable">
+      <thead>
+        <tr>
+          <th>Select</th>
+          <th>Provider</th>
+          <th>Specialty</th>
+          <th>Location</th>
+          <th>Distance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="checkbox" onchange="moveToExcluded(this)"></td>
+          <td>83045 - PRITA BHARDWAJ</td>
+          <td>NPR</td>
+          <td>89620</td>
+          <td>40.15</td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" onchange="moveToExcluded(this)"></td>
+          <td>65022 - QTC MEDICAL GROUP</td>
+          <td>GEN</td>
+          <td>52</td>
+          <td>30.29</td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" onchange="moveToExcluded(this)"></td>
+          <td>80532 - QTC MEDICAL STAFFORD</td>
+          <td>GEN</td>
+          <td>62</td>
+          <td>45.67</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section excluded-table">
+    <h2>Selected Providers to Exclude</h2>
+    <table id="excludedTable">
+      <thead>
+        <tr>
+          <th>Delete</th>
+          <th>Provider</th>
+          <th>Specialty</th>
+          <th>Location</th>
+          <th>Distance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rows added dynamically -->
+      </tbody>
+    </table>
+    <button>Save Provider List</button>
+  </div>
+
+  <script>
+    function moveToExcluded(checkbox) {
+      const row = checkbox.closest('tr');
+      const cells = row.querySelectorAll('td');
+      const providerId = cells[1].innerText;
+      const excludedTableBody = document.getElementById('excludedTable').querySelector('tbody');
+      const availableTableBody = document.getElementById('availableTable').querySelector('tbody');
+
+      // Avoid duplicates
+      if ([...excludedTableBody.rows].some(r => r.cells[1].innerText === providerId)) return;
+
+      // Add to excluded
+      const newRow = excludedTableBody.insertRow();
+      const deleteCell = newRow.insertCell();
+      const trashBtn = document.createElement('button');
+      trashBtn.className = 'trash-btn';
+      trashBtn.innerHTML = '🗑️';
+      trashBtn.onclick = () => restoreToAvailable(providerId, newRow);
+      deleteCell.appendChild(trashBtn);
+
+      for (let i = 1; i < cells.length; i++) {
+        const newCell = newRow.insertCell();
+        newCell.innerText = cells[i].innerText;
+      }
+
+      // Remove from available
+      row.remove();
+    }
+
+    function restoreToAvailable(providerId, rowToRemove) {
+      const excludedTableBody = document.getElementById('excludedTable').querySelector('tbody');
+      const availableTableBody = document.getElementById('availableTable').querySelector('tbody');
+
+      // Extract data from row before removing
+      const provider = rowToRemove.cells[1].innerText;
+      const specialty = rowToRemove.cells[2].innerText;
+      const location = rowToRemove.cells[3].innerText;
+      const distance = rowToRemove.cells[4].innerText;
+
+      // Remove from excluded
+      excludedTableBody.removeChild(rowToRemove);
+
+      // Restore to available
+      const newRow = availableTableBody.insertRow();
+      const checkboxCell = newRow.insertCell();
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.onchange = function () { moveToExcluded(this); };
+      checkboxCell.appendChild(checkbox);
+
+      newRow.insertCell().innerText = provider;
+      newRow.insertCell().innerText = specialty;
+      newRow.insertCell().innerText = location;
+      newRow.insertCell().innerText = distance;
+    }
+  </script>
+
+</body>
+</html>
