@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Provider Exclusion Form</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
+    <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
@@ -108,6 +108,18 @@
     .radio-option {
       margin-bottom: 5px;
     }
+    .provider-flex {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+    }
+    .provider-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -186,13 +198,18 @@
 
     <!-- Provider Section -->
     <div class="form-section">
-      <h2>Provider Information</h2>
+    <h2>Provider Information</h2>
+    <div class="provider-flex">
       <div class="form-group"><label>Specialty:</label><select><option>None Selected</option></select></div>
       <div class="form-group"><label>Gender:</label><select><option>Select Gender</option></select></div>
       <div class="form-group"><label>Provider:</label><select><option>Select Provider</option></select></div>
       <div class="form-group"><label>Location:</label><select><option>Select Location</option></select></div>
-      <button>Search</button>
     </div>
+    <div class="provider-actions">
+      <button>Search</button>
+      <button type="reset">Reset</button>
+    </div>
+  </div>
 
     <!-- Available Providers Table -->
     <div class="form-section">
