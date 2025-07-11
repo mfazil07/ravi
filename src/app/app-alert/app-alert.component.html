@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Provider Exclusion Form</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
@@ -40,7 +40,10 @@
       width: 140px;
       margin-right: 10px;
     }
-    input[type="text"], select, .form-group span, textarea {
+    input[type="text"],
+    select,
+    .form-group span,
+    textarea {
       width: 200px;
     }
     .form-group span {
@@ -55,7 +58,8 @@
       border-collapse: collapse;
       margin-top: 10px;
     }
-    th, td {
+    th,
+    td {
       border: 1px solid #ccc;
       padding: 8px;
       text-align: left;
@@ -66,6 +70,7 @@
     button {
       padding: 8px 12px;
       margin-top: 10px;
+      cursor: pointer;
     }
     .trash-btn {
       cursor: pointer;
@@ -90,6 +95,7 @@
       background-color: white;
       cursor: pointer;
       width: 100%;
+      user-select: none;
     }
     .dropdown-content {
       position: absolute;
@@ -119,6 +125,10 @@
       justify-content: flex-end;
       gap: 10px;
       margin-top: 10px;
+    }
+    #selectionActions {
+      margin-top: 10px;
+      display: none;
     }
   </style>
 </head>
@@ -157,11 +167,24 @@
           <div class="dropdown-button" onclick="toggleDropdown()">Select</div>
           <div class="dropdown-content">
             <div class="radio-option">
-              <input type="radio" id="contactYes" name="doNotContact" value="yes" onchange="updateDropdownLabel()">
+              <input
+                type="radio"
+                id="contactYes"
+                name="doNotContact"
+                value="yes"
+                onchange="updateDropdownLabel()"
+              />
               <label for="contactYes">Yes</label>
             </div>
             <div class="radio-option">
-              <input type="radio" id="contactNo" name="doNotContact" value="no" onchange="updateDropdownLabel()" checked>
+              <input
+                type="radio"
+                id="contactNo"
+                name="doNotContact"
+                value="no"
+                onchange="updateDropdownLabel()"
+                checked
+              />
               <label for="contactNo">No</label>
             </div>
           </div>
@@ -169,7 +192,11 @@
       </div>
       <div class="form-group">
         <label>Comments:</label>
-        <textarea id="comments" maxlength="500" placeholder="Enter comments (max 500 characters)"></textarea>
+        <textarea
+          id="comments"
+          maxlength="500"
+          placeholder="Enter comments (max 500 characters)"
+        ></textarea>
       </div>
       <div class="form-group">
         <label></label>
@@ -198,18 +225,30 @@
 
     <!-- Provider Section -->
     <div class="form-section">
-    <h2>Provider Information</h2>
-    <div class="provider-flex">
-      <div class="form-group"><label>Specialty:</label><select><option>None Selected</option></select></div>
-      <div class="form-group"><label>Gender:</label><select><option>Select Gender</option></select></div>
-      <div class="form-group"><label>Provider:</label><select><option>Select Provider</option></select></div>
-      <div class="form-group"><label>Location:</label><select><option>Select Location</option></select></div>
+      <h2>Provider Information</h2>
+      <div class="provider-flex">
+        <div class="form-group">
+          <label>Specialty:</label>
+          <select><option>None Selected</option></select>
+        </div>
+        <div class="form-group">
+          <label>Gender:</label>
+          <select><option>Select Gender</option></select>
+        </div>
+        <div class="form-group">
+          <label>Provider:</label>
+          <select><option>Select Provider</option></select>
+        </div>
+        <div class="form-group">
+          <label>Location:</label>
+          <select><option>Select Location</option></select>
+        </div>
+      </div>
+      <div class="provider-actions">
+        <button>Search</button>
+        <button type="reset">Reset</button>
+      </div>
     </div>
-    <div class="provider-actions">
-      <button>Search</button>
-      <button type="reset">Reset</button>
-    </div>
-  </div>
 
     <!-- Available Providers Table -->
     <div class="form-section">
@@ -218,36 +257,53 @@
         <thead>
           <tr>
             <th>Select</th>
-            <th>Provider</th>
+            <th>Provider ID</th>
+            <th>Provider Name</th>
             <th>Specialty</th>
             <th>Location</th>
             <th>Distance</th>
+            <th>Date</th>
+            <th>Phone #</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><input type="checkbox" onchange="moveToExcluded(this)"></td>
-            <td>83045 - PRITA BHARDWAJ</td>
+            <td><input type="checkbox" onchange="handleSelectionChange()" /></td>
+            <td>83045</td>
+            <td>PRITA BHARDWAJ</td>
             <td>NPR</td>
             <td>89620</td>
             <td>40.15</td>
+            <td>07/01/2025</td>
+            <td>(555) 123-4567</td>
           </tr>
           <tr>
-            <td><input type="checkbox" onchange="moveToExcluded(this)"></td>
-            <td>65022 - QTC MEDICAL GROUP</td>
+            <td><input type="checkbox" onchange="handleSelectionChange()" /></td>
+            <td>65022</td>
+            <td>QTC MEDICAL GROUP</td>
             <td>GEN</td>
             <td>52</td>
             <td>30.29</td>
+            <td>06/15/2025</td>
+            <td>(555) 987-6543</td>
           </tr>
           <tr>
-            <td><input type="checkbox" onchange="moveToExcluded(this)"></td>
-            <td>80532 - QTC MEDICAL STAFFORD</td>
+            <td><input type="checkbox" onchange="handleSelectionChange()" /></td>
+            <td>80532</td>
+            <td>QTC MEDICAL STAFFORD</td>
             <td>GEN</td>
             <td>62</td>
             <td>45.67</td>
+            <td>07/07/2025</td>
+            <td>(555) 555-7890</td>
           </tr>
         </tbody>
       </table>
+      <div id="selectionActions">
+        <label for="providerComments" style="font-weight:bold;">Comments:</label><br />
+        <textarea id="providerComments" placeholder="Enter comments here (optional)" maxlength="500"></textarea><br />
+        <button onclick="addSelectedToExclude()">Add to Exclude</button>
+      </div>
     </div>
 
     <!-- Excluded Providers Table -->
@@ -257,31 +313,38 @@
         <thead>
           <tr>
             <th>Delete</th>
-            <th>Provider</th>
+            <th>Provider ID</th>
+            <th>Provider Name</th>
             <th>Specialty</th>
             <th>Location</th>
             <th>Distance</th>
+            <th>Date</th>
+            <th>Phone #</th>
+            <th>Comments</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
-      <button>Save Provider List</button>
+     <div style="text-align: right; margin-top: 10px;">
+  <button>Save Provider List</button>
+</div>
     </div>
   </div>
 
   <script>
+    // Do Not Contact Dropdown
     function toggleDropdown() {
       document.getElementById("doNotContactDropdown").classList.toggle("open");
     }
 
     function updateDropdownLabel() {
       const selected = document.querySelector('input[name="doNotContact"]:checked');
-      const label = selected ? selected.nextElementSibling.innerText : 'Select';
+      const label = selected ? selected.nextElementSibling.innerText : "Select";
       document.querySelector("#doNotContactDropdown .dropdown-button").innerText = label;
       toggleDropdown();
     }
 
-    window.addEventListener('click', function (e) {
+    window.addEventListener("click", function (e) {
       const dropdown = document.getElementById("doNotContactDropdown");
       if (!dropdown.contains(e.target)) {
         dropdown.classList.remove("open");
@@ -313,52 +376,82 @@
       updateDropdownLabel();
     }
 
-    function moveToExcluded(checkbox) {
-      const row = checkbox.closest('tr');
-      const cells = row.querySelectorAll('td');
-      const providerId = cells[1].innerText;
-      const excludedTableBody = document.getElementById('excludedTable').querySelector('tbody');
+    // Handle showing comments box and Add to Exclude button
+    function handleSelectionChange() {
+      const checkboxes = document.querySelectorAll('#availableTable tbody input[type="checkbox"]:checked');
+      const selectionActions = document.getElementById("selectionActions");
+      selectionActions.style.display = checkboxes.length > 0 ? "block" : "none";
+    }
 
-      if ([...excludedTableBody.rows].some(r => r.cells[1].innerText === providerId)) return;
+    // Add selected providers to excluded list with comments
+    function addSelectedToExclude() {
+      const checkboxes = document.querySelectorAll('#availableTable tbody input[type="checkbox"]:checked');
+      const excludedTableBody = document.getElementById("excludedTable").querySelector("tbody");
+      const comment = document.getElementById("providerComments").value.trim();
 
-      const newRow = excludedTableBody.insertRow();
-      const deleteCell = newRow.insertCell();
-      const trashBtn = document.createElement('button');
-      trashBtn.className = 'trash-btn';
-      trashBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-      trashBtn.onclick = () => restoreToAvailable(providerId, newRow);
-      deleteCell.appendChild(trashBtn);
+      checkboxes.forEach((cb) => {
+        const row = cb.closest("tr");
+        const cells = row.querySelectorAll("td");
+        const providerId = cells[1].innerText;
 
-      for (let i = 1; i < cells.length; i++) {
+        // Prevent duplicates in excluded list
+        if ([...excludedTableBody.rows].some((r) => r.cells[1].innerText === providerId)) return;
+
+        const newRow = excludedTableBody.insertRow();
+
+        // Delete button cell
+        const deleteCell = newRow.insertCell();
+        const trashBtn = document.createElement("button");
+        trashBtn.className = "trash-btn";
+        trashBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        trashBtn.onclick = () => restoreToAvailable(providerId, newRow);
+        deleteCell.appendChild(trashBtn);
+
+        // Copy provider info cells (excluding checkbox)
+        for (let i = 1; i < cells.length; i++) {
+          const newCell = newRow.insertCell();
+          newCell.innerText = cells[i].innerText;
+        }
+
+        // Comments cell
+        const commentCell = newRow.insertCell();
+        commentCell.innerText = comment;
+
+        // Remove from available list
+        row.remove();
+      });
+
+      // Clear textarea and hide selection actions
+      document.getElementById("providerComments").value = "";
+      document.getElementById("selectionActions").style.display = "none";
+    }
+
+    // Restore provider from excluded to available list
+    function restoreToAvailable(providerId, rowToRemove) {
+      const excludedTableBody = document.getElementById("excludedTable").querySelector("tbody");
+      const availableTableBody = document.getElementById("availableTable").querySelector("tbody");
+
+      const cells = rowToRemove.querySelectorAll("td");
+      const newRow = availableTableBody.insertRow();
+
+      // Checkbox cell
+      const checkboxCell = newRow.insertCell();
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.onchange = handleSelectionChange;
+      checkboxCell.appendChild(checkbox);
+
+      // Add provider data cells (skip delete and comments cells)
+      // cells index: 0=delete btn, 1=ID, 2=Name, 3=Specialty, 4=Location, 5=Distance, 6=Date, 7=Phone, 8=Comments
+      for (let i = 1; i <= 7; i++) {
         const newCell = newRow.insertCell();
         newCell.innerText = cells[i].innerText;
       }
 
-      row.remove();
-    }
-
-    function restoreToAvailable(providerId, rowToRemove) {
-      const excludedTableBody = document.getElementById('excludedTable').querySelector('tbody');
-      const availableTableBody = document.getElementById('availableTable').querySelector('tbody');
-
-      const provider = rowToRemove.cells[1].innerText;
-      const specialty = rowToRemove.cells[2].innerText;
-      const location = rowToRemove.cells[3].innerText;
-      const distance = rowToRemove.cells[4].innerText;
-
       excludedTableBody.removeChild(rowToRemove);
 
-      const newRow = availableTableBody.insertRow();
-      const checkboxCell = newRow.insertCell();
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.onchange = function () { moveToExcluded(this); };
-      checkboxCell.appendChild(checkbox);
-
-      newRow.insertCell().innerText = provider;
-      newRow.insertCell().innerText = specialty;
-      newRow.insertCell().innerText = location;
-      newRow.insertCell().innerText = distance;
+      // Update selection actions visibility (in case checkbox was checked)
+      handleSelectionChange();
     }
   </script>
 </body>
