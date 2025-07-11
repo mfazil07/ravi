@@ -2,63 +2,114 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Provider Selection</title>
+  <title>Provider Exclusion Form</title>
+
+  <!-- Font Awesome for delete icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
     }
+
     .form-row {
       display: flex;
       gap: 40px;
       margin-bottom: 20px;
     }
+
     .form-section {
       flex: 1;
       border: 1px solid #ccc;
       padding: 15px;
       border-radius: 5px;
     }
+
     .form-section h2 {
       margin-top: 0;
     }
+
     .form-group {
       margin-bottom: 10px;
+      display: flex;
+      align-items: center;
     }
+
     label {
       font-weight: bold;
-      display: inline-block;
       width: 140px;
+      margin-right: 10px;
     }
+
     select, input[type="text"] {
       width: 200px;
     }
-    .radio-group {
-      display: inline-block;
-    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
     }
+
     th, td {
       border: 1px solid #ccc;
       padding: 8px;
       text-align: left;
     }
+
     th {
       background-color: #f2f2f2;
     }
+
     button {
       padding: 8px 12px;
       margin-top: 10px;
     }
+
     .trash-btn {
       cursor: pointer;
-      font-size: 18px;
-      color: red;
       border: none;
       background: none;
+    }
+
+    .trash-btn i {
+      font-size: 16px;
+      color: red;
+    }
+
+    /* Custom Dropdown */
+    .custom-dropdown {
+      position: relative;
+      width: 200px;
+    }
+
+    .dropdown-button {
+      border: 1px solid #ccc;
+      padding: 8px;
+      background-color: white;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .dropdown-content {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 1;
+      background-color: white;
+      border: 1px solid #ccc;
+      width: 100%;
+      display: none;
+      padding: 10px;
+    }
+
+    .custom-dropdown.open .dropdown-content {
+      display: block;
+    }
+
+    .radio-option {
+      margin-bottom: 5px;
     }
   </style>
 </head>
@@ -81,9 +132,18 @@
       </div>
       <div class="form-group">
         <label>Do not contact:</label>
-        <div class="radio-group">
-          <label><input type="radio" name="contact" value="yes"> Yes</label>
-          <label><input type="radio" name="contact" value="no" checked> No</label>
+        <div class="custom-dropdown" id="doNotContactDropdown">
+          <div class="dropdown-button" onclick="toggleDropdown()">Select</div>
+          <div class="dropdown-content">
+            <div class="radio-option">
+              <input type="radio" id="contactYes" name="doNotContact" value="yes" onchange="updateDropdownLabel()">
+              <label for="contactYes">Yes</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="contactNo" name="doNotContact" value="no" onchange="updateDropdownLabel()" checked>
+              <label for="contactNo">No</label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -161,7 +221,7 @@
         </tr>
       </thead>
       <tbody>
-        <!-- Rows added dynamically -->
+        <!-- Dynamically added rows -->
       </tbody>
     </table>
     <button>Save Provider List</button>
@@ -173,17 +233,14 @@
       const cells = row.querySelectorAll('td');
       const providerId = cells[1].innerText;
       const excludedTableBody = document.getElementById('excludedTable').querySelector('tbody');
-      const availableTableBody = document.getElementById('availableTable').querySelector('tbody');
 
-      // Avoid duplicates
       if ([...excludedTableBody.rows].some(r => r.cells[1].innerText === providerId)) return;
 
-      // Add to excluded
       const newRow = excludedTableBody.insertRow();
       const deleteCell = newRow.insertCell();
       const trashBtn = document.createElement('button');
       trashBtn.className = 'trash-btn';
-      trashBtn.innerHTML = '🗑️';
+      trashBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
       trashBtn.onclick = () => restoreToAvailable(providerId, newRow);
       deleteCell.appendChild(trashBtn);
 
@@ -192,24 +249,20 @@
         newCell.innerText = cells[i].innerText;
       }
 
-      // Remove from available
-      row.remove();
+      row.remove(); // Remove from available
     }
 
     function restoreToAvailable(providerId, rowToRemove) {
       const excludedTableBody = document.getElementById('excludedTable').querySelector('tbody');
       const availableTableBody = document.getElementById('availableTable').querySelector('tbody');
 
-      // Extract data from row before removing
       const provider = rowToRemove.cells[1].innerText;
       const specialty = rowToRemove.cells[2].innerText;
       const location = rowToRemove.cells[3].innerText;
       const distance = rowToRemove.cells[4].innerText;
 
-      // Remove from excluded
       excludedTableBody.removeChild(rowToRemove);
 
-      // Restore to available
       const newRow = availableTableBody.insertRow();
       const checkboxCell = newRow.insertCell();
       const checkbox = document.createElement('input');
@@ -222,6 +275,24 @@
       newRow.insertCell().innerText = location;
       newRow.insertCell().innerText = distance;
     }
+
+    function toggleDropdown() {
+      document.getElementById("doNotContactDropdown").classList.toggle("open");
+    }
+
+    function updateDropdownLabel() {
+      const selected = document.querySelector('input[name="doNotContact"]:checked');
+      const label = selected ? selected.nextElementSibling.innerText : 'Select';
+      document.querySelector("#doNotContactDropdown .dropdown-button").innerText = label;
+      toggleDropdown();
+    }
+
+    window.addEventListener('click', function (e) {
+      const dropdown = document.getElementById("doNotContactDropdown");
+      if (!dropdown.contains(e.target)) {
+        dropdown.classList.remove("open");
+      }
+    });
   </script>
 
 </body>
